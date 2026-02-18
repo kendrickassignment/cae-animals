@@ -13,6 +13,12 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        display: ["Oswald", "Arial Narrow", "sans-serif"],
+        nav: ["Raleway", "sans-serif"],
+        body: ["Arimo", "sans-serif"],
+        mono: ["JetBrains Mono", "Fira Code", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,6 +63,27 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        affa: {
+          yellow: "hsl(var(--affa-yellow))",
+          blue: "hsl(var(--affa-blue))",
+          "action-blue": "hsl(var(--affa-action-blue))",
+          teal: "hsl(var(--affa-teal))",
+          dark: "hsl(var(--affa-dark))",
+          medium: "hsl(var(--affa-medium))",
+          surface: "hsl(var(--affa-surface))",
+        },
+        risk: {
+          critical: "hsl(var(--risk-critical))",
+          "critical-bg": "hsl(var(--risk-critical-bg))",
+          high: "hsl(var(--risk-high))",
+          "high-bg": "hsl(var(--risk-high-bg))",
+          medium: "hsl(var(--risk-medium))",
+          "medium-bg": "hsl(var(--risk-medium-bg))",
+          low: "hsl(var(--risk-low))",
+          "low-bg": "hsl(var(--risk-low-bg))",
+          none: "hsl(var(--risk-none))",
+          "none-bg": "hsl(var(--risk-none-bg))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,25 +92,23 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      transitionTimingFunction: {
+        affa: "ease",
+      },
+      transitionDuration: {
+        affa: "400ms",
       },
     },
   },
