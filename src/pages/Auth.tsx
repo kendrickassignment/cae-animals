@@ -45,7 +45,7 @@ export default function Auth() {
       {/* Left panel - brand */}
       <div className="hidden md:flex w-1/2 bg-primary items-center justify-center p-12">
         <div className="text-center">
-          <img src={caeLogoDark} alt="CAE Logo" className="h-16 mb-4" />
+          <img src={caeLogoDark} alt="CAE Logo" className="h-16 mb-4 mix-blend-multiply" />
           <p className="font-nav text-sm text-primary-foreground/70 tracking-widest mb-6">
             CORPORATE ACCOUNTABILITY ENGINE
           </p>
