@@ -3,6 +3,7 @@ import { Upload, Search, FileText, Shield, VolumeX, Globe, Store, Clock } from "
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/layout/Footer";
 import { useEffect, useRef, useState } from "react";
+import caeLogoDark from "@/assets/cae-logo-dark.png";
 
 const evasionPatterns = [
   { icon: Shield, title: "HEDGING LANGUAGE", desc: "Non-binding phrases like 'we aim to' or 'where feasible' that sound like commitments but are not." },
@@ -37,9 +38,9 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       {/* Top Bar */}
       <nav className="bg-primary h-16 flex items-center px-6 sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <h1 className="font-display text-2xl text-primary-foreground tracking-wide">CAE</h1>
-          <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">by Sinergia Animal International</span>
+        <div className="flex items-center gap-3">
+          <img src={caeLogoDark} alt="CAE Logo" className="h-10" />
+          <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">Corporate Accountability Engine</span>
         </div>
         <div className="flex-1" />
         <div className="flex items-center gap-3">

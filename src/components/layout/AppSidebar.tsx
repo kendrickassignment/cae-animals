@@ -2,6 +2,7 @@ import { LayoutDashboard, Upload, Building2, Settings, LogOut, X } from "lucide-
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import caeLogo from "@/assets/cae-logo.png";
 
 const navItems = [
   { title: "DASHBOARD", path: "/dashboard", icon: LayoutDashboard },
@@ -36,12 +37,7 @@ export default function AppSidebar({ open, onClose }: AppSidebarProps) {
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="font-display text-2xl text-sidebar-foreground tracking-wide">
-                <span className="text-sidebar-primary">●</span> CAE
-              </h1>
-              <p className="font-nav text-[11px] text-sidebar-foreground/50 tracking-wider mt-0.5">
-                SINERGIA ANIMAL
-              </p>
+              <img src={caeLogo} alt="CAE Logo" className="h-10" />
             </div>
             <button className="lg:hidden text-sidebar-foreground/60 hover:text-sidebar-foreground" onClick={onClose}>
               <X className="h-5 w-5" />
