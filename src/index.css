@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* AFFA Brand - Light Theme */
+    /* CAE Brand - Light Theme */
     --background: 0 0% 99.6%;
     --foreground: 0 0% 20%;
 
@@ -37,16 +37,16 @@
 
     --radius: 0.75rem;
 
-    /* AFFA Extended Palette */
-    --affa-yellow: 49 98% 52%;
-    --affa-blue: 219 100% 68%;
-    --affa-action-blue: 207 53% 48%;
-    --affa-teal: 178 100% 29%;
-    --affa-dark: 0 0% 20%;
-    --affa-medium: 0 0% 40%;
-    --affa-light-border: 0 0% 80%;
-    --affa-offwhite: 0 0% 99.6%;
-    --affa-surface: 240 5% 96%;
+    /* CAE Extended Palette */
+    --cae-yellow: 49 98% 52%;
+    --cae-blue: 219 100% 68%;
+    --cae-action-blue: 207 53% 48%;
+    --cae-teal: 178 100% 29%;
+    --cae-dark: 0 0% 20%;
+    --cae-medium: 0 0% 40%;
+    --cae-light-border: 0 0% 80%;
+    --cae-offwhite: 0 0% 99.6%;
+    --cae-surface: 240 5% 96%;
 
     /* Risk Colors */
     --risk-critical: 0 72% 51%;

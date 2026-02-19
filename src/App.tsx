@@ -13,6 +13,7 @@ import SettingsPage from "./pages/Settings";
 import UploadPage from "./pages/UploadPage";
 import AppLayout from "./components/layout/AppLayout";
 import Contact from "./pages/Contact";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/companies" element={<Companies />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/upload" element={<UploadPage />} />
+              <Route path="/about" element={<About />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

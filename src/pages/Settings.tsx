@@ -9,7 +9,7 @@ import { saveBackendUrl, saveProviderConfig, getStoredBackendUrl, getStoredProvi
 export default function SettingsPage() {
   const { user } = useAuth();
   const [fullName, setFullName] = useState("");
-  const [organization, setOrganization] = useState("AFFA");
+  const [organization, setOrganization] = useState("CAE");
   const [backendUrl, setBackendUrl] = useState(getStoredBackendUrl());
   const [provider, setProvider] = useState(getStoredProvider());
   const [apiKey, setApiKey] = useState("");
