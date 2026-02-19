@@ -63,14 +63,14 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        affa: {
-          yellow: "hsl(var(--affa-yellow))",
-          blue: "hsl(var(--affa-blue))",
-          "action-blue": "hsl(var(--affa-action-blue))",
-          teal: "hsl(var(--affa-teal))",
-          dark: "hsl(var(--affa-dark))",
-          medium: "hsl(var(--affa-medium))",
-          surface: "hsl(var(--affa-surface))",
+        cae: {
+          yellow: "hsl(var(--cae-yellow))",
+          blue: "hsl(var(--cae-blue))",
+          "action-blue": "hsl(var(--cae-action-blue))",
+          teal: "hsl(var(--cae-teal))",
+          dark: "hsl(var(--cae-dark))",
+          medium: "hsl(var(--cae-medium))",
+          surface: "hsl(var(--cae-surface))",
         },
         risk: {
           critical: "hsl(var(--risk-critical))",

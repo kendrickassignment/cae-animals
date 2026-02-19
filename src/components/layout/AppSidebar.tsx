@@ -1,5 +1,5 @@
-import { LayoutDashboard, Upload, Building2, Settings, LogOut, X } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { LayoutDashboard, Upload, Building2, Settings, Info, LogOut, X } from "lucide-react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import caeLogo from "@/assets/cae-logo.png";
@@ -9,6 +9,7 @@ const navItems = [
   { title: "NEW ANALYSIS", path: "/upload", icon: Upload },
   { title: "COMPANIES", path: "/companies", icon: Building2 },
   { title: "SETTINGS", path: "/settings", icon: Settings },
+  { title: "ABOUT", path: "/about", icon: Info },
 ];
 
 interface AppSidebarProps {
@@ -19,6 +20,12 @@ interface AppSidebarProps {
 export default function AppSidebar({ open, onClose }: AppSidebarProps) {
   const { user, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <>
@@ -34,10 +41,11 @@ export default function AppSidebar({ open, onClose }: AppSidebarProps) {
         )}
       >
         {/* Logo */}
-        <div className="p-6 pb-4">
+        <div className="px-6 pt-6 pb-4">
           <div className="flex items-center justify-between">
             <div>
-              <img src={caeLogo} alt="CAE Logo" className="h-10" />
+              <img src={caeLogo} alt="CAE Logo" className="w-[120px]" />
+              <p className="font-nav text-[11px] uppercase tracking-[1px] text-muted-foreground mt-1.5">Truth. Extracted.</p>
             </div>
             <button className="lg:hidden text-sidebar-foreground/60 hover:text-sidebar-foreground" onClick={onClose}>
               <X className="h-5 w-5" />
@@ -79,7 +87,7 @@ export default function AppSidebar({ open, onClose }: AppSidebarProps) {
             </div>
           </div>
           <button
-            onClick={signOut}
+            onClick={handleSignOut}
             className="flex items-center gap-2 mt-3 text-sidebar-foreground/50 hover:text-sidebar-foreground text-xs font-nav tracking-wider transition-colors duration-affa"
           >
             <LogOut className="h-3 w-3" />
