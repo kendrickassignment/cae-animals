@@ -12,6 +12,7 @@ import Companies from "./pages/Companies";
 import SettingsPage from "./pages/Settings";
 import UploadPage from "./pages/UploadPage";
 import AppLayout from "./components/layout/AppLayout";
+import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/contact" element={<Contact />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/analysis/:id" element={<AnalysisDetail />} />

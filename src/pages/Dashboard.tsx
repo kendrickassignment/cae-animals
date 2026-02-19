@@ -41,7 +41,7 @@ export default function Dashboard() {
   const riskDistribution = useMemo(() => {
     const counts: Record<string, number> = { critical: 0, high: 0, medium: 0, low: 0 };
     seedAnalyses.forEach(a => { counts[a.overall_risk_level] = (counts[a.overall_risk_level] || 0) + 1; });
-    return Object.entries(counts).filter(([, v]) => v > 0).map(([name, value]) => ({ name, value }));
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
   }, []);
 
   return (
@@ -51,7 +51,7 @@ export default function Dashboard() {
         {[
           { label: "Total Reports", value: stats.totalReports, icon: FileText, color: "text-foreground" },
           { label: "Companies Tracked", value: stats.totalCompanies, icon: Building2, color: "text-foreground" },
-          { label: "High Risk Findings", value: stats.highRisk, icon: AlertTriangle, color: "text-risk-critical" },
+          { label: "High Risk Findings", value: stats.highRisk, icon: AlertTriangle, color: "text-destructive" },
           { label: "Avg Risk Score", value: stats.avgScore, icon: BarChart3, color: "text-risk-high" },
         ].map((stat, i) => (
           <div key={stat.label} className="bg-card rounded-lg p-5 border border-border shadow-sm border-t-[3px] border-t-primary animate-float-in" style={{ animationDelay: `${i * 80}ms` }}>
