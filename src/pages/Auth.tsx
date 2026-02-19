@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import caeLogoDark from "@/assets/cae-logo-dark.png";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -44,7 +45,7 @@ export default function Auth() {
       {/* Left panel - brand */}
       <div className="hidden md:flex w-1/2 bg-primary items-center justify-center p-12">
         <div className="text-center">
-          <h1 className="font-display text-6xl text-primary-foreground mb-4">CAE</h1>
+          <img src={caeLogoDark} alt="CAE Logo" className="h-16 mb-4" />
           <p className="font-nav text-sm text-primary-foreground/70 tracking-widest mb-6">
             CORPORATE ACCOUNTABILITY ENGINE
           </p>
