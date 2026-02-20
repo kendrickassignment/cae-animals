@@ -1,19 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { saveBackendUrl, saveProviderConfig, getStoredBackendUrl, getStoredProvider, healthCheck, testProvider } from "@/services/api";
 
 export default function SettingsPage() {
   const { user } = useAuth();
   const [fullName, setFullName] = useState("");
   const [organization, setOrganization] = useState("CAE");
+  const [savingProfile, setSavingProfile] = useState(false);
   const [backendUrl, setBackendUrl] = useState(getStoredBackendUrl());
   const [provider, setProvider] = useState(getStoredProvider());
   const [apiKey, setApiKey] = useState("");
   const [testing, setTesting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("full_name, organization").eq("id", user.id).single().then(({ data }) => {
+      if (data) {
+        setFullName(data.full_name || "");
+        setOrganization(data.organization || "CAE");
+      }
+    });
+  }, [user]);
+
+  const handleUpdateProfile = async () => {
+    if (!user) return;
+    setSavingProfile(true);
+    try {
+      const { error } = await supabase.from("profiles").update({ full_name: fullName, organization }).eq("id", user.id);
+      if (error) throw error;
+      toast.success("Profile updated!");
+    } catch {
+      toast.error("Failed to update profile.");
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   const handleTestConnection = async () => {
     setTesting(true);
@@ -38,6 +65,26 @@ export default function SettingsPage() {
     toast.success("API settings saved!");
   };
 
+  const handleDeleteData = async () => {
+    if (!user) return;
+    if (!window.confirm("Are you sure you want to delete ALL your data? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      const { data: reports } = await supabase.from("reports").select("id").eq("user_id", user.id);
+      if (reports && reports.length > 0) {
+        const reportIds = reports.map(r => r.id);
+        await supabase.from("findings").delete().in("report_id", reportIds);
+        await supabase.from("analysis_results").delete().in("report_id", reportIds);
+        await supabase.from("reports").delete().eq("user_id", user.id);
+      }
+      toast.success("All your data has been deleted.");
+    } catch {
+      toast.error("Failed to delete data. Some tables may not allow deletion.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-2xl animate-fade-in">
       <h1 className="font-display text-4xl text-foreground">SETTINGS</h1>
@@ -58,7 +105,9 @@ export default function SettingsPage() {
             <Label className="font-body text-sm">Organization</Label>
             <Input value={organization} onChange={e => setOrganization(e.target.value)} className="font-body" />
           </div>
-          <Button className="font-body font-bold text-sm">UPDATE PROFILE</Button>
+          <Button className="font-body font-bold text-sm" onClick={handleUpdateProfile} disabled={savingProfile}>
+            {savingProfile ? "SAVING..." : "UPDATE PROFILE"}
+          </Button>
         </div>
       </div>
 
@@ -96,7 +145,9 @@ export default function SettingsPage() {
       <div className="bg-card rounded-lg border-2 border-destructive/30 p-6">
         <h3 className="font-display text-lg text-destructive">DANGER ZONE</h3>
         <p className="font-body text-sm text-muted-foreground mt-2 mb-4">Permanently delete all your data including reports, analyses, and findings.</p>
-        <Button variant="destructive" className="font-body font-bold text-sm">DELETE ALL MY DATA</Button>
+        <Button variant="destructive" className="font-body font-bold text-sm" onClick={handleDeleteData} disabled={deleting}>
+          {deleting ? "DELETING..." : "DELETE ALL MY DATA"}
+        </Button>
       </div>
     </div>
   );

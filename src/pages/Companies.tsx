@@ -1,9 +1,11 @@
 import { useState, useMemo } from "react";
-import { seedCompanies, getRiskBgColor, getRiskColor } from "@/data/seed-data";
+import { useNavigate } from "react-router-dom";
+import { seedCompanies, seedAnalyses, getRiskBgColor, getRiskColor } from "@/data/seed-data";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 export default function Companies() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState("all");
   const [riskFilter, setRiskFilter] = useState("all");
@@ -16,6 +18,11 @@ export default function Companies() {
       return true;
     });
   }, [search, industryFilter, riskFilter]);
+
+  const getCompanyAnalysisId = (companyName: string) => {
+    const analysis = seedAnalyses.find(a => a.company_name === companyName);
+    return analysis?.id;
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -44,34 +51,39 @@ export default function Companies() {
 
       {/* Company Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((company, i) => (
-          <div
-            key={company.id}
-            className="bg-card rounded-lg border border-border shadow-sm overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all duration-affa cursor-pointer animate-float-in"
-            style={{ animationDelay: `${i * 80}ms` }}
-          >
-            <div className={`h-1 ${company.latest_risk_level === "critical" ? "bg-risk-critical" : company.latest_risk_level === "high" ? "bg-risk-high" : company.latest_risk_level === "medium" ? "bg-risk-medium" : "bg-risk-low"}`} />
-            <div className="p-5">
-              <h3 className="font-display text-xl mb-2">{company.name}</h3>
-              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-secondary text-secondary mb-3">
-                {company.industry.replace(/_/g, " ").toUpperCase()}
-              </span>
-              <div className="flex items-end justify-between mt-2">
-                <div>
-                  <span className={`font-display text-4xl ${getRiskColor(company.latest_risk_level)}`}>{company.latest_risk_score}</span>
-                  <p className="font-body text-xs text-muted-foreground mt-1">Risk Score</p>
-                </div>
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskBgColor(company.latest_risk_level)}`}>
-                  {company.latest_risk_level}
+        {filtered.map((company, i) => {
+          const analysisId = getCompanyAnalysisId(company.name);
+          return (
+            <div
+              key={company.id}
+              onClick={() => analysisId && navigate(`/analysis/${analysisId}`)}
+              className="bg-card rounded-lg border border-border shadow-sm overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer animate-float-in"
+              style={{ animationDelay: `${i * 80}ms` }}
+            >
+              <div className={`h-1 ${company.latest_risk_level === "critical" ? "bg-risk-critical" : company.latest_risk_level === "high" ? "bg-risk-high" : company.latest_risk_level === "medium" ? "bg-risk-medium" : "bg-risk-low"}`} />
+              <div className="p-5">
+                <h3 className="font-display text-xl mb-2">{company.name}</h3>
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-secondary text-secondary mb-3">
+                  {company.industry.replace(/_/g, " ").toUpperCase()}
                 </span>
-              </div>
-              <div className="mt-4 pt-3 border-t border-border space-y-1">
-                <p className="font-body text-xs text-muted-foreground">Reports Analyzed: {company.total_reports_analyzed}</p>
-                <p className="font-body text-xs text-muted-foreground">Last Audited: {new Date(company.last_audited_at).toLocaleDateString()}</p>
+                <div className="flex items-end justify-between mt-2">
+                  <div>
+                    <span className={`font-display text-4xl ${getRiskColor(company.latest_risk_level)}`}>{company.latest_risk_score}</span>
+                    <p className="font-body text-xs text-muted-foreground mt-1">Risk Score</p>
+                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskBgColor(company.latest_risk_level)}`}>
+                    {company.latest_risk_level}
+                  </span>
+                </div>
+                <div className="mt-4 pt-3 border-t border-border space-y-1">
+                  <p className="font-body text-xs text-muted-foreground">Reports Analyzed: {company.total_reports_analyzed}</p>
+                  <p className="font-body text-xs text-muted-foreground">Last Audited: {new Date(company.last_audited_at).toLocaleDateString()}</p>
+                </div>
+                <p className="mt-3 font-nav text-[11px] tracking-wider text-primary hover:underline">View Analysis →</p>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {filtered.length === 0 && (

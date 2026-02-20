@@ -12,7 +12,6 @@ import Companies from "./pages/Companies";
 import SettingsPage from "./pages/Settings";
 import UploadPage from "./pages/UploadPage";
 import AppLayout from "./components/layout/AppLayout";
-import Contact from "./pages/Contact";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
@@ -35,14 +34,13 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/analysis/:id" element={<AnalysisDetail />} />
               <Route path="/companies" element={<Companies />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/upload" element={<UploadPage />} />
-              <Route path="/about" element={<About />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

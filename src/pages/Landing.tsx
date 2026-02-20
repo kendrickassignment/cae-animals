@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
 import { Upload, Search, FileText, Shield, VolumeX, Globe, Store, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import Footer from "@/components/layout/Footer";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import caeLogoDark from "@/assets/cae-logo-dark.png";
 
 const evasionPatterns = [
@@ -33,6 +37,59 @@ function CountUp({ target, suffix = "" }: { target: string; suffix?: string }) {
   );
 }
 
+function ContactSection() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      toast.error("Please fill in all fields.");
+      return;
+    }
+    setSending(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-contact", {
+        body: { name: name.trim(), email: email.trim(), message: message.trim() },
+      });
+      if (error) throw error;
+      toast.success("Message sent! We'll get back to you soon.");
+      setName(""); setEmail(""); setMessage("");
+    } catch {
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <section id="contact" className="py-20 px-6 bg-background border-t border-border">
+      <div className="max-w-lg mx-auto">
+        <h2 className="font-display text-4xl text-center text-foreground mb-10">GET IN TOUCH</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="font-body text-sm font-bold text-foreground block mb-1">Name</label>
+            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" maxLength={100} />
+          </div>
+          <div>
+            <label className="font-body text-sm font-bold text-foreground block mb-1">Email</label>
+            <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" maxLength={255} />
+          </div>
+          <div>
+            <label className="font-body text-sm font-bold text-foreground block mb-1">Message</label>
+            <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Your message..." rows={5} maxLength={2000} />
+          </div>
+          <Button type="submit" className="w-full font-body font-bold" disabled={sending}>
+            {sending ? "SENDING..." : "SEND MESSAGE"}
+          </Button>
+        </form>
+      </div>
+    </section>
+  );
+}
+
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
@@ -44,7 +101,9 @@ export default function Landing() {
         </div>
         <div className="flex-1" />
         <div className="flex items-center gap-3">
-          <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all duration-affa">SIGN IN</Link>
+          <a href="#contact" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">CONTACT</a>
+          <Link to="/about" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">ABOUT</Link>
+          <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">SIGN IN</Link>
           <Link to="/auth">
             <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-sm px-5 hover:bg-sidebar/90">
               Get Started
@@ -137,6 +196,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Contact */}
+      <ContactSection />
 
       <Footer />
     </div>

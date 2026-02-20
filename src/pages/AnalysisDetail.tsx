@@ -5,8 +5,26 @@ import { seedAnalyses, getRiskBgColor, getIndonesiaStatusLabel, getIndonesiaStat
 import { useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const EVASION_TYPES = ["hedging_language", "geographic_exclusion", "strategic_silence", "franchise_firewall", "availability_clause", "timeline_deferral"];
+
+function exportFindingsCsv(analysis: typeof seedAnalyses[0]) {
+  const headers = ["finding_type", "severity", "title", "description", "exact_quote", "page_number", "section", "country_affected"];
+  const rows = analysis.findings.map(f => headers.map(h => {
+    const val = (f as any)[h] ?? "";
+    return `"${String(val).replace(/"/g, '""')}"`;
+  }).join(","));
+  const csv = [headers.join(","), ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `CAE_${analysis.company_name.replace(/[^a-zA-Z0-9]/g, "_")}_findings.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success("CSV exported!");
+}
 
 export default function AnalysisDetail() {
   const { id } = useParams();
@@ -31,9 +49,17 @@ export default function AnalysisDetail() {
     }));
   }, [analysis]);
 
-  if (!analysis) return <div className="text-center py-20 font-body text-muted-foreground">Analysis not found.</div>;
+  if (!analysis) return (
+    <div className="text-center py-20 animate-fade-in">
+      <p className="font-body text-muted-foreground mb-4">This analysis will be available once the backend is connected.</p>
+      <Button onClick={() => navigate("/dashboard")} className="font-body font-bold text-sm">
+        <ArrowLeft className="h-4 w-4 mr-2" /> BACK TO DASHBOARD
+      </Button>
+    </div>
+  );
 
-  const copySum = () => { navigator.clipboard.writeText(analysis.summary); toast.success("Summary copied!"); };
+  const copySum = () => { navigator.clipboard.writeText(analysis.summary); toast.success("Summary copied to clipboard"); };
+  const isSeedData = ["a1", "a2", "a3", "a4", "a5"].includes(analysis.id);
 
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
@@ -167,7 +193,7 @@ export default function AnalysisDetail() {
             <div key={finding.id} className="bg-card rounded-lg border border-border overflow-hidden">
               <button
                 onClick={() => setExpandedFinding(expandedFinding === finding.id ? null : finding.id)}
-                className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/30 transition-colors duration-affa"
+                className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/30 transition-colors"
               >
                 <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${getRiskBgColor(finding.severity)}`}>
                   {finding.severity}
@@ -186,7 +212,7 @@ export default function AnalysisDetail() {
                       <p className="font-nav text-[10px] tracking-widest text-muted-foreground mb-2">EVIDENCE</p>
                       <p className="font-mono text-sm italic text-foreground">"{finding.exact_quote}"</p>
                       <p className="font-body text-xs text-muted-foreground mt-2">
-                        Page {finding.page_number}{finding.section && ` — Section: ${finding.section}`}{finding.paragraph && ` — ${finding.paragraph}`}
+                        {finding.page_number > 0 ? `Page ${finding.page_number}` : ""}{finding.section && ` — Section: ${finding.section}`}{finding.paragraph && ` — ${finding.paragraph}`}
                       </p>
                     </div>
                   )}
@@ -199,9 +225,16 @@ export default function AnalysisDetail() {
 
       {/* Export */}
       <div className="flex flex-wrap gap-3">
-        <Button className="font-body font-bold text-sm"><Download className="h-4 w-4 mr-2" /> EXPORT CSV</Button>
+        <Button className="font-body font-bold text-sm" onClick={() => exportFindingsCsv(analysis)}><Download className="h-4 w-4 mr-2" /> EXPORT CSV</Button>
         <Button variant="outline" className="font-body font-bold text-sm border-2" onClick={copySum}><Copy className="h-4 w-4 mr-2" /> COPY SUMMARY</Button>
-        <Button variant="outline" className="font-body font-bold text-sm border-2"><FileDown className="h-4 w-4 mr-2" /> DOWNLOAD PDF</Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span>
+              <Button variant="outline" className="font-body font-bold text-sm border-2" disabled={isSeedData}><FileDown className="h-4 w-4 mr-2" /> DOWNLOAD PDF</Button>
+            </span>
+          </TooltipTrigger>
+          {isSeedData && <TooltipContent><p>Available for uploaded reports only</p></TooltipContent>}
+        </Tooltip>
       </div>
     </div>
   );
