@@ -2,7 +2,7 @@ import { LayoutDashboard, Upload, Building2, Settings, Info, LogOut, X } from "l
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
-import caeLogo from "@/assets/cae-logo.png";
+import caeLogoNew from "@/assets/cae-logo-new.png";
 
 const navItems = [
   { title: "DASHBOARD", path: "/dashboard", icon: LayoutDashboard },
@@ -36,17 +36,14 @@ export default function AppSidebar({ open, onClose }: AppSidebarProps) {
 
       <aside
         className={cn(
-          "fixed top-0 left-0 z-50 h-full w-[260px] bg-sidebar flex flex-col transition-transform duration-affa ease-affa lg:relative lg:translate-x-0",
+          "fixed top-0 left-0 z-50 h-full w-[260px] bg-sidebar flex flex-col transition-transform ease-in-out lg:relative lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo */}
         <div className="px-6 pt-6 pb-4">
           <div className="flex items-center justify-between">
-            <div>
-              <img src={caeLogo} alt="CAE Logo" className="w-[120px]" />
-              <p className="font-nav text-[11px] uppercase tracking-[1px] text-muted-foreground mt-1.5">Truth. Extracted.</p>
-            </div>
+            <img src={caeLogoNew} alt="CAE Logo" className="w-[120px] brightness-0 invert" />
             <button className="lg:hidden text-sidebar-foreground/60 hover:text-sidebar-foreground" onClick={onClose}>
               <X className="h-5 w-5" />
             </button>
@@ -63,7 +60,7 @@ export default function AppSidebar({ open, onClose }: AppSidebarProps) {
                 to={item.path}
                 onClick={onClose}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-md font-nav text-[13px] tracking-wider transition-all duration-affa",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-md font-nav text-[13px] tracking-wider transition-all",
                   isActive
                     ? "text-sidebar-primary bg-sidebar-accent border-l-4 border-sidebar-primary -ml-px"
                     : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
@@ -88,7 +85,7 @@ export default function AppSidebar({ open, onClose }: AppSidebarProps) {
           </div>
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2 mt-3 text-sidebar-foreground/50 hover:text-sidebar-foreground text-xs font-nav tracking-wider transition-colors duration-affa"
+            className="flex items-center gap-2 mt-3 text-sidebar-foreground/50 hover:text-sidebar-foreground text-xs font-nav tracking-wider transition-colors"
           >
             <LogOut className="h-3 w-3" />
             SIGN OUT

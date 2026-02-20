@@ -1,21 +1,71 @@
-import { Search, Sun, Moon, Bell, Menu } from "lucide-react";
+import { Search, Sun, Moon, Bell, Menu, LayoutDashboard, Upload, Building2, Settings, Info, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AppHeaderProps {
   onToggleSidebar?: () => void;
 }
 
+const dropdownNav = [
+  { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+  { title: "New Analysis", path: "/upload", icon: Upload },
+  { title: "Companies", path: "/companies", icon: Building2 },
+  { title: "Settings", path: "/settings", icon: Settings },
+  { title: "About", path: "/about", icon: Info },
+];
+
 export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<{ id: string; message: string; time: string; read: boolean }[]>([]);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
 
   const toggleDark = () => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle("dark");
   };
+
+  // Listen for realtime report status changes
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('report-updates')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'reports', filter: `user_id=eq.${user.id}` }, (payload) => {
+        const report = payload.new as any;
+        let msg = "";
+        if (report.status === "completed") msg = `Analysis completed: ${report.company_name || report.file_name}`;
+        else if (report.status === "failed") msg = `Analysis failed: ${report.company_name || report.file_name}`;
+        else if (report.status === "processing") msg = `Processing: ${report.company_name || report.file_name}`;
+        if (msg) {
+          const notif = { id: crypto.randomUUID(), message: msg, time: new Date().toLocaleTimeString(), read: false };
+          setNotifications(prev => [notif, ...prev.slice(0, 19)]);
+          toast.info(msg);
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setShowDropdown(false);
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setShowNotifications(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <header className="h-14 bg-primary flex items-center px-4 gap-4 shrink-0">
@@ -37,11 +87,73 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
         <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10" onClick={toggleDark}>
           {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
-        <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10">
-          <Bell className="h-4 w-4" />
-        </Button>
-        <div className="h-8 w-8 rounded-full bg-sidebar flex items-center justify-center text-sidebar-foreground text-xs font-bold">
-          {user?.email?.charAt(0).toUpperCase() || "U"}
+
+        {/* Notification Bell */}
+        <div className="relative" ref={notifRef}>
+          <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 relative" onClick={() => { setShowNotifications(!showNotifications); setShowDropdown(false); }}>
+            <Bell className="h-4 w-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-[10px] font-bold text-white flex items-center justify-center">{unreadCount}</span>
+            )}
+          </Button>
+          {showNotifications && (
+            <div className="absolute right-0 top-10 w-72 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                <span className="font-nav text-xs tracking-wider">NOTIFICATIONS</span>
+                {notifications.length > 0 && (
+                  <button className="text-xs text-primary font-body" onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}>Mark all read</button>
+                )}
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {notifications.length === 0 ? (
+                  <p className="text-center text-muted-foreground font-body text-sm py-6">No notifications yet</p>
+                ) : (
+                  notifications.map(n => (
+                    <div key={n.id} className={`px-4 py-3 border-b border-border text-sm font-body ${n.read ? "" : "bg-muted/50"}`}>
+                      <p className="text-foreground">{n.message}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{n.time}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* User Avatar Dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => { setShowDropdown(!showDropdown); setShowNotifications(false); }}
+            className="h-8 w-8 rounded-full bg-sidebar flex items-center justify-center text-sidebar-foreground text-xs font-bold cursor-pointer hover:ring-2 hover:ring-primary-foreground/30 transition-all"
+          >
+            {user?.email?.charAt(0).toUpperCase() || "U"}
+          </button>
+          {showDropdown && (
+            <div className="absolute right-0 top-10 w-56 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+              <div className="px-4 py-3 border-b border-border">
+                <p className="font-body text-sm text-foreground truncate">{user?.email || "User"}</p>
+              </div>
+              {dropdownNav.map(item => (
+                <button
+                  key={item.path}
+                  onClick={() => { navigate(item.path); setShowDropdown(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left font-body text-sm text-foreground hover:bg-muted transition-colors"
+                >
+                  <item.icon className="h-4 w-4 text-muted-foreground" />
+                  {item.title}
+                </button>
+              ))}
+              <div className="border-t border-border">
+                <button
+                  onClick={async () => { await signOut(); navigate("/"); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left font-body text-sm text-destructive hover:bg-muted transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

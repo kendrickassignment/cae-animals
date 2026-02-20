@@ -1,7 +1,7 @@
-import { Shield, VolumeX, Globe, Store, Clock, Linkedin, Github } from "lucide-react";
+import { Linkedin, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import caeLogo from "@/assets/cae-logo.png";
+import caeLogoNew from "@/assets/cae-logo-new.png";
 
 const evasionPatterns = [
   "Hedging Language",
@@ -27,8 +27,7 @@ export default function About() {
     <div className="max-w-4xl mx-auto space-y-8 pb-12">
       {/* Hero */}
       <div className="bg-card rounded-lg border-t-4 border-primary p-8 text-center">
-        <img src={caeLogo} alt="CAE Logo" className="w-[200px] mx-auto mb-4" />
-        <h2 className="font-display text-3xl mb-2">TRUTH. EXTRACTED.</h2>
+        <img src={caeLogoNew} alt="CAE Logo" className="w-[200px] mx-auto mb-4" />
         <p className="font-body text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           An adversarial AI engine that audits corporate sustainability reports to detect greenwashing in cage-free egg commitments across Southeast Asia.
         </p>
@@ -38,7 +37,7 @@ export default function About() {
       <div className="bg-card rounded-lg border-l-4 border-destructive p-8">
         <h3 className="font-display text-2xl mb-4">THE PROBLEM</h3>
         <p className="font-body text-muted-foreground leading-relaxed">
-          Multinational food corporations publish 200-page sustainability reports claiming global cage-free commitments. Hidden in footnotes, appendices, and legal clauses are exclusions that exempt entire regions like Indonesia and Southeast Asia. Manual auditing takes 2 weeks per company. The volume makes real-time accountability impossible. Corporations enjoy positive PR while continuing battery-cage operations without scrutiny.
+          Multinational food corporations publish hundreds page sustainability reports claiming global cage-free commitments. Hidden in footnotes, appendices, and legal clauses are exclusions that exempt entire regions like Indonesia and Southeast Asia. Manual auditing takes 2 weeks per company. The volume makes real-time accountability impossible. Corporations enjoy positive PR while continuing battery-cage operations without scrutiny.
         </p>
       </div>
 
@@ -46,7 +45,7 @@ export default function About() {
       <div className="bg-card rounded-lg border-l-4 border-risk-low p-8">
         <h3 className="font-display text-2xl mb-4">THE SOLUTION</h3>
         <p className="font-body text-muted-foreground leading-relaxed mb-6">
-          CAE uses adversarial AI to ingest corporate PDFs, detect deceptive hedging language, expose geographical exclusions, and surface citation-backed evidence with exact page numbers — in under 60 seconds. Cost per report: $0.15.
+          CAE uses adversarial AI to ingest corporate PDFs, detect deceptive hedging language, expose geographical exclusions, and surface citation-backed evidence with exact page numbers — in under 60 seconds. Cost per report: $0.15. The result is an instant, audit-ready scorecard for campaigners.
         </p>
         <div className="flex flex-wrap gap-2">
           {evasionPatterns.map((pattern) => (
@@ -62,7 +61,7 @@ export default function About() {
         <h3 className="font-display text-2xl mb-4">BUILT BY</h3>
         <div>
           <h4 className="font-display text-2xl mb-1">Kendrick Filbert</h4>
-          <p className="font-body text-muted-foreground mb-4">Technical PM / Microsoft MVP</p>
+          <p className="font-body text-muted-foreground mb-4">AI PM & QA Specialist @Microsoft</p>
           <p className="font-body text-muted-foreground leading-relaxed mb-6">
             Building AI-powered tools for animal welfare accountability. The Corporate Accountability Engine was developed to give advocacy researchers instant, evidence-backed intelligence against corporate greenwashing — turning a 2-week audit into a 60-second operation.
           </p>

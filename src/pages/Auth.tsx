@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import caeLogoDark from "@/assets/cae-logo-dark.png";
+import caeLogoNew from "@/assets/cae-logo-new.png";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -43,10 +43,10 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex">
       {/* Left panel - brand */}
-      <div className="hidden md:flex w-1/2 bg-primary items-center justify-center p-12">
+      <div className="hidden md:flex w-1/2 bg-primary items-start justify-center p-12 pt-[15vh]">
         <div className="text-center">
-          <img src={caeLogoDark} alt="CAE Logo" className="h-16 mb-4 mix-blend-multiply" />
-          <p className="font-nav text-sm text-primary-foreground/70 tracking-widest mb-6">
+          <img src={caeLogoNew} alt="CAE Logo" className="h-24 mx-auto mb-6 mix-blend-multiply" />
+          <p className="font-nav text-sm text-primary-foreground/70 tracking-widest mb-2">
             CORPORATE ACCOUNTABILITY ENGINE
           </p>
           <p className="font-body text-primary-foreground/80 max-w-sm mx-auto">
@@ -69,7 +69,7 @@ export default function Auth() {
           <div className="flex gap-4 mb-8 border-b border-border">
             <button
               onClick={() => setIsSignUp(false)}
-              className={`font-nav text-xs tracking-widest pb-3 border-b-2 transition-colors duration-affa ${
+              className={`font-nav text-xs tracking-widest pb-3 border-b-2 transition-colors ${
                 !isSignUp ? "border-primary text-foreground" : "border-transparent text-muted-foreground"
               }`}
             >
@@ -77,7 +77,7 @@ export default function Auth() {
             </button>
             <button
               onClick={() => setIsSignUp(true)}
-              className={`font-nav text-xs tracking-widest pb-3 border-b-2 transition-colors duration-affa ${
+              className={`font-nav text-xs tracking-widest pb-3 border-b-2 transition-colors ${
                 isSignUp ? "border-primary text-foreground" : "border-transparent text-muted-foreground"
               }`}
             >

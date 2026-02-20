@@ -11,8 +11,8 @@ export default function Footer() {
             </p>
           </div>
           <div className="flex gap-6 font-nav text-xs tracking-wider text-sidebar-foreground/60">
-            <Link to="/about" className="hover:text-sidebar-primary transition-colors duration-affa">ABOUT</Link>
-            <Link to="/contact" className="hover:text-sidebar-primary transition-colors duration-affa">CONTACT</Link>
+            <Link to="/about" className="hover:text-sidebar-primary transition-colors">ABOUT</Link>
+            <a href="/#contact" className="hover:text-sidebar-primary transition-colors">CONTACT</a>
           </div>
         </div>
         <div className="mt-6 pt-4 border-t border-sidebar-border">
