@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, AlertTriangle, ChevronDown, ChevronRight, Download, Copy, FileDown, Loader2, History, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { ArrowLeft, AlertTriangle, ChevronDown, ChevronRight, Download, Copy, FileDown, Loader2, History, TrendingUp, TrendingDown, Minus, CheckCircle2, Flag, ShieldAlert, FileText, ExternalLink, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { seedAnalyses, getRiskBgColor, getIndonesiaStatusLabel, getIndonesiaStatusColor, getFindingTypeLabel } from "@/data/seed-data";
 import type { SeedAnalysis } from "@/data/seed-data";
@@ -9,9 +9,12 @@ import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRealAnalyses } from "@/hooks/useRealAnalyses";
 import { getAnalysis } from "@/services/api";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { exportAnalysisPdf } from "@/lib/export-pdf";
+import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useAnalysisFlags } from "@/hooks/useAnalysisFlags";
 
 const EVASION_TYPES = ["hedging_language", "geographic_exclusion", "strategic_silence", "franchise_firewall", "availability_clause", "timeline_deferral", "silent_delisting", "corporate_ghosting", "commitment_downgrade"];
 
@@ -35,8 +38,13 @@ function exportFindingsCsv(analysis: SeedAnalysis) {
 export default function AnalysisDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = useIsAdmin();
+  const queryClient = useQueryClient();
   const [expandedFinding, setExpandedFinding] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
+  const [flagReason, setFlagReason] = useState("");
+  const [showFlagForm, setShowFlagForm] = useState(false);
 
   // Try seed data first
   const seedAnalysis = useMemo(() => seedAnalyses.find(a => a.id === id), [id]);
@@ -55,7 +63,6 @@ export default function AnalysisDetail() {
         .eq("id", id!)
         .single();
       if (error || !data) return null;
-      // Map to SeedAnalysis shape
       const findings = ((data as any).findings || []).map((f: any, idx: number) => ({
         id: f.id || `rf-${idx}`,
         finding_type: f.finding_type || f.type || "other",
@@ -92,8 +99,73 @@ export default function AnalysisDetail() {
   });
 
   const analysis: SeedAnalysis | null | undefined = seedAnalysis || supabaseAnalysis || directAnalysis;
+  const isSeedData = ["a1", "a2", "a3", "a4", "a5"].includes(analysis?.id || "");
 
-  // Fetch all analyses for the same company from DB (all users)
+  // ===== TRUST FEATURES DATA =====
+
+  // 1. Upload Attribution — fetch uploader profile + report metadata
+  const analysisUserId = useMemo(() => {
+    if (isSeedData) return null;
+    return (supabaseAnalysis as any)?.user_id || (directAnalysis as any)?.user_id || null;
+  }, [supabaseAnalysis, directAnalysis, isSeedData]);
+
+  const { data: uploaderProfile } = useQuery({
+    queryKey: ["uploader-profile", analysisUserId],
+    queryFn: async () => {
+      if (!analysisUserId) return null;
+      const { data } = await supabase.from("profiles").select("full_name").eq("id", analysisUserId).single();
+      return data;
+    },
+    enabled: !!analysisUserId,
+  });
+
+  // 2. Verified badge — fetch verified status from the raw DB row
+  const rawDbRow = useMemo(() => {
+    if (isSeedData) return null;
+    return (supabaseAnalysis as any) || (directAnalysis as any) || null;
+  }, [supabaseAnalysis, directAnalysis, isSeedData]);
+
+  const isVerified = rawDbRow?.verified === true;
+  const verifyMutation = useMutation({
+    mutationFn: async (verified: boolean) => {
+      const { error } = await supabase
+        .from("analysis_results")
+        .update({
+          verified,
+          verified_by: verified ? user?.id : null,
+          verified_at: verified ? new Date().toISOString() : null,
+        } as any)
+        .eq("id", id!);
+      if (error) throw error;
+    },
+    onSuccess: (_, verified) => {
+      toast.success(verified ? "Analysis marked as verified" : "Verification removed");
+      queryClient.invalidateQueries({ queryKey: ["analysis-detail", id] });
+      queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
+    },
+    onError: () => toast.error("Failed to update verification status"),
+  });
+
+  // 3. Flags
+  const { activeFlags, userHasFlagged, flagCount, showWarning, submitFlag, dismissAllFlags } = useAnalysisFlags(isSeedData ? undefined : id);
+
+  // 4. Source Document — fetch report record
+  const reportId = analysis?.report_id;
+  const { data: sourceReport } = useQuery({
+    queryKey: ["source-report", reportId],
+    queryFn: async () => {
+      if (!reportId) return null;
+      const { data } = await supabase.from("reports").select("file_name, file_size, page_count, file_url, user_id").eq("id", reportId).single();
+      return data;
+    },
+    enabled: !!reportId && !isSeedData,
+  });
+
+  // 5. AI Confidence
+  const documentConfidence = rawDbRow?.document_confidence || null;
+  const documentConfidenceReason = rawDbRow?.document_confidence_reason || null;
+
+  // ===== COMPANY HISTORY =====
   const { data: companyHistory = [] } = useQuery({
     queryKey: ["company-history", analysis?.company_name],
     queryFn: async () => {
@@ -118,25 +190,18 @@ export default function AnalysisDetail() {
         top_findings: Array.isArray(row.findings) ? row.findings.slice(0, 3).map((f: any) => f.title || "Untitled") : [],
       }));
     },
-    enabled: !!analysis?.company_name && !["a1", "a2", "a3", "a4", "a5"].includes(analysis?.id || ""),
+    enabled: !!analysis?.company_name && !isSeedData,
   });
 
-  // Also gather seed analyses for the same company (excluding current)
   const seedHistory = useMemo(() => {
     if (!analysis) return [];
     return seedAnalyses
       .filter(s => s.company_name.toLowerCase() === analysis.company_name.toLowerCase() && s.id !== analysis.id)
       .map(s => ({
-        id: s.id,
-        company_name: s.company_name,
-        report_year: s.report_year,
-        overall_risk_level: s.overall_risk_level,
-        overall_risk_score: s.overall_risk_score,
-        summary: s.summary,
-        created_at: s.created_at,
-        user_id: null as string | null,
-        findings_count: s.findings.length,
-        top_findings: s.findings.slice(0, 3).map(f => f.title),
+        id: s.id, company_name: s.company_name, report_year: s.report_year,
+        overall_risk_level: s.overall_risk_level, overall_risk_score: s.overall_risk_score,
+        summary: s.summary, created_at: s.created_at, user_id: null as string | null,
+        findings_count: s.findings.length, top_findings: s.findings.slice(0, 3).map(f => f.title),
       }));
   }, [analysis]);
 
@@ -146,6 +211,7 @@ export default function AnalysisDetail() {
     return combined.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
   }, [companyHistory, seedHistory]);
 
+  // ===== DERIVED =====
   const filteredFindings = useMemo(() => {
     if (!analysis) return [];
     return typeFilter === "all" ? analysis.findings : analysis.findings.filter(f => f.finding_type === typeFilter);
@@ -154,13 +220,30 @@ export default function AnalysisDetail() {
   const evasionBreakdown = useMemo(() => {
     if (!analysis) return [];
     return EVASION_TYPES.map(type => ({
-      type,
-      label: getFindingTypeLabel(type),
+      type, label: getFindingTypeLabel(type),
       count: analysis.findings.filter(f => f.finding_type === type).length,
       detected: analysis.findings.some(f => f.finding_type === type),
     }));
   }, [analysis]);
 
+  // ===== HANDLERS =====
+  const handleDownloadSource = async () => {
+    if (!sourceReport?.file_url) return;
+    try {
+      const { data } = await supabase.storage.from("reports").createSignedUrl(sourceReport.file_url, 300);
+      if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+      else toast.error("Could not generate download link");
+    } catch { toast.error("Download failed"); }
+  };
+
+  const handleSubmitFlag = () => {
+    if (!flagReason.trim()) { toast.error("Please provide a reason"); return; }
+    submitFlag.mutate(flagReason.trim());
+    setFlagReason("");
+    setShowFlagForm(false);
+  };
+
+  // ===== RENDER =====
   if (isLoading) return (
     <div className="text-center py-20 animate-fade-in">
       <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
@@ -178,7 +261,6 @@ export default function AnalysisDetail() {
   );
 
   const copySum = () => { navigator.clipboard.writeText(analysis.summary); toast.success("Summary copied to clipboard"); };
-  const isSeedData = ["a1", "a2", "a3", "a4", "a5"].includes(analysis.id);
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in max-w-4xl">
@@ -187,13 +269,87 @@ export default function AnalysisDetail() {
         <ArrowLeft className="h-4 w-4" /> BACK TO DASHBOARD
       </button>
 
+      {/* FLAG WARNING BANNER */}
+      {!isSeedData && showWarning && (
+        <div className="bg-risk-medium-bg rounded-lg p-4 border border-risk-medium/30 flex gap-3 items-start">
+          <ShieldAlert className="h-5 w-5 text-risk-medium shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-body text-sm font-bold text-risk-medium">
+              ⚠ This analysis has been flagged as suspicious by {flagCount} team member{flagCount !== 1 ? "s" : ""}
+            </p>
+            <p className="font-body text-xs text-risk-medium/80 mt-1">
+              Review findings carefully. Flagged reasons: {activeFlags.map(f => f.reason).join("; ")}
+            </p>
+          </div>
+          {isAdmin && (
+            <Button size="sm" variant="outline" className="shrink-0 text-xs font-body border-risk-medium text-risk-medium" onClick={() => dismissAllFlags.mutate()}>
+              Dismiss All
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* AI CONFIDENCE WARNING */}
+      {!isSeedData && documentConfidence === "low" && (
+        <div className="bg-risk-critical-bg rounded-lg p-4 border border-risk-critical/30 flex gap-3 items-start">
+          <AlertTriangle className="h-5 w-5 text-risk-critical shrink-0 mt-0.5" />
+          <div>
+            <p className="font-body text-sm font-bold text-risk-critical">
+              LOW CONFIDENCE — This document may not be a genuine sustainability report
+            </p>
+            {documentConfidenceReason && (
+              <p className="font-body text-xs text-risk-critical/80 mt-1">{documentConfidenceReason}</p>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex-1">
-          <h1 className="font-display text-4xl text-foreground">{analysis.company_name}</h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="font-display text-4xl text-foreground">{analysis.company_name}</h1>
+            {/* VERIFIED BADGE */}
+            {!isSeedData && isVerified && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-risk-low-bg text-risk-low">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Verified
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent><p className="font-body text-xs">This analysis has been verified by an admin</p></TooltipContent>
+              </Tooltip>
+            )}
+            {!isSeedData && !isVerified && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground">
+                <Shield className="h-3.5 w-3.5" /> Unverified
+              </span>
+            )}
+          </div>
           <div className="flex gap-2 mt-2 flex-wrap">
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-secondary/20 text-secondary font-body">{analysis.report_year}</span>
             <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskBgColor(analysis.overall_risk_level)}`}>{analysis.overall_risk_level}</span>
+            {/* AI CONFIDENCE BADGE */}
+            {!isSeedData && documentConfidence && (
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                documentConfidence === "high" ? "bg-risk-low-bg text-risk-low" :
+                documentConfidence === "medium" ? "bg-risk-medium-bg text-risk-medium" :
+                "bg-risk-critical-bg text-risk-critical"
+              }`}>
+                AI Confidence: {documentConfidence.toUpperCase()}
+              </span>
+            )}
           </div>
+          {/* UPLOAD ATTRIBUTION */}
+          {!isSeedData && (
+            <p className="font-body text-xs text-muted-foreground mt-2">
+              Uploaded by <strong>{uploaderProfile?.full_name || "Team Member"}</strong>
+              {" · "}
+              {new Date(analysis.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </p>
+          )}
+          {isSeedData && (
+            <p className="font-body text-xs text-muted-foreground mt-2">Demo data · Seed analysis</p>
+          )}
         </div>
         <div className="relative w-24 h-24 shrink-0">
           <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
@@ -204,11 +360,98 @@ export default function AnalysisDetail() {
         </div>
       </div>
 
+      {/* Admin Verify + Flag Actions */}
+      {!isSeedData && (
+        <div className="flex flex-wrap gap-2">
+          {isAdmin && (
+            <Button
+              size="sm"
+              variant={isVerified ? "outline" : "default"}
+              className="font-body text-xs font-bold"
+              onClick={() => verifyMutation.mutate(!isVerified)}
+              disabled={verifyMutation.isPending}
+            >
+              <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+              {isVerified ? "Remove Verification" : "Mark as Verified"}
+            </Button>
+          )}
+          {!userHasFlagged && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="font-body text-xs font-bold border-risk-medium text-risk-medium hover:bg-risk-medium-bg"
+              onClick={() => setShowFlagForm(!showFlagForm)}
+            >
+              <Flag className="h-3.5 w-3.5 mr-1.5" /> Flag as Suspicious
+            </Button>
+          )}
+          {userHasFlagged && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-risk-medium-bg text-risk-medium">
+              <Flag className="h-3 w-3" /> You flagged this
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Flag Form */}
+      {showFlagForm && (
+        <div className="bg-card rounded-lg p-4 border border-risk-medium/30 space-y-3 animate-fade-in">
+          <p className="font-body text-sm font-bold text-foreground">Why is this analysis suspicious?</p>
+          <textarea
+            value={flagReason}
+            onChange={e => setFlagReason(e.target.value)}
+            placeholder="e.g., This doesn't look like a real sustainability report, data appears fabricated..."
+            className="w-full bg-muted border border-border rounded-md p-3 font-body text-sm resize-none h-20"
+          />
+          <div className="flex gap-2">
+            <Button size="sm" className="font-body text-xs font-bold" onClick={handleSubmitFlag} disabled={submitFlag.isPending}>
+              Submit Flag
+            </Button>
+            <Button size="sm" variant="ghost" className="font-body text-xs" onClick={() => { setShowFlagForm(false); setFlagReason(""); }}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Executive Summary */}
       <div className={`bg-card rounded-lg p-6 border border-border border-l-4 ${analysis.overall_risk_level === "critical" ? "border-l-risk-critical" : analysis.overall_risk_level === "high" ? "border-l-risk-high" : analysis.overall_risk_level === "medium" ? "border-l-risk-medium" : "border-l-risk-low"}`}>
         <h3 className="font-display text-lg mb-3">EXECUTIVE SUMMARY</h3>
         <p className="font-body text-sm text-muted-foreground leading-relaxed">{analysis.summary}</p>
       </div>
+
+      {/* Source Document */}
+      {!isSeedData && sourceReport && (
+        <div className="bg-card rounded-lg p-6 border border-border">
+          <div className="flex items-center gap-3 mb-3">
+            <FileText className="h-5 w-5 text-primary" />
+            <h3 className="font-display text-lg">SOURCE DOCUMENT</h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+            <div>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">File Name</p>
+              <p className="font-body text-sm font-bold truncate">{sourceReport.file_name}</p>
+            </div>
+            <div>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">File Size</p>
+              <p className="font-body text-sm font-bold">{sourceReport.file_size ? `${(sourceReport.file_size / 1024 / 1024).toFixed(1)} MB` : "Unknown"}</p>
+            </div>
+            <div>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">Page Count</p>
+              <p className="font-body text-sm font-bold">{sourceReport.page_count || "Unknown"}</p>
+            </div>
+            <div>
+              <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wider">Uploaded By</p>
+              <p className="font-body text-sm font-bold">{uploaderProfile?.full_name || "Team Member"}</p>
+            </div>
+          </div>
+          {sourceReport.file_url && (
+            <Button size="sm" variant="outline" className="font-body text-xs font-bold" onClick={handleDownloadSource}>
+              <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Download Original PDF
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Indonesia Status */}
       <div className="bg-card rounded-lg p-6 border border-border border-t-4 border-t-primary">
@@ -267,7 +510,7 @@ export default function AnalysisDetail() {
         </div>
       </div>
 
-      {/* Previous Analyses for Same Company */}
+      {/* Previous Analyses */}
       {previousAnalyses.length > 0 && (
         <div className="bg-card rounded-lg p-6 border border-border border-t-4 border-t-secondary">
           <div className="flex items-center gap-3 mb-4">
@@ -279,29 +522,19 @@ export default function AnalysisDetail() {
             All team analyses for this company, ordered chronologically. Compare changes over time.
           </p>
           <div className="space-y-3">
-            {previousAnalyses.map((prev, idx) => {
+            {previousAnalyses.map((prev) => {
               const scoreDiff = analysis.overall_risk_score - prev.overall_risk_score;
               return (
-                <div
-                  key={prev.id}
-                  className="bg-muted/40 rounded-lg p-4 border border-border hover:bg-muted/60 cursor-pointer transition-colors"
-                  onClick={() => navigate(`/analysis/${prev.id}`)}
-                >
+                <div key={prev.id} className="bg-muted/40 rounded-lg p-4 border border-border hover:bg-muted/60 cursor-pointer transition-colors" onClick={() => navigate(`/analysis/${prev.id}`)}>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <div className="flex items-center gap-2 shrink-0">
                       <span className="font-display text-2xl">{prev.overall_risk_score}</span>
                       {scoreDiff > 0 ? (
-                        <span className="flex items-center gap-0.5 text-risk-critical text-xs font-bold">
-                          <TrendingUp className="h-3.5 w-3.5" /> +{scoreDiff}
-                        </span>
+                        <span className="flex items-center gap-0.5 text-risk-critical text-xs font-bold"><TrendingUp className="h-3.5 w-3.5" /> +{scoreDiff}</span>
                       ) : scoreDiff < 0 ? (
-                        <span className="flex items-center gap-0.5 text-risk-low text-xs font-bold">
-                          <TrendingDown className="h-3.5 w-3.5" /> {scoreDiff}
-                        </span>
+                        <span className="flex items-center gap-0.5 text-risk-low text-xs font-bold"><TrendingDown className="h-3.5 w-3.5" /> {scoreDiff}</span>
                       ) : (
-                        <span className="flex items-center gap-0.5 text-muted-foreground text-xs font-bold">
-                          <Minus className="h-3.5 w-3.5" /> 0
-                        </span>
+                        <span className="flex items-center gap-0.5 text-muted-foreground text-xs font-bold"><Minus className="h-3.5 w-3.5" /> 0</span>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -311,15 +544,9 @@ export default function AnalysisDetail() {
                         <span className="font-body text-[10px] text-muted-foreground">
                           {new Date(prev.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
                         </span>
-                        <span className="font-body text-[10px] text-muted-foreground">
-                          • {prev.findings_count} finding{prev.findings_count !== 1 ? "s" : ""}
-                        </span>
-                        {prev.user_id && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary/10 text-primary font-bold">Team Member</span>
-                        )}
-                        {!prev.user_id && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-risk-low-bg text-risk-low font-bold">Demo</span>
-                        )}
+                        <span className="font-body text-[10px] text-muted-foreground">• {prev.findings_count} finding{prev.findings_count !== 1 ? "s" : ""}</span>
+                        {prev.user_id && <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary/10 text-primary font-bold">Team Member</span>}
+                        {!prev.user_id && <span className="px-2 py-0.5 rounded-full text-[10px] bg-risk-low-bg text-risk-low font-bold">Demo</span>}
                       </div>
                       {prev.top_findings.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mt-1.5">
