@@ -2,6 +2,20 @@ const getBackendUrl = (): string => {
   return localStorage.getItem("cae_backend_url") || import.meta.env.VITE_BACKEND_URL || "https://cae-backend-7g72.onrender.com";
 };
 
+export function sanitizeErrorMessage(message: string): string {
+  // Remove URLs (including those with API keys in query params)
+  let sanitized = message.replace(/https?:\/\/[^\s'")]+/gi, "[external service]");
+  // Remove standalone API key patterns (long alphanumeric strings 20+ chars)
+  sanitized = sanitized.replace(/[A-Za-z0-9_-]{20,}/g, "[redacted]");
+  // Remove "For more information check:" references
+  sanitized = sanitized.replace(/For more information check:\s*\S*/gi, "");
+  // Remove "for url" references
+  sanitized = sanitized.replace(/for url\s*'[^']*'/gi, "");
+  // Clean up extra whitespace
+  sanitized = sanitized.replace(/\s{2,}/g, " ").trim();
+  return sanitized;
+}
+
 const getProviderConfig = (): { provider: string | null; apiKey: string | null } => {
   return {
     provider: localStorage.getItem("cae_llm_provider"),
@@ -20,7 +34,7 @@ async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> 
   });
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: "Network error" }));
-    throw new Error(error.detail || `API error: ${response.status}`);
+    throw new Error(sanitizeErrorMessage(error.detail || `API error: ${response.status}`));
   }
   return response.json();
 }
