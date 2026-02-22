@@ -112,6 +112,7 @@ export type Database = {
           latest_risk_score: number | null
           name: string
           total_reports_analyzed: number | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -124,6 +125,7 @@ export type Database = {
           latest_risk_score?: number | null
           name: string
           total_reports_analyzed?: number | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -136,6 +138,7 @@ export type Database = {
           latest_risk_score?: number | null
           name?: string
           total_reports_analyzed?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }
