@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, AlertTriangle, ChevronDown, ChevronRight, Download, Copy, FileDown, Loader2 } from "lucide-react";
+import { ArrowLeft, AlertTriangle, ChevronDown, ChevronRight, Download, Copy, FileDown, Loader2, History, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { seedAnalyses, getRiskBgColor, getIndonesiaStatusLabel, getIndonesiaStatusColor, getFindingTypeLabel } from "@/data/seed-data";
 import type { SeedAnalysis } from "@/data/seed-data";
@@ -92,6 +92,59 @@ export default function AnalysisDetail() {
   });
 
   const analysis: SeedAnalysis | null | undefined = seedAnalysis || supabaseAnalysis || directAnalysis;
+
+  // Fetch all analyses for the same company from DB (all users)
+  const { data: companyHistory = [] } = useQuery({
+    queryKey: ["company-history", analysis?.company_name],
+    queryFn: async () => {
+      if (!analysis?.company_name) return [];
+      const { data, error } = await supabase
+        .from("analysis_results")
+        .select("id, company_name, report_year, overall_risk_level, overall_risk_score, summary, created_at, user_id, findings")
+        .ilike("company_name", analysis.company_name)
+        .neq("id", analysis.id)
+        .order("created_at", { ascending: true });
+      if (error) return [];
+      return (data || []).map((row: any) => ({
+        id: row.id,
+        company_name: row.company_name,
+        report_year: row.report_year,
+        overall_risk_level: row.overall_risk_level || "medium",
+        overall_risk_score: row.overall_risk_score || 0,
+        summary: row.summary || "",
+        created_at: row.created_at,
+        user_id: row.user_id,
+        findings_count: Array.isArray(row.findings) ? row.findings.length : 0,
+        top_findings: Array.isArray(row.findings) ? row.findings.slice(0, 3).map((f: any) => f.title || "Untitled") : [],
+      }));
+    },
+    enabled: !!analysis?.company_name && !["a1", "a2", "a3", "a4", "a5"].includes(analysis?.id || ""),
+  });
+
+  // Also gather seed analyses for the same company (excluding current)
+  const seedHistory = useMemo(() => {
+    if (!analysis) return [];
+    return seedAnalyses
+      .filter(s => s.company_name.toLowerCase() === analysis.company_name.toLowerCase() && s.id !== analysis.id)
+      .map(s => ({
+        id: s.id,
+        company_name: s.company_name,
+        report_year: s.report_year,
+        overall_risk_level: s.overall_risk_level,
+        overall_risk_score: s.overall_risk_score,
+        summary: s.summary,
+        created_at: s.created_at,
+        user_id: null as string | null,
+        findings_count: s.findings.length,
+        top_findings: s.findings.slice(0, 3).map(f => f.title),
+      }));
+  }, [analysis]);
+
+  const previousAnalyses = useMemo(() => {
+    const dbIds = new Set(companyHistory.map(a => a.id));
+    const combined = [...companyHistory, ...seedHistory.filter(s => !dbIds.has(s.id))];
+    return combined.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  }, [companyHistory, seedHistory]);
 
   const filteredFindings = useMemo(() => {
     if (!analysis) return [];
@@ -213,6 +266,77 @@ export default function AnalysisDetail() {
           ))}
         </div>
       </div>
+
+      {/* Previous Analyses for Same Company */}
+      {previousAnalyses.length > 0 && (
+        <div className="bg-card rounded-lg p-6 border border-border border-t-4 border-t-secondary">
+          <div className="flex items-center gap-3 mb-4">
+            <History className="h-5 w-5 text-secondary" />
+            <h3 className="font-display text-lg">PREVIOUS ANALYSES — {analysis.company_name.toUpperCase()}</h3>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-secondary/20 text-secondary">{previousAnalyses.length}</span>
+          </div>
+          <p className="font-body text-xs text-muted-foreground mb-4">
+            All team analyses for this company, ordered chronologically. Compare changes over time.
+          </p>
+          <div className="space-y-3">
+            {previousAnalyses.map((prev, idx) => {
+              const scoreDiff = analysis.overall_risk_score - prev.overall_risk_score;
+              return (
+                <div
+                  key={prev.id}
+                  className="bg-muted/40 rounded-lg p-4 border border-border hover:bg-muted/60 cursor-pointer transition-colors"
+                  onClick={() => navigate(`/analysis/${prev.id}`)}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="font-display text-2xl">{prev.overall_risk_score}</span>
+                      {scoreDiff > 0 ? (
+                        <span className="flex items-center gap-0.5 text-risk-critical text-xs font-bold">
+                          <TrendingUp className="h-3.5 w-3.5" /> +{scoreDiff}
+                        </span>
+                      ) : scoreDiff < 0 ? (
+                        <span className="flex items-center gap-0.5 text-risk-low text-xs font-bold">
+                          <TrendingDown className="h-3.5 w-3.5" /> {scoreDiff}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-0.5 text-muted-foreground text-xs font-bold">
+                          <Minus className="h-3.5 w-3.5" /> 0
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary/20 text-secondary">{prev.report_year}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${getRiskBgColor(prev.overall_risk_level)}`}>{prev.overall_risk_level}</span>
+                        <span className="font-body text-[10px] text-muted-foreground">
+                          {new Date(prev.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                        </span>
+                        <span className="font-body text-[10px] text-muted-foreground">
+                          • {prev.findings_count} finding{prev.findings_count !== 1 ? "s" : ""}
+                        </span>
+                        {prev.user_id && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary/10 text-primary font-bold">Team Member</span>
+                        )}
+                        {!prev.user_id && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-risk-low-bg text-risk-low font-bold">Demo</span>
+                        )}
+                      </div>
+                      {prev.top_findings.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-1.5">
+                          {prev.top_findings.map((title, fi) => (
+                            <span key={fi} className="px-2 py-0.5 rounded text-[10px] bg-muted text-muted-foreground truncate max-w-[200px]">{title}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 hidden sm:block" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Language Analysis */}
       <div className="bg-card rounded-lg p-6 border border-border">
