@@ -294,18 +294,18 @@ country_affected text
 
 | Service | Cost |
 | --- | --- |
-| Domain (IONOS) | $10/year |
-| Frontend (Lovable) | Free tier |
-| Backend (Render) | Free tier |
-| AI Engine (Gemini) | Free tier |
+| Domain (IONOS) | $1/year |
+| Frontend (Lovable) | $25/month |
+| Backend (Render) | $1 (free tier) |
+| AI Engine (Gemini) | Free tier (might upgrade to other) |
 | Database (Supabase) | Free tier |
-| **Total** | **$10/year** |
+| **Total** | **$27/year** |
 
 ---
 
 ## 🤝 Built For
 
-**[Act For Farmed Animals (AFFA)](https://www.actforfarmedanimals.org/)** — A coalition of animal welfare organizations working to hold corporations accountable for their cage-free egg commitments across Southeast Asia.
+**[Act For Farmed Animals (AFFA) / Sinergia Animals](https://www.actforfarmedanimals.org/)** 
 
 CAE supports AFFA's mission by providing:
 
@@ -334,9 +334,6 @@ This project is built for nonprofit animal welfare research. For licensing inqui
 
 <p align="center">
 <strong>Truth. Extracted.</strong>
-
-
-
 
 <em>Because corporate promises should be verifiable.</em>
 </p>
