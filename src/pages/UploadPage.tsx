@@ -4,15 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { uploadReport, analyzeReport, getReportStatus, sanitizeErrorMessage } from "@/services/api";
+import { fetchAndSaveAnalysis } from "@/hooks/useRealAnalyses";
+import AnalysisProgress from "@/components/AnalysisProgress";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function UploadPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [files, setFiles] = useState<{ file: File; companyName: string; reportYear: string }[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
+  const [progressStages, setProgressStages] = useState<Record<string, { stage: string; companyName: string }>>({});
 
   const onDrop = useCallback((accepted: File[]) => {
     setFiles(prev => [...prev, ...accepted.map(f => ({ file: f, companyName: "", reportYear: "2024" }))]);
@@ -20,84 +27,84 @@ export default function UploadPage() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "application/pdf": [".pdf"] }, maxFiles: 10 });
 
-  const handleAnalyze = async () => {
-    if (!user) {
-      toast.error("You must be signed in.");
-      return;
-    }
+  const updateStage = (key: string, stage: string, companyName: string) => {
+    setProgressStages(prev => ({ ...prev, [key]: { stage, companyName } }));
+  };
 
+  const removeStage = (key: string) => {
+    setProgressStages(prev => { const copy = { ...prev }; delete copy[key]; return copy; });
+  };
+
+  const handleAnalyze = async () => {
+    if (!user) { toast.error("You must be signed in."); return; }
     setAnalyzing(true);
     try {
       for (const uf of files) {
-        // 1. Upload PDF to cloud storage
+        const key = `${uf.file.name}-${Date.now()}`;
+        updateStage(key, "uploading", uf.companyName);
+
         const filePath = `${user.id}/${Date.now()}_${uf.file.name}`;
         const { error: storageError } = await supabase.storage.from("reports").upload(filePath, uf.file);
-        if (storageError) {
-          toast.error(`Storage upload failed for ${uf.file.name}: ${storageError.message}`);
-          continue;
-        }
+        if (storageError) { toast.error(`Storage upload failed: ${storageError.message}`); removeStage(key); continue; }
 
-        // 2. Create a report record in the database
         const { data: report, error: dbError } = await supabase.from("reports").insert({
-          user_id: user.id,
-          file_name: uf.file.name,
-          file_size: uf.file.size,
-          file_url: filePath,
-          company_name: uf.companyName,
-          report_year: parseInt(uf.reportYear),
-          status: "uploading",
+          user_id: user.id, file_name: uf.file.name, file_size: uf.file.size, file_url: filePath,
+          company_name: uf.companyName, report_year: parseInt(uf.reportYear), status: "uploading",
         }).select().single();
+        if (dbError || !report) { toast.error(`Failed to create report record`); removeStage(key); continue; }
 
-        if (dbError || !report) {
-          toast.error(`Failed to create report record for ${uf.file.name}`);
-          continue;
-        }
-
-        // 3. Try to call FastAPI backend for analysis
         try {
           const uploadResult = await uploadReport(uf.file);
-          toast.success(`Uploaded ${uf.file.name} to AI engine`);
-
-          // Update DB with backend report_id
+          updateStage(key, "processing", uf.companyName);
           await supabase.from("reports").update({ status: "processing" }).eq("id", report.id);
 
-          // Trigger analysis
           await analyzeReport(uploadResult.report_id, uf.companyName, parseInt(uf.reportYear));
-          toast.info(`Analysis started for ${uf.companyName}`);
+          updateStage(key, "analyzing", uf.companyName);
 
-          // Poll for status
+          // Poll every 3 seconds
           const pollInterval = setInterval(async () => {
             try {
               const status = await getReportStatus(uploadResult.report_id);
-              if (status.status === "completed") {
+              if (status.status === "completed" && status.analysis_id) {
                 clearInterval(pollInterval);
-                await supabase.from("reports").update({ status: "completed", processing_completed_at: new Date().toISOString() }).eq("id", report.id);
+                updateStage(key, "saving", uf.companyName);
+
+                const savedId = await fetchAndSaveAnalysis(
+                  status.analysis_id, user.id, report.id, uf.companyName, parseInt(uf.reportYear)
+                );
+
+                await supabase.from("reports").update({
+                  status: "completed",
+                  processing_completed_at: new Date().toISOString(),
+                  analysis_id: savedId,
+                } as any).eq("id", report.id);
+
+                updateStage(key, "completed", uf.companyName);
                 toast.success(`Analysis completed for ${uf.companyName}!`);
+                queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
+
+                setTimeout(() => {
+                  removeStage(key);
+                  if (savedId) navigate(`/analysis/${savedId}`);
+                }, 1500);
               } else if (status.status === "failed") {
                 clearInterval(pollInterval);
                 await supabase.from("reports").update({ status: "failed" }).eq("id", report.id);
                 toast.error(`Analysis failed for ${uf.companyName}: ${sanitizeErrorMessage(status.error || "Unknown error")}`);
+                removeStage(key);
               }
-            } catch {
-              // Backend might be slow, keep polling
-            }
-          }, 5000);
-
-          // Stop polling after 5 minutes
-          setTimeout(() => clearInterval(pollInterval), 300000);
-        } catch (backendErr: any) {
-          // Backend unavailable — file is still stored in cloud
+            } catch { /* keep polling */ }
+          }, 3000);
+          setTimeout(() => { clearInterval(pollInterval); removeStage(key); }, 300000);
+        } catch {
           await supabase.from("reports").update({ status: "pending" }).eq("id", report.id);
-          toast.warning(`${uf.file.name} saved to cloud. Backend analysis will run when the server is available.`);
+          toast.warning(`${uf.file.name} saved to cloud. Backend analysis will run when available.`);
+          removeStage(key);
         }
       }
-
       setFiles([]);
-    } catch (err: any) {
-      toast.error(`Error: ${sanitizeErrorMessage(err.message)}`);
-    } finally {
-      setAnalyzing(false);
-    }
+    } catch (err: any) { toast.error(`Error: ${sanitizeErrorMessage(err.message)}`); }
+    finally { setAnalyzing(false); }
   };
 
   return (
@@ -114,6 +121,15 @@ export default function UploadPage() {
         <p className="font-body text-sm text-muted-foreground">Accepts .pdf files (up to 10 at once, max 50MB each)</p>
       </div>
 
+      {/* Progress indicators */}
+      {Object.entries(progressStages).length > 0 && (
+        <div className="space-y-3">
+          {Object.entries(progressStages).map(([key, { stage, companyName }]) => (
+            <AnalysisProgress key={key} stage={stage} companyName={companyName} />
+          ))}
+        </div>
+      )}
+
       {files.length > 0 && (
         <div className="bg-card rounded-lg border border-border p-4 space-y-3">
           {files.map((uf, i) => (
@@ -123,8 +139,7 @@ export default function UploadPage() {
                 <p className="font-body text-xs text-muted-foreground">{(uf.file.size / 1024 / 1024).toFixed(1)} MB</p>
               </div>
               <Input
-                placeholder="Company Name"
-                value={uf.companyName}
+                placeholder="Company Name" value={uf.companyName}
                 onChange={e => { const c = [...files]; c[i].companyName = e.target.value; setFiles(c); }}
                 className="w-full sm:w-40 text-sm font-body"
               />
