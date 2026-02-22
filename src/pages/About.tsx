@@ -13,6 +13,10 @@ const evasionPatterns = [
   "Geographic Tiering",
   "Franchise Firewall",
   "Availability Clause",
+  "Timeline Deferral",
+  "Silent Delisting",
+  "Corporate Ghosting",
+  "Commitment Downgrade",
 ];
 
 const techStack = [
