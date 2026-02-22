@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { Upload, Search, FileText, Shield, VolumeX, Globe, Store, Clock } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Upload, Search, FileText, Shield, VolumeX, Globe, Store, Clock, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import caeLogoDark from "@/assets/cae-logo-dark.png";
 
 const evasionPatterns = [
@@ -91,11 +92,19 @@ function ContactSection() {
 }
 
 export default function Landing() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top Bar */}
       <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
-        <Link to="/" className="flex items-center gap-3">
+        <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-3">
           <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply cursor-pointer" />
           <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">Corporate Accountability Engine</span>
         </Link>
@@ -103,12 +112,26 @@ export default function Landing() {
         <div className="flex items-center gap-2 sm:gap-3">
           <a href="#contact" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">CONTACT</a>
           <Link to="/about" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">ABOUT</Link>
-          <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">SIGN IN</Link>
-          <Link to="/auth">
-            <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90">
-              Get Started
-            </Button>
-          </Link>
+          {user ? (
+            <>
+              <Link to="/dashboard" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">DASHBOARD</Link>
+              <div className="h-8 w-8 rounded-full bg-sidebar flex items-center justify-center text-sidebar-foreground text-xs font-bold">
+                {user.email?.charAt(0).toUpperCase() || "U"}
+              </div>
+              <button onClick={handleSignOut} className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all flex items-center gap-1">
+                <LogOut className="h-3 w-3" /> SIGN OUT
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">SIGN IN</Link>
+              <Link to="/auth">
+                <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
@@ -183,7 +206,7 @@ export default function Landing() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-10 text-center">
           <div>
-            <CountUp target="60" suffix="s" />
+            <CountUp target="3-5" suffix=" min" />
             <p className="font-body text-sm text-muted-foreground mt-2">Audit time (from 2 weeks)</p>
           </div>
           <div>

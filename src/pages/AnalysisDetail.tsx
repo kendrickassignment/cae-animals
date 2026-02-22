@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, AlertTriangle, ChevronDown, ChevronRight, Download, Copy, FileDown, Loader2, History, TrendingUp, TrendingDown, Minus, CheckCircle2, Flag, ShieldAlert, FileText, ExternalLink, Shield } from "lucide-react";
+import { ArrowLeft, AlertTriangle, ChevronDown, ChevronRight, Download, Copy, FileDown, Loader2, History, TrendingUp, TrendingDown, Minus, CheckCircle2, Flag, ShieldAlert, FileText, ExternalLink, Shield, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { seedAnalyses, getRiskBgColor, getIndonesiaStatusLabel, getIndonesiaStatusColor, getFindingTypeLabel } from "@/data/seed-data";
 import type { SeedAnalysis } from "@/data/seed-data";
@@ -45,6 +45,8 @@ export default function AnalysisDetail() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [flagReason, setFlagReason] = useState("");
   const [showFlagForm, setShowFlagForm] = useState(false);
+  const [showVerifyRequestForm, setShowVerifyRequestForm] = useState(false);
+  const [verifyRequestNote, setVerifyRequestNote] = useState("");
 
   // Try seed data first
   const seedAnalysis = useMemo(() => seedAnalyses.find(a => a.id === id), [id]);
@@ -53,7 +55,7 @@ export default function AnalysisDetail() {
   const { data: realAnalyses } = useRealAnalyses();
   const supabaseAnalysis = useMemo(() => realAnalyses?.find(a => a.id === id), [realAnalyses, id]);
 
-  // If not found in either, try fetching directly from Supabase by ID
+  // Fetch directly from DB — always enabled for non-seed data to get fresh verified/flag state
   const { data: directAnalysis, isLoading } = useQuery({
     queryKey: ["analysis-detail", id],
     queryFn: async () => {
@@ -95,7 +97,7 @@ export default function AnalysisDetail() {
         report_id: data.report_id || "",
       } as SeedAnalysis;
     },
-    enabled: !seedAnalysis && !supabaseAnalysis && !!id,
+    enabled: !seedAnalysis && !!id,
   });
 
   const analysis: SeedAnalysis | null | undefined = seedAnalysis || supabaseAnalysis || directAnalysis;
@@ -119,10 +121,11 @@ export default function AnalysisDetail() {
     enabled: !!analysisUserId,
   });
 
-  // 2. Verified badge — fetch verified status from the raw DB row
+  // 2. Verified badge — use directAnalysis which refetches after invalidation
   const rawDbRow = useMemo(() => {
     if (isSeedData) return null;
-    return (supabaseAnalysis as any) || (directAnalysis as any) || null;
+    // Prefer directAnalysis since it's keyed by ["analysis-detail", id] and gets invalidated
+    return (directAnalysis as any) || (supabaseAnalysis as any) || null;
   }, [supabaseAnalysis, directAnalysis, isSeedData]);
 
   const isVerified = rawDbRow?.verified === true;
@@ -142,12 +145,54 @@ export default function AnalysisDetail() {
       toast.success(verified ? "Analysis marked as verified" : "Verification removed");
       queryClient.invalidateQueries({ queryKey: ["analysis-detail", id] });
       queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
+      // Force immediate refetch
+      queryClient.refetchQueries({ queryKey: ["analysis-detail", id] });
     },
     onError: () => toast.error("Failed to update verification status"),
   });
 
   // 3. Flags
   const { activeFlags, userHasFlagged, flagCount, showWarning, submitFlag, dismissAllFlags } = useAnalysisFlags(isSeedData ? undefined : id);
+
+  // Verification request status
+  const { data: existingVerifyRequest } = useQuery({
+    queryKey: ["verification-request", id, user?.id],
+    queryFn: async () => {
+      if (!id || !user) return null;
+      const { data } = await supabase
+        .from("verification_requests")
+        .select("*")
+        .eq("analysis_id", id)
+        .eq("requester_id", user.id)
+        .eq("status", "pending")
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!id && !!user && !isSeedData && !isVerified,
+  });
+
+  const verifyRequestMutation = useMutation({
+    mutationFn: async (note: string) => {
+      const { error } = await supabase.functions.invoke("send-verification-request", {
+        body: {
+          analysis_id: id,
+          note: note || null,
+          company_name: analysis?.company_name,
+          report_year: analysis?.report_year,
+          risk_score: analysis?.overall_risk_score,
+          analysis_url: `${window.location.origin}/analysis/${id}`,
+        },
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Verification request sent!");
+      setShowVerifyRequestForm(false);
+      setVerifyRequestNote("");
+      queryClient.invalidateQueries({ queryKey: ["verification-request", id, user?.id] });
+    },
+    onError: () => toast.error("Failed to send verification request"),
+  });
 
   // 4. Source Document — fetch report record
   const reportId = analysis?.report_id;
@@ -320,9 +365,23 @@ export default function AnalysisDetail() {
               </Tooltip>
             )}
             {!isSeedData && !isVerified && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground">
-                <Shield className="h-3.5 w-3.5" /> Unverified
-              </span>
+              <>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground">
+                  <Shield className="h-3.5 w-3.5" /> Unverified
+                </span>
+                {existingVerifyRequest ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-secondary/20 text-secondary">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Verification Requested ✓
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => setShowVerifyRequestForm(!showVerifyRequestForm)}
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                  >
+                    <Send className="h-3 w-3" /> Request Verification
+                  </button>
+                )}
+              </>
             )}
           </div>
           <div className="flex gap-2 mt-2 flex-wrap">
@@ -408,6 +467,27 @@ export default function AnalysisDetail() {
               Submit Flag
             </Button>
             <Button size="sm" variant="ghost" className="font-body text-xs" onClick={() => { setShowFlagForm(false); setFlagReason(""); }}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Verification Request Form */}
+      {showVerifyRequestForm && (
+        <div className="bg-card rounded-lg p-4 border border-primary/30 space-y-3 animate-fade-in">
+          <p className="font-body text-sm font-bold text-foreground">Request admin verification</p>
+          <textarea
+            value={verifyRequestNote}
+            onChange={e => setVerifyRequestNote(e.target.value)}
+            placeholder="Optional note for the admin (e.g., why this should be prioritized)..."
+            className="w-full bg-muted border border-border rounded-md p-3 font-body text-sm resize-none h-20"
+          />
+          <div className="flex gap-2">
+            <Button size="sm" className="font-body text-xs font-bold" onClick={() => verifyRequestMutation.mutate(verifyRequestNote)} disabled={verifyRequestMutation.isPending}>
+              <Send className="h-3.5 w-3.5 mr-1.5" /> Send Request
+            </Button>
+            <Button size="sm" variant="ghost" className="font-body text-xs" onClick={() => { setShowVerifyRequestForm(false); setVerifyRequestNote(""); }}>
               Cancel
             </Button>
           </div>

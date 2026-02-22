@@ -372,6 +372,41 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_requests: {
+        Row: {
+          analysis_id: string
+          created_at: string
+          id: string
+          note: string | null
+          requester_id: string
+          status: string
+        }
+        Insert: {
+          analysis_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          requester_id: string
+          status?: string
+        }
+        Update: {
+          analysis_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          requester_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_requests_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

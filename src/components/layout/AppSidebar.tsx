@@ -50,11 +50,11 @@ export default function AppSidebar({ open, onClose }: AppSidebarProps) {
         {/* Logo */}
         <div className={cn("pt-4 pb-2 flex items-center", collapsed ? "px-2 justify-center" : "px-5 justify-between")}>
           {!collapsed ? (
-            <Link to="/">
+            <Link to="/dashboard">
               <img src={caeLogoTruth} alt="CAE Logo" className="w-[120px] cursor-pointer" />
             </Link>
           ) : (
-            <Link to="/" className="font-display text-lg text-sidebar-primary cursor-pointer">
+            <Link to="/dashboard" className="font-display text-lg text-sidebar-primary cursor-pointer">
               C
             </Link>
           )}
