@@ -1,15 +1,20 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, AlertTriangle, ChevronDown, ChevronRight, Download, Copy, FileDown } from "lucide-react";
+import { ArrowLeft, AlertTriangle, ChevronDown, ChevronRight, Download, Copy, FileDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { seedAnalyses, getRiskBgColor, getIndonesiaStatusLabel, getIndonesiaStatusColor, getFindingTypeLabel } from "@/data/seed-data";
+import type { SeedAnalysis } from "@/data/seed-data";
 import { useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useRealAnalyses } from "@/hooks/useRealAnalyses";
+import { getAnalysis } from "@/services/api";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const EVASION_TYPES = ["hedging_language", "geographic_exclusion", "strategic_silence", "franchise_firewall", "availability_clause", "timeline_deferral"];
 
-function exportFindingsCsv(analysis: typeof seedAnalyses[0]) {
+function exportFindingsCsv(analysis: SeedAnalysis) {
   const headers = ["finding_type", "severity", "title", "description", "exact_quote", "page_number", "section", "country_affected"];
   const rows = analysis.findings.map(f => headers.map(h => {
     const val = (f as any)[h] ?? "";
@@ -32,7 +37,60 @@ export default function AnalysisDetail() {
   const [expandedFinding, setExpandedFinding] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState("all");
 
-  const analysis = useMemo(() => seedAnalyses.find(a => a.id === id), [id]);
+  // Try seed data first
+  const seedAnalysis = useMemo(() => seedAnalyses.find(a => a.id === id), [id]);
+
+  // Try Supabase for real analyses
+  const { data: realAnalyses } = useRealAnalyses();
+  const supabaseAnalysis = useMemo(() => realAnalyses?.find(a => a.id === id), [realAnalyses, id]);
+
+  // If not found in either, try fetching directly from Supabase by ID
+  const { data: directAnalysis, isLoading } = useQuery({
+    queryKey: ["analysis-detail", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("analysis_results")
+        .select("*")
+        .eq("id", id!)
+        .single();
+      if (error || !data) return null;
+      // Map to SeedAnalysis shape
+      const findings = ((data as any).findings || []).map((f: any, idx: number) => ({
+        id: f.id || `rf-${idx}`,
+        finding_type: f.finding_type || f.type || "other",
+        severity: f.severity || "medium",
+        title: f.title || "Untitled Finding",
+        description: f.description || "",
+        exact_quote: f.exact_quote || f.quote || "",
+        page_number: f.page_number || 0,
+        section: f.section || null,
+        paragraph: f.paragraph || null,
+        country_affected: f.country_affected || null,
+      }));
+      return {
+        ...data,
+        company_name: (data as any).company_name || "Unknown Company",
+        report_year: (data as any).report_year || new Date().getFullYear(),
+        overall_risk_level: data.overall_risk_level || "medium",
+        overall_risk_score: data.overall_risk_score || 0,
+        global_claim: data.global_claim || "",
+        indonesia_mentioned: data.indonesia_mentioned ?? false,
+        indonesia_status: data.indonesia_status || "silent",
+        sea_countries_mentioned: data.sea_countries_mentioned || [],
+        sea_countries_excluded: data.sea_countries_excluded || [],
+        binding_language_count: data.binding_language_count || 0,
+        hedging_language_count: data.hedging_language_count || 0,
+        summary: data.summary || "",
+        status: "completed",
+        created_at: data.created_at,
+        findings,
+        report_id: data.report_id || "",
+      } as SeedAnalysis;
+    },
+    enabled: !seedAnalysis && !supabaseAnalysis && !!id,
+  });
+
+  const analysis: SeedAnalysis | null | undefined = seedAnalysis || supabaseAnalysis || directAnalysis;
 
   const filteredFindings = useMemo(() => {
     if (!analysis) return [];
@@ -48,6 +106,13 @@ export default function AnalysisDetail() {
       detected: analysis.findings.some(f => f.finding_type === type),
     }));
   }, [analysis]);
+
+  if (isLoading) return (
+    <div className="text-center py-20 animate-fade-in">
+      <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+      <p className="font-body text-muted-foreground">Loading analysis...</p>
+    </div>
+  );
 
   if (!analysis) return (
     <div className="text-center py-20 animate-fade-in">
@@ -176,12 +241,8 @@ export default function AnalysisDetail() {
       {/* Findings */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <h3 className="font-display text-xl">ALL FINDINGS</h3>
-          <select
-            value={typeFilter}
-            onChange={e => setTypeFilter(e.target.value)}
-            className="font-body text-sm bg-card border border-border rounded-md px-3 py-1.5"
-          >
+          <h3 className="font-display text-xl">ALL FINDINGS ({analysis.findings.length})</h3>
+          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="font-body text-sm bg-card border border-border rounded-md px-3 py-1.5">
             <option value="all">All Types</option>
             {EVASION_TYPES.map(t => <option key={t} value={t}>{getFindingTypeLabel(t)}</option>)}
             <option value="binding_commitment">Binding Commitment</option>
@@ -191,7 +252,7 @@ export default function AnalysisDetail() {
         <div className="space-y-3">
           {filteredFindings.map(finding => (
             <div key={finding.id} className="bg-card rounded-lg border border-border overflow-hidden">
-               <button
+              <button
                 onClick={() => setExpandedFinding(expandedFinding === finding.id ? null : finding.id)}
                 className="w-full flex items-center gap-2 sm:gap-3 p-3 sm:p-4 text-left hover:bg-muted/30 transition-colors flex-wrap"
               >
