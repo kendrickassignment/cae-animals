@@ -7,6 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { seedAnalyses, seedCompanies, getRiskBgColor } from "@/data/seed-data";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { uploadReport, analyzeReport, getReportStatus } from "@/services/api";
 
 const RISK_COLORS: Record<string, string> = {
   critical: "#DC2626",
@@ -17,7 +21,59 @@ const RISK_COLORS: Record<string, string> = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [uploadFiles, setUploadFiles] = useState<{ file: File; companyName: string; reportYear: string }[]>([]);
+  const [analyzing, setAnalyzing] = useState(false);
+
+  const handleAnalyze = async () => {
+    if (!user) {
+      toast.error("You must be signed in.");
+      return;
+    }
+    setAnalyzing(true);
+    try {
+      for (const uf of uploadFiles) {
+        const filePath = `${user.id}/${Date.now()}_${uf.file.name}`;
+        const { error: storageError } = await supabase.storage.from("reports").upload(filePath, uf.file);
+        if (storageError) { toast.error(`Storage upload failed for ${uf.file.name}: ${storageError.message}`); continue; }
+
+        const { data: report, error: dbError } = await supabase.from("reports").insert({
+          user_id: user.id, file_name: uf.file.name, file_size: uf.file.size, file_url: filePath,
+          company_name: uf.companyName, report_year: parseInt(uf.reportYear), status: "uploading",
+        }).select().single();
+        if (dbError || !report) { toast.error(`Failed to create report record for ${uf.file.name}`); continue; }
+
+        try {
+          const uploadResult = await uploadReport(uf.file);
+          toast.success(`Uploaded ${uf.file.name} to AI engine`);
+          await supabase.from("reports").update({ status: "processing" }).eq("id", report.id);
+          await analyzeReport(uploadResult.report_id, uf.companyName, parseInt(uf.reportYear));
+          toast.info(`Analysis started for ${uf.companyName}`);
+
+          const pollInterval = setInterval(async () => {
+            try {
+              const status = await getReportStatus(uploadResult.report_id);
+              if (status.status === "completed") {
+                clearInterval(pollInterval);
+                await supabase.from("reports").update({ status: "completed", processing_completed_at: new Date().toISOString() }).eq("id", report.id);
+                toast.success(`Analysis completed for ${uf.companyName}!`);
+              } else if (status.status === "failed") {
+                clearInterval(pollInterval);
+                await supabase.from("reports").update({ status: "failed" }).eq("id", report.id);
+                toast.error(`Analysis failed for ${uf.companyName}: ${status.error || "Unknown error"}`);
+              }
+            } catch { /* keep polling */ }
+          }, 5000);
+          setTimeout(() => clearInterval(pollInterval), 300000);
+        } catch {
+          await supabase.from("reports").update({ status: "pending" }).eq("id", report.id);
+          toast.warning(`${uf.file.name} saved to cloud. Backend analysis will run when available.`);
+        }
+      }
+      setUploadFiles([]);
+    } catch (err: any) { toast.error(`Error: ${err.message}`); }
+    finally { setAnalyzing(false); }
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map(f => ({ file: f, companyName: "", reportYear: "2024" }));
@@ -113,8 +169,8 @@ export default function Dashboard() {
                   </Select>
                 </div>
               ))}
-              <Button className="w-full font-body font-bold" disabled={uploadFiles.some(f => !f.companyName)}>
-                START ANALYSIS
+              <Button className="w-full font-body font-bold" disabled={uploadFiles.some(f => !f.companyName) || analyzing} onClick={handleAnalyze}>
+                {analyzing ? "ANALYZING..." : "START ANALYSIS"}
               </Button>
             </div>
           )}
