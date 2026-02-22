@@ -1,8 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 function escapeHtml(text: string): string {
@@ -50,6 +51,39 @@ serve(async (req) => {
         headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
       });
     }
+
+    // Rate limiting
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+
+    // Clean up old entries
+    await supabase
+      .from("contact_rate_limits")
+      .delete()
+      .lt("submitted_at", oneHourAgo);
+
+    // Check recent submissions from this IP
+    const { count } = await supabase
+      .from("contact_rate_limits")
+      .select("*", { count: "exact", head: true })
+      .eq("ip_address", clientIp)
+      .gte("submitted_at", oneHourAgo);
+
+    if (count !== null && count >= 3) {
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please try again later." }),
+        { status: 429, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Record this submission
+    await supabase
+      .from("contact_rate_limits")
+      .insert({ ip_address: clientIp });
 
     const safeName = escapeHtml(name.trim());
     const safeEmail = escapeHtml(email.trim());
