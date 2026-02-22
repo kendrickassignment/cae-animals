@@ -134,7 +134,12 @@ export default function Dashboard() {
 
   const riskDistribution = useMemo(() => {
     const counts: Record<string, number> = { critical: 0, high: 0, medium: 0, low: 0 };
-    allAnalyses.forEach(a => { counts[a.overall_risk_level] = (counts[a.overall_risk_level] || 0) + 1; });
+    const countedAnalyses = allAnalyses.filter(a => {
+      const isReal = (a as any).isReal;
+      if (!isReal) return true;
+      return (a as any).verified === true;
+    });
+    countedAnalyses.forEach(a => { counts[a.overall_risk_level] = (counts[a.overall_risk_level] || 0) + 1; });
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
   }, [allAnalyses]);
 
