@@ -94,18 +94,18 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top Bar */}
-      <nav className="bg-primary h-16 flex items-center px-6 sticky top-0 z-50">
+      <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-3">
           <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply cursor-pointer" />
           <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">Corporate Accountability Engine</span>
         </Link>
         <div className="flex-1" />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <a href="#contact" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">CONTACT</a>
           <Link to="/about" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">ABOUT</Link>
           <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">SIGN IN</Link>
           <Link to="/auth">
-            <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-sm px-5 hover:bg-sidebar/90">
+            <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90">
               Get Started
             </Button>
           </Link>

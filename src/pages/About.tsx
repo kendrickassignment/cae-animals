@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Linkedin, Github, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 import caeLogoTruth from "@/assets/cae-logo-truth.png";
 import caeLogoDark from "@/assets/cae-logo-dark.png";
 import Footer from "@/components/layout/Footer";
@@ -26,28 +27,40 @@ const techStack = [
 ];
 
 export default function About() {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Navbar - same as landing */}
-      <nav className="bg-primary h-16 flex items-center px-6 sticky top-0 z-50">
+      {/* Navbar - same as landing, auth-aware */}
+      <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-3">
           <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply cursor-pointer" />
           <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">Corporate Accountability Engine</span>
         </Link>
         <div className="flex-1" />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link to="/" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">HOME</Link>
           <a href="/#contact" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">CONTACT</a>
-          <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">SIGN IN</Link>
-          <Link to="/auth">
-            <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-sm px-5 hover:bg-sidebar/90">
-              Get Started
-            </Button>
-          </Link>
+          {user ? (
+            <Link to="/dashboard">
+              <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90">
+                Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">SIGN IN</Link>
+              <Link to="/auth">
+                <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto space-y-8 py-12 px-6">
+      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 py-8 sm:py-12 px-4 sm:px-6">
         {/* Hero */}
         <div className="bg-card rounded-lg border-t-4 border-primary p-8 text-center">
           <img src={caeLogoTruth} alt="CAE Logo" className="w-[200px] mx-auto mb-4" />

@@ -62,7 +62,7 @@ export default function AnalysisDetail() {
   const isSeedData = ["a1", "a2", "a3", "a4", "a5"].includes(analysis.id);
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-4xl">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in max-w-4xl">
       {/* Header */}
       <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2 text-muted-foreground hover:text-foreground font-nav text-xs tracking-wider transition-colors">
         <ArrowLeft className="h-4 w-4" /> BACK TO DASHBOARD
@@ -191,9 +191,9 @@ export default function AnalysisDetail() {
         <div className="space-y-3">
           {filteredFindings.map(finding => (
             <div key={finding.id} className="bg-card rounded-lg border border-border overflow-hidden">
-              <button
+               <button
                 onClick={() => setExpandedFinding(expandedFinding === finding.id ? null : finding.id)}
-                className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/30 transition-colors"
+                className="w-full flex items-center gap-2 sm:gap-3 p-3 sm:p-4 text-left hover:bg-muted/30 transition-colors flex-wrap"
               >
                 <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${getRiskBgColor(finding.severity)}`}>
                   {finding.severity}
@@ -224,13 +224,13 @@ export default function AnalysisDetail() {
       </div>
 
       {/* Export */}
-      <div className="flex flex-wrap gap-3">
-        <Button className="font-body font-bold text-sm" onClick={() => exportFindingsCsv(analysis)}><Download className="h-4 w-4 mr-2" /> EXPORT CSV</Button>
-        <Button variant="outline" className="font-body font-bold text-sm border-2" onClick={copySum}><Copy className="h-4 w-4 mr-2" /> COPY SUMMARY</Button>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Button className="font-body font-bold text-sm w-full sm:w-auto" onClick={() => exportFindingsCsv(analysis)}><Download className="h-4 w-4 mr-2" /> EXPORT CSV</Button>
+        <Button variant="outline" className="font-body font-bold text-sm border-2 w-full sm:w-auto" onClick={copySum}><Copy className="h-4 w-4 mr-2" /> COPY SUMMARY</Button>
         <Tooltip>
           <TooltipTrigger asChild>
             <span>
-              <Button variant="outline" className="font-body font-bold text-sm border-2" disabled={isSeedData}><FileDown className="h-4 w-4 mr-2" /> DOWNLOAD PDF</Button>
+              <Button variant="outline" className="font-body font-bold text-sm border-2 w-full sm:w-auto" disabled={isSeedData}><FileDown className="h-4 w-4 mr-2" /> DOWNLOAD PDF</Button>
             </span>
           </TooltipTrigger>
           {isSeedData && <TooltipContent><p>Available for uploaded reports only</p></TooltipContent>}
