@@ -11,6 +11,7 @@ export interface RealAnalysis extends SeedAnalysis {
   output_tokens?: number;
   cost_estimate_usd?: number;
   analyzed_at?: string;
+  verified?: boolean;
   isReal: true;
 }
 
@@ -52,6 +53,7 @@ function mapBackendToAnalysis(row: any): RealAnalysis {
     output_tokens: row.output_tokens,
     cost_estimate_usd: row.cost_estimate_usd,
     analyzed_at: row.analyzed_at,
+    verified: row.verified ?? false,
     isReal: true,
   };
 }

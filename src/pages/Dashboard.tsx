@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, Building2, AlertTriangle, BarChart3 } from "lucide-react";
+import { Upload, FileText, Building2, AlertTriangle, BarChart3, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -118,11 +118,17 @@ export default function Dashboard() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "application/pdf": [".pdf"] }, maxFiles: 10 });
 
   const stats = useMemo(() => {
-    const totalReports = allAnalyses.length;
-    const companyNames = new Set([...allAnalyses.map(a => a.company_name), ...seedCompanies.map(c => c.name)]);
+    // Only count verified real analyses + all seed/demo analyses toward stats
+    const countedAnalyses = allAnalyses.filter(a => {
+      const isReal = (a as any).isReal;
+      if (!isReal) return true; // seed/demo always count
+      return (a as any).verified === true; // real analyses only count when verified
+    });
+    const totalReports = countedAnalyses.length;
+    const companyNames = new Set([...countedAnalyses.map(a => a.company_name), ...seedCompanies.map(c => c.name)]);
     const totalCompanies = companyNames.size;
-    const highRisk = allAnalyses.filter(a => a.overall_risk_level === "critical" || a.overall_risk_level === "high").length;
-    const avgScore = totalReports > 0 ? Math.round(allAnalyses.reduce((s, a) => s + a.overall_risk_score, 0) / totalReports) : 0;
+    const highRisk = countedAnalyses.filter(a => a.overall_risk_level === "critical" || a.overall_risk_level === "high").length;
+    const avgScore = totalReports > 0 ? Math.round(countedAnalyses.reduce((s, a) => s + a.overall_risk_score, 0) / totalReports) : 0;
     return { totalReports, totalCompanies, highRisk, avgScore };
   }, [allAnalyses]);
 
@@ -204,6 +210,7 @@ export default function Dashboard() {
                       <th className="font-nav text-[11px] tracking-wider text-left p-3 hidden sm:table-cell">YEAR</th>
                       <th className="font-nav text-[11px] tracking-wider text-left p-3">RISK</th>
                       <th className="font-nav text-[11px] tracking-wider text-left p-3 hidden md:table-cell">SCORE</th>
+                      <th className="font-nav text-[11px] tracking-wider text-left p-3 hidden md:table-cell">STATUS</th>
                       <th className="font-nav text-[11px] tracking-wider text-left p-3 hidden lg:table-cell">SOURCE</th>
                       <th className="font-nav text-[11px] tracking-wider text-left p-3"></th>
                     </tr>
@@ -217,6 +224,23 @@ export default function Dashboard() {
                           <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskBgColor(analysis.overall_risk_level)}`}>{analysis.overall_risk_level}</span>
                         </td>
                         <td className="p-3 font-display text-lg hidden md:table-cell">{analysis.overall_risk_score}</td>
+                        <td className="p-3 hidden md:table-cell">
+                          {(analysis as any).isReal ? (
+                            (analysis as any).verified ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-risk-low-bg text-risk-low">
+                                <CheckCircle2 className="h-3 w-3" /> Verified
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground">
+                                <XCircle className="h-3 w-3" /> Unverified
+                              </span>
+                            )
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-risk-low-bg text-risk-low">
+                              <CheckCircle2 className="h-3 w-3" /> Demo
+                            </span>
+                          )}
+                        </td>
                         <td className="p-3 hidden lg:table-cell">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${(analysis as any).isReal ? "bg-primary/10 text-primary" : "bg-risk-low-bg text-risk-low"}`}>
                             {(analysis as any).isReal ? "⚡ Live" : "✓ Demo"}
