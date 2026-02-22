@@ -1,73 +1,344 @@
-# Welcome to your Lovable project
+<p align="center">
+  <img src="https://img.shields.io/badge/Truth-Extracted-dc2626?style=for-the-badge&logo=shield&logoColor=white" alt="Truth Extracted" />
+  <img src="https://img.shields.io/badge/Built%20for-AFFA-f59e0b?style=for-the-badge" alt="Built for people and animals" />
+  <img src="https://img.shields.io/badge/AI%20Powered-Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="AI Powered" />
+</p>
 
-## Project info
+# 🔍 Corporate Accountability Engine (CAE)
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**An adversarial AI platform that analyzes corporate sustainability reports to detect greenwashing, evasion patterns, and broken cage-free egg commitments — with a focus on Southeast Asia.**
 
-## How can I edit this code?
+> *"Truth. Extracted."* — [truthextracted.com](https://truthextracted.com)
 
-There are several ways of editing your application.
+Built for [Act For Farmed Animals (AFFA)](https://www.actforfarmedanimals.org/) to hold multinational corporations accountable for their animal welfare promises.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 🎯 What It Does
 
-Changes made via Lovable will be committed automatically to this repo.
+CAE uploads corporate sustainability PDFs, parses them, and uses adversarial AI analysis to detect:
 
-**Use your preferred IDE**
+| Pattern | Description |
+|---------|------------|
+| **Strategic Silence** | Company avoids mentioning cage-free eggs entirely — the absence IS the evidence |
+| **Hedging Language** | "We aspire to..." / "We aim to..." — soft language that avoids binding commitments |
+| **Geographic Exclusion** | Global commitments that quietly exclude Southeast Asian markets |
+| **Franchise Firewall** | Parent company deflects responsibility to franchisees |
+| **Timeline Deferral** | Pushing deadlines indefinitely ("by 2030... by 2035... by 2040...") |
+| **Availability Clause** | "Subject to local supply availability" — built-in escape hatches |
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Real Example: Unilever Indonesia (2024)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+CAE analyzed Unilever Indonesia's 300-page sustainability report (in Bahasa Indonesia) and found:
 
-Follow these steps:
+- 🔴 **CRITICAL** — Complete omission of cage-free egg commitment (Strategic Silence)
+- 🟡 **8 Hedging findings** — "kami yakin" (we believe), "menuju" (towards), "berupaya" (work to)
+- 📄 **Exact page citations** — p.3, p.9, p.46, p.47, p.48, p.158
+- 🇮🇩 **Indonesia Status: NO DATA — SILENT** — despite the global parent company committing to 100% cage-free
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🏗️ Architecture
 
-# Step 3: Install the necessary dependencies.
-npm i
+```text
+┌─────────────────┐     ┌────────────────────┐     ┌────────────────┐
+│   Frontend      │     │   Backend API      │     │   AI Engine    │
+│   (Lovable)     │────▶│   (Render)         │────▶│   (Gemini 2.0) │
+│   React + TS    │     │   FastAPI + Python │     │   Adversarial  │
+│   Tailwind CSS  │     │   PDF Parser       │     │   Analysis     │
+└────────┬────────┘     └────────────────────┘     └────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Database      │
+│   (Supabase)    │
+│   PostgreSQL    │
+│   Auth + RLS    │
+│   Storage       │
+└─────────────────┘
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Tech Stack
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+| Layer | Technology | Purpose |
+| --- | --- | --- |
+| **Frontend** | React, TypeScript, Tailwind CSS, shadcn/ui | Dashboard, analysis display, company tracking |
+| **Backend** | Python, FastAPI, PyPDF2/pdfplumber | PDF upload, parsing, AI orchestration |
+| **AI Engine** | Google Gemini 2.0 Flash | Adversarial analysis with structured JSON output |
+| **Database** | Supabase (PostgreSQL) | Permanent storage, auth, Row Level Security |
+| **Storage** | Supabase Storage | PDF file storage with ownership policies |
+| **Hosting** | Lovable (frontend), Render (backend) | Free tier deployment |
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📊 Features
 
-## What technologies are used for this project?
+### Dashboard
 
-This project is built with:
+* **Real-time statistics:** Total Reports, Companies Tracked, High Risk Findings, Avg Risk Score
+* **Recent analyses:** Table view with risk level badges
+* **Combined view:** Integrates seed data and real AI analyses
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### New Analysis
 
-## How can I deploy this project?
+* **PDF upload:** Supports files up to 50MB
+* **Real-time progress:** Uploading → Parsing PDF → Analyzing with AI → Complete
+* **Automatic navigation:** Routes directly to results upon completion
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### Analysis Detail
 
-## Can I connect a custom domain to my Lovable project?
+* **Executive Summary:** Automatically generated by AI
+* **Indonesia Status indicator:** Compliant / Partial / No Data — Silent
+* **Global claim extraction**
+* **Risk score (0-100)** with severity level
+* **Evasion pattern detection** with specific counts
+* **Binding vs. hedging language ratio**
+* **Individual findings** with severity badges, exact quotes, and page numbers
+* **CSV export** of all findings
 
-Yes, you can!
+### Companies
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+* **Company cards** with risk levels and report years
+* **Dynamic addition** from real analyses
+* **Historical tracking** across multiple reports
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Settings
+
+* Configure AI provider (Gemini, OpenAI, Groq, Mistral)
+* Backend URL configuration
+* API key management (stored client-side only)
+
+---
+
+## 🔒 Security
+
+### Row Level Security (RLS)
+
+All tables have RLS enabled with granular policies:
+
+| Table | SELECT | INSERT/UPDATE/DELETE |
+| --- | --- | --- |
+| `analysis_results` | All authenticated users | Owner only |
+| `companies` | All authenticated users | Owner only |
+| `findings` | All authenticated users | Report owner only (via subquery) |
+| `reports` | All authenticated users | Owner only |
+| `profiles` | Own profile only | Own profile only |
+| `user_roles` | Own roles only | — |
+| `contact_rate_limits` | Service role only | Service role only |
+
+### Additional Security Measures
+
+* ✅ All RLS policies use `(select auth.uid())` for query performance optimization
+* ✅ Contact form input sanitization (HTML entity escaping)
+* ✅ Contact form rate limiting (3 requests/IP/hour)
+* ✅ CORS restricted to specific frontend origins
+* ✅ localStorage cleared on sign-out
+* ✅ Leaked password protection enabled
+* ✅ Storage DELETE policy with ownership verification
+* ✅ Edge function CORS restricted (no wildcard)
+* ✅ Content security headers (X-Content-Type-Options: nosniff)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+* Node.js 18+
+* Python 3.11+
+* Supabase account
+* Google AI Studio API key (Gemini)
+
+### Frontend Setup
+
+```bash
+git clone [https://github.com/kendrickassignment/cae-animals.git](https://github.com/kendrickassignment/cae-animals.git)
+cd cae-animals
+npm install
+npm run dev
+
+```
+
+### Backend Setup
+
+The backend API is deployed separately. See the backend repository or configure via the Settings page:
+
+1. Navigate to **Settings** in the app.
+2. Set **Backend URL** (your Render deployment).
+3. Set **AI Provider** (Gemini recommended).
+4. Set **API Key** (your Google AI Studio key).
+
+### Environment Variables
+
+**Frontend** (via Lovable):
+
+* `VITE_SUPABASE_URL` — Your Supabase project URL
+* `VITE_SUPABASE_ANON_KEY` — Your Supabase anon key
+
+**Backend** (via Render):
+
+* `SUPABASE_URL` — Your Supabase project URL
+* `SUPABASE_SERVICE_ROLE_KEY` — Your Supabase service role key
+
+---
+
+## 📁 Database Schema
+
+### `analysis_results`
+
+```sql
+id                      uuid PRIMARY KEY
+user_id                 uuid REFERENCES auth.users
+report_id               text
+company_name            text
+report_year             integer
+overall_risk_level      text        -- 'low', 'medium', 'high', 'critical'
+overall_risk_score      integer     -- 0-100
+global_claim            text
+indonesia_mentioned     boolean
+indonesia_status        text        -- 'compliant', 'partial', 'no_data_silent'
+sea_countries_mentioned jsonb
+sea_countries_excluded  jsonb
+binding_language_count  integer
+hedging_language_count  integer
+summary                 text
+findings                jsonb
+llm_provider            text
+llm_model               text
+input_tokens            integer
+output_tokens           integer
+cost_estimate_usd       numeric
+analyzed_at             timestamptz
+created_at              timestamptz DEFAULT now()
+
+```
+
+### `reports`
+
+```sql
+id            uuid PRIMARY KEY
+user_id       uuid REFERENCES auth.users
+file_name     text
+status        text        -- 'uploaded', 'parsing', 'analyzing', 'completed', 'failed'
+page_count    integer
+analysis_id   uuid REFERENCES analysis_results
+created_at    timestamptz DEFAULT now()
+
+```
+
+### `companies`
+
+```sql
+id            uuid PRIMARY KEY
+user_id       uuid REFERENCES auth.users
+name          text
+created_at    timestamptz DEFAULT now()
+
+```
+
+### `findings`
+
+```sql
+id               uuid PRIMARY KEY
+report_id        uuid REFERENCES reports
+finding_type     text        -- 'strategic_silence', 'hedging_language', 'geographic_exclusion', etc.
+severity         text        -- 'critical', 'high', 'medium', 'low'
+title            text
+description      text
+exact_quote      text
+page_number      integer
+section          text
+country_affected text
+
+```
+
+---
+
+## 📈 Analysis Output Example
+
+```json
+{
+  "company_name": "PT Unilever Indonesia Tbk",
+  "report_year": 2024,
+  "overall_risk_score": 45,
+  "overall_risk_level": "high",
+  "indonesia_status": "no_data_silent",
+  "global_claim": "No specific global cage-free egg commitment found in this document.",
+  "binding_language_count": 9,
+  "hedging_language_count": 9,
+  "findings": [
+    {
+      "finding_type": "strategic_silence",
+      "severity": "critical",
+      "title": "Complete Omission of Cage-Free Egg Commitment",
+      "exact_quote": "N/A — Evidence is omission of data",
+      "page_number": 0,
+      "country_affected": "Indonesia"
+    },
+    {
+      "finding_type": "hedging_language",
+      "severity": "medium",
+      "title": "Aspirational Language in Overall Sustainability Vision",
+      "exact_quote": "kami yakin Unilever Indonesia dapat menghadapi berbagai tantangan...",
+      "page_number": 3
+    }
+  ]
+}
+
+```
+
+---
+
+## 💰 Operating Cost
+
+| Service | Cost |
+| --- | --- |
+| Domain (IONOS) | $10/year |
+| Frontend (Lovable) | Free tier |
+| Backend (Render) | Free tier |
+| AI Engine (Gemini) | Free tier |
+| Database (Supabase) | Free tier |
+| **Total** | **$10/year** |
+
+---
+
+## 🤝 Built For
+
+**[Act For Farmed Animals (AFFA)](https://www.actforfarmedanimals.org/)** — A coalition of animal welfare organizations working to hold corporations accountable for their cage-free egg commitments across Southeast Asia.
+
+CAE supports AFFA's mission by providing:
+
+* **Evidence-based accountability** — exact quotes, page numbers, pattern detection
+* **Southeast Asia focus** — specifically tracks Indonesia, Thailand, Philippines, Vietnam, Malaysia
+* **Multilingual analysis** — reads reports in Bahasa Indonesia, Thai, and other local languages
+* **Permanent record** — all analyses stored in Supabase, persisting until account deletion
+
+---
+
+## 📄 License
+
+This project is built for nonprofit animal welfare research. For licensing inquiries, contact the repository owner.
+
+---
+
+## 🙏 Acknowledgments
+
+* **AFFA** — For the mission and domain expertise
+* **Open Wing Alliance** — For cage-free commitment tracking data
+* **Google Gemini** — For powering the adversarial AI analysis
+* **Supabase** — For the database and auth infrastructure
+* **Lovable** — For the frontend development platform
+
+---
+
+<p align="center">
+<strong>Truth. Extracted.</strong>
+
+
+
+
+<em>Because corporate promises should be verifiable.</em>
+</p>
+
+```
