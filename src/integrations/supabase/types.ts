@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      analysis_flags: {
+        Row: {
+          analysis_id: string
+          created_at: string
+          dismissed: boolean
+          dismissed_by: string | null
+          id: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          analysis_id: string
+          created_at?: string
+          dismissed?: boolean
+          dismissed_by?: string | null
+          id?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string
+          created_at?: string
+          dismissed?: boolean
+          dismissed_by?: string | null
+          id?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_flags_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analysis_results: {
         Row: {
           analyzed_at: string | null
@@ -21,6 +59,8 @@ export type Database = {
           company_name: string | null
           cost_estimate_usd: number | null
           created_at: string
+          document_confidence: string | null
+          document_confidence_reason: string | null
           findings: Json | null
           global_claim: string | null
           hedging_language_count: number | null
@@ -39,6 +79,9 @@ export type Database = {
           sea_countries_mentioned: Json | null
           summary: string | null
           user_id: string | null
+          verified: boolean
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           analyzed_at?: string | null
@@ -46,6 +89,8 @@ export type Database = {
           company_name?: string | null
           cost_estimate_usd?: number | null
           created_at?: string
+          document_confidence?: string | null
+          document_confidence_reason?: string | null
           findings?: Json | null
           global_claim?: string | null
           hedging_language_count?: number | null
@@ -64,6 +109,9 @@ export type Database = {
           sea_countries_mentioned?: Json | null
           summary?: string | null
           user_id?: string | null
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           analyzed_at?: string | null
@@ -71,6 +119,8 @@ export type Database = {
           company_name?: string | null
           cost_estimate_usd?: number | null
           created_at?: string
+          document_confidence?: string | null
+          document_confidence_reason?: string | null
           findings?: Json | null
           global_claim?: string | null
           hedging_language_count?: number | null
@@ -89,6 +139,9 @@ export type Database = {
           sea_countries_mentioned?: Json | null
           summary?: string | null
           user_id?: string | null
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
