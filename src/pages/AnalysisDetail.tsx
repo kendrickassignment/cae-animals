@@ -11,6 +11,7 @@ import { useRealAnalyses } from "@/hooks/useRealAnalyses";
 import { getAnalysis } from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { exportAnalysisPdf } from "@/lib/export-pdf";
 
 const EVASION_TYPES = ["hedging_language", "geographic_exclusion", "strategic_silence", "franchise_firewall", "availability_clause", "timeline_deferral"];
 
@@ -288,14 +289,7 @@ export default function AnalysisDetail() {
       <div className="flex flex-col sm:flex-row gap-3">
         <Button className="font-body font-bold text-sm w-full sm:w-auto" onClick={() => exportFindingsCsv(analysis)}><Download className="h-4 w-4 mr-2" /> EXPORT CSV</Button>
         <Button variant="outline" className="font-body font-bold text-sm border-2 w-full sm:w-auto" onClick={copySum}><Copy className="h-4 w-4 mr-2" /> COPY SUMMARY</Button>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span>
-              <Button variant="outline" className="font-body font-bold text-sm border-2 w-full sm:w-auto" disabled={isSeedData}><FileDown className="h-4 w-4 mr-2" /> DOWNLOAD PDF</Button>
-            </span>
-          </TooltipTrigger>
-          {isSeedData && <TooltipContent><p>Available for uploaded reports only</p></TooltipContent>}
-        </Tooltip>
+        <Button variant="outline" className="font-body font-bold text-sm border-2 w-full sm:w-auto" onClick={() => { exportAnalysisPdf(analysis); toast.success("PDF downloaded!"); }}><FileDown className="h-4 w-4 mr-2" /> DOWNLOAD PDF</Button>
       </div>
     </div>
   );
