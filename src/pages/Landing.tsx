@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Upload, Search, FileText, Shield, VolumeX, Globe, Store, Clock, LogOut } from "lucide-react";
+import { Upload, Search, FileText, Shield, VolumeX, Globe, Store, Clock, LogOut, Ghost, TrendingDown, EyeOff, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +16,10 @@ const evasionPatterns = [
   { icon: Globe, title: "GEOGRAPHIC TIERING", desc: "'Leading markets' get real commitments; 'Elsewhere globally' gets a 2030 deadline." },
   { icon: Store, title: "FRANCHISE FIREWALL", desc: "Commitments cover 'company-operated stores' only — franchises and licensees are excluded." },
   { icon: Clock, title: "AVAILABILITY CLAUSE", desc: "'Where supply is readily available' — an indefinite, subjective deferral with no metrics." },
+  { icon: CalendarClock, title: "TIMELINE DEFERRAL", desc: "Pushing deadlines indefinitely with vague future dates like 'by 2030' without interim milestones." },
+  { icon: EyeOff, title: "SILENT DELISTING", desc: "Quietly removing previously listed commitments or countries from updated reports without disclosure." },
+  { icon: Ghost, title: "CORPORATE GHOSTING", desc: "Completely ceasing to report on previously made promises, hoping no one notices." },
+  { icon: TrendingDown, title: "COMMITMENT DOWNGRADE", desc: "Weakening the language of existing commitments in newer reports compared to original pledges." },
 ];
 
 function CountUp({ target, suffix = "" }: { target: string; suffix?: string }) {
@@ -214,7 +218,7 @@ export default function Landing() {
             <p className="font-body text-sm text-muted-foreground mt-2">Cost per 200-page report</p>
           </div>
           <div>
-            <CountUp target="5" />
+            <CountUp target={String(evasionPatterns.length)} />
             <p className="font-body text-sm text-muted-foreground mt-2">Evasion patterns detected</p>
           </div>
         </div>
