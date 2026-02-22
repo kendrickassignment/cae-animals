@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fuzzyMatch } from "@/lib/fuzzy-search";
 import { seedAnalyses, seedCompanies } from "@/data/seed-data";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useRealAnalyses } from "@/hooks/useRealAnalyses";
 
 interface AppHeaderProps {
   onToggleSidebar?: () => void;
@@ -32,6 +33,7 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { notifications, addNotification, markAllRead, unreadCount } = useNotifications();
+  const { data: realAnalyses = [] } = useRealAnalyses();
   const [darkMode, setDarkMode] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -47,7 +49,7 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
     document.documentElement.classList.toggle("dark");
   };
 
-  // Search logic
+  // Search logic — includes both seed data and real (DB) analyses
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
@@ -55,22 +57,41 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
       return;
     }
     const results: SearchResult[] = [];
-    seedCompanies.forEach(c => {
-      if (fuzzyMatch(searchQuery, `${c.name} ${c.industry} ${c.headquarters_country}`)) {
-        const analysis = seedAnalyses.find(a => a.company_name === c.name);
-        results.push({ type: "company", label: c.name, path: analysis ? `/analysis/${analysis.id}` : "/companies" });
-      }
-    });
-    seedAnalyses.forEach(a => {
-      if (fuzzyMatch(searchQuery, `${a.company_name} ${a.summary} ${a.global_claim}`)) {
-        if (!results.some(r => r.label === a.company_name)) {
+    const seen = new Set<string>();
+
+    // Real analyses first (higher priority)
+    realAnalyses.forEach(a => {
+      if (fuzzyMatch(searchQuery, `${a.company_name} ${a.summary || ""} ${a.global_claim || ""}`)) {
+        const key = a.company_name.toLowerCase();
+        if (!seen.has(key)) {
+          seen.add(key);
           results.push({ type: "analysis", label: `${a.company_name} (${a.report_year})`, path: `/analysis/${a.id}` });
         }
       }
     });
+
+    // Seed companies
+    seedCompanies.forEach(c => {
+      const key = c.name.toLowerCase();
+      if (!seen.has(key) && fuzzyMatch(searchQuery, `${c.name} ${c.industry} ${c.headquarters_country}`)) {
+        seen.add(key);
+        const analysis = seedAnalyses.find(a => a.company_name === c.name);
+        results.push({ type: "company", label: c.name, path: analysis ? `/analysis/${analysis.id}` : "/companies" });
+      }
+    });
+
+    // Seed analyses
+    seedAnalyses.forEach(a => {
+      const key = a.company_name.toLowerCase();
+      if (!seen.has(key) && fuzzyMatch(searchQuery, `${a.company_name} ${a.summary} ${a.global_claim}`)) {
+        seen.add(key);
+        results.push({ type: "analysis", label: `${a.company_name} (${a.report_year})`, path: `/analysis/${a.id}` });
+      }
+    });
+
     setSearchResults(results.slice(0, 8));
     setShowSearchResults(results.length > 0);
-  }, [searchQuery]);
+  }, [searchQuery, realAnalyses]);
 
   // Listen for realtime report status changes
   useEffect(() => {
