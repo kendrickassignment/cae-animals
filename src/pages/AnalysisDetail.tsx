@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { exportAnalysisPdf } from "@/lib/export-pdf";
 
-const EVASION_TYPES = ["hedging_language", "geographic_exclusion", "strategic_silence", "franchise_firewall", "availability_clause", "timeline_deferral"];
+const EVASION_TYPES = ["hedging_language", "geographic_exclusion", "strategic_silence", "franchise_firewall", "availability_clause", "timeline_deferral", "silent_delisting", "corporate_ghosting", "commitment_downgrade"];
 
 function exportFindingsCsv(analysis: SeedAnalysis) {
   const headers = ["finding_type", "severity", "title", "description", "exact_quote", "page_number", "section", "country_affected"];
@@ -247,6 +247,7 @@ export default function AnalysisDetail() {
             <option value="all">All Types</option>
             {EVASION_TYPES.map(t => <option key={t} value={t}>{getFindingTypeLabel(t)}</option>)}
             <option value="binding_commitment">Binding Commitment</option>
+            <option value="other">Other</option>
           </select>
         </div>
 
