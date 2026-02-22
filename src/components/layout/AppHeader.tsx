@@ -5,9 +5,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { fuzzyMatch } from "@/lib/fuzzy-search";
 import { seedAnalyses, seedCompanies } from "@/data/seed-data";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface AppHeaderProps {
   onToggleSidebar?: () => void;
@@ -31,10 +31,10 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { notifications, addNotification, markAllRead, unreadCount } = useNotifications();
   const [darkMode, setDarkMode] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState<{ id: string; message: string; time: string; read: boolean }[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -80,24 +80,20 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'reports', filter: `user_id=eq.${user.id}` }, (payload) => {
         const report = payload.new as any;
         let msg = "";
+        const type: "info" | "success" | "error" = report.status === "completed" ? "success" : report.status === "failed" ? "error" : "info";
         if (report.status === "completed") msg = `Analysis completed: ${report.company_name || report.file_name}`;
         else if (report.status === "failed") msg = `Analysis failed: ${report.company_name || report.file_name}`;
         else if (report.status === "processing") msg = `Processing: ${report.company_name || report.file_name}`;
         else if (report.status === "pending") msg = `Queued: ${report.company_name || report.file_name}`;
-        if (msg) {
-          const notif = { id: crypto.randomUUID(), message: msg, time: new Date().toLocaleTimeString(), read: false };
-          setNotifications(prev => [notif, ...prev.slice(0, 19)]);
-          toast.info(msg);
-        }
+        if (msg) addNotification(msg, type);
       })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports', filter: `user_id=eq.${user.id}` }, (payload) => {
         const report = payload.new as any;
-        const notif = { id: crypto.randomUUID(), message: `New report uploaded: ${report.company_name || report.file_name}`, time: new Date().toLocaleTimeString(), read: false };
-        setNotifications(prev => [notif, ...prev.slice(0, 19)]);
+        addNotification(`New report uploaded: ${report.company_name || report.file_name}`, "info");
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user, addNotification]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -109,8 +105,6 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <header className="h-14 bg-primary flex items-center px-4 gap-4 shrink-0">
@@ -163,7 +157,7 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
               <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                 <span className="font-nav text-xs tracking-wider">NOTIFICATIONS</span>
                 {notifications.length > 0 && (
-                  <button className="text-xs text-primary font-body" onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}>Mark all read</button>
+                  <button className="text-xs text-primary font-body" onClick={() => markAllRead()}>Mark all read</button>
                 )}
               </div>
               <div className="max-h-64 overflow-y-auto">
@@ -172,8 +166,13 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
                 ) : (
                   notifications.map(n => (
                     <div key={n.id} className={`px-4 py-3 border-b border-border text-sm font-body ${n.read ? "" : "bg-muted/50"}`}>
-                      <p className="text-foreground">{n.message}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{n.time}</p>
+                      <div className="flex items-start gap-2">
+                        <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.type === "success" ? "bg-green-500" : n.type === "error" ? "bg-destructive" : n.type === "warning" ? "bg-yellow-500" : "bg-primary"}`} />
+                        <div>
+                          <p className="text-foreground">{n.message}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{n.time}</p>
+                        </div>
+                      </div>
                     </div>
                   ))
                 )}

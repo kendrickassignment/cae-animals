@@ -14,6 +14,7 @@ import { uploadReport, analyzeReport, getReportStatus, sanitizeErrorMessage } fr
 import { useRealAnalyses, fetchAndSaveAnalysis } from "@/hooks/useRealAnalyses";
 import AnalysisProgress from "@/components/AnalysisProgress";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const RISK_COLORS: Record<string, string> = {
   critical: "#DC2626",
@@ -26,6 +27,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { addNotification } = useNotifications();
   const [uploadFiles, setUploadFiles] = useState<{ file: File; companyName: string; reportYear: string }[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [progressStages, setProgressStages] = useState<Record<string, { stage: string; companyName: string }>>({});
@@ -53,6 +55,7 @@ export default function Dashboard() {
       for (const uf of uploadFiles) {
         const key = `${uf.file.name}-${Date.now()}`;
         updateStage(key, "uploading", uf.companyName);
+        addNotification(`Uploading: ${uf.companyName || uf.file.name}`, "info");
 
         const filePath = `${user.id}/${Date.now()}_${uf.file.name}`;
         const { error: storageError } = await supabase.storage.from("reports").upload(filePath, uf.file);
@@ -67,9 +70,11 @@ export default function Dashboard() {
         try {
           const uploadResult = await uploadReport(uf.file);
           updateStage(key, "processing", uf.companyName);
+          addNotification(`Processing PDF: ${uf.companyName}`, "info");
           await supabase.from("reports").update({ status: "processing" }).eq("id", report.id);
           await analyzeReport(uploadResult.report_id, uf.companyName, parseInt(uf.reportYear));
           updateStage(key, "analyzing", uf.companyName);
+          addNotification(`Analyzing with AI: ${uf.companyName}`, "info");
 
           const pollInterval = setInterval(async () => {
             try {
@@ -81,12 +86,14 @@ export default function Dashboard() {
                 await supabase.from("reports").update({ status: "completed", processing_completed_at: new Date().toISOString(), analysis_id: savedId } as any).eq("id", report.id);
                 updateStage(key, "completed", uf.companyName);
                 toast.success(`Analysis completed for ${uf.companyName}!`);
+                addNotification(`Analysis completed: ${uf.companyName}`, "success");
                 queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
                 setTimeout(() => removeStage(key), 2000);
               } else if (status.status === "failed") {
                 clearInterval(pollInterval);
                 await supabase.from("reports").update({ status: "failed" }).eq("id", report.id);
                 toast.error(`Analysis failed: ${sanitizeErrorMessage(status.error || "Unknown error")}`);
+                addNotification(`Analysis failed: ${uf.companyName}`, "error");
                 removeStage(key);
               }
             } catch { /* keep polling */ }
@@ -95,6 +102,7 @@ export default function Dashboard() {
         } catch {
           await supabase.from("reports").update({ status: "pending" }).eq("id", report.id);
           toast.warning(`${uf.file.name} saved to cloud. Backend analysis will run when available.`);
+          addNotification(`${uf.file.name} queued for analysis`, "warning");
           removeStage(key);
         }
       }
