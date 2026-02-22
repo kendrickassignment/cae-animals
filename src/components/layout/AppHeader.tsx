@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { fuzzyMatch } from "@/lib/fuzzy-search";
+import { seedAnalyses, seedCompanies } from "@/data/seed-data";
 
 interface AppHeaderProps {
   onToggleSidebar?: () => void;
@@ -19,20 +21,56 @@ const dropdownNav = [
   { title: "About", path: "/about", icon: Info },
 ];
 
+interface SearchResult {
+  type: "company" | "analysis";
+  label: string;
+  path: string;
+}
+
 export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [darkMode, setDarkMode] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<{ id: string; message: string; time: string; read: boolean }[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const toggleDark = () => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle("dark");
   };
+
+  // Search logic
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+    const results: SearchResult[] = [];
+    seedCompanies.forEach(c => {
+      if (fuzzyMatch(searchQuery, `${c.name} ${c.industry} ${c.headquarters_country}`)) {
+        const analysis = seedAnalyses.find(a => a.company_name === c.name);
+        results.push({ type: "company", label: c.name, path: analysis ? `/analysis/${analysis.id}` : "/companies" });
+      }
+    });
+    seedAnalyses.forEach(a => {
+      if (fuzzyMatch(searchQuery, `${a.company_name} ${a.summary} ${a.global_claim}`)) {
+        if (!results.some(r => r.label === a.company_name)) {
+          results.push({ type: "analysis", label: `${a.company_name} (${a.report_year})`, path: `/analysis/${a.id}` });
+        }
+      }
+    });
+    setSearchResults(results.slice(0, 8));
+    setShowSearchResults(results.length > 0);
+  }, [searchQuery]);
 
   // Listen for realtime report status changes
   useEffect(() => {
@@ -45,11 +83,17 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
         if (report.status === "completed") msg = `Analysis completed: ${report.company_name || report.file_name}`;
         else if (report.status === "failed") msg = `Analysis failed: ${report.company_name || report.file_name}`;
         else if (report.status === "processing") msg = `Processing: ${report.company_name || report.file_name}`;
+        else if (report.status === "pending") msg = `Queued: ${report.company_name || report.file_name}`;
         if (msg) {
           const notif = { id: crypto.randomUUID(), message: msg, time: new Date().toLocaleTimeString(), read: false };
           setNotifications(prev => [notif, ...prev.slice(0, 19)]);
           toast.info(msg);
         }
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports', filter: `user_id=eq.${user.id}` }, (payload) => {
+        const report = payload.new as any;
+        const notif = { id: crypto.randomUUID(), message: `New report uploaded: ${report.company_name || report.file_name}`, time: new Date().toLocaleTimeString(), read: false };
+        setNotifications(prev => [notif, ...prev.slice(0, 19)]);
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -60,6 +104,7 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setShowDropdown(false);
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) setShowNotifications(false);
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowSearchResults(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -73,12 +118,29 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
         <Menu className="h-5 w-5" />
       </Button>
 
-      <div className="hidden md:flex relative flex-1 max-w-md">
+      <div className="hidden md:flex relative flex-1 max-w-md" ref={searchRef}>
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search companies or reports..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          onFocus={() => searchResults.length > 0 && setShowSearchResults(true)}
           className="pl-9 bg-card border-none rounded-full h-9 text-sm font-body"
         />
+        {showSearchResults && (
+          <div className="absolute top-11 left-0 right-0 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+            {searchResults.map((r, i) => (
+              <button
+                key={i}
+                onClick={() => { navigate(r.path); setSearchQuery(""); setShowSearchResults(false); }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left font-body text-sm text-foreground hover:bg-muted transition-colors"
+              >
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-bold uppercase">{r.type}</span>
+                {r.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex-1" />
@@ -137,7 +199,7 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
                 <button
                   key={item.path}
                   onClick={() => { navigate(item.path); setShowDropdown(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left font-body text-sm text-foreground hover:bg-muted transition-colors"
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-left font-body text-sm transition-colors ${location.pathname === item.path ? "text-primary bg-muted" : "text-foreground hover:bg-muted"}`}
                 >
                   <item.icon className="h-4 w-4 text-muted-foreground" />
                   {item.title}

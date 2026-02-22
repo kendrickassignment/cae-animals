@@ -1,5 +1,5 @@
 const getBackendUrl = (): string => {
-  return localStorage.getItem("cae_backend_url") || import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+  return localStorage.getItem("cae_backend_url") || import.meta.env.VITE_BACKEND_URL || "https://cae-backend-7g72.onrender.com";
 };
 
 const getProviderConfig = (): { provider: string | null; apiKey: string | null } => {
@@ -11,7 +11,13 @@ const getProviderConfig = (): { provider: string | null; apiKey: string | null }
 
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${getBackendUrl()}${endpoint}`;
-  const response = await fetch(url, { ...options, headers: { ...options?.headers } });
+  const response = await fetch(url, {
+    ...options,
+    mode: "cors",
+    headers: {
+      ...options?.headers,
+    },
+  });
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: "Network error" }));
     throw new Error(error.detail || `API error: ${response.status}`);
@@ -59,10 +65,13 @@ export async function testProvider(provider: string, apiKey?: string) {
 }
 
 export async function healthCheck() {
-  return apiFetch<{ status: string }>("/health");
+  const url = `${getBackendUrl()}/`;
+  const response = await fetch(url, { mode: "cors" });
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+  return response.json();
 }
 
 export function saveBackendUrl(url: string) { localStorage.setItem("cae_backend_url", url.replace(/\/$/, "")); }
 export function saveProviderConfig(provider: string, apiKey: string) { localStorage.setItem("cae_llm_provider", provider); localStorage.setItem("cae_api_key", apiKey); }
-export function getStoredBackendUrl(): string { return localStorage.getItem("cae_backend_url") || ""; }
+export function getStoredBackendUrl(): string { return localStorage.getItem("cae_backend_url") || "https://cae-backend-7g72.onrender.com"; }
 export function getStoredProvider(): string { return localStorage.getItem("cae_llm_provider") || "gemini"; }

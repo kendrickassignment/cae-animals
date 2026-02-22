@@ -45,15 +45,19 @@ export default function SettingsPage() {
   const handleTestConnection = async () => {
     setTesting(true);
     try {
-      await healthCheck();
-      toast.success("Backend is reachable!");
+      const data = await healthCheck();
+      toast.success(`Backend is reachable! Status: ${data.status || 'operational'}`);
       if (apiKey) {
-        const result = await testProvider(provider, apiKey);
-        if (result.status === "success") toast.success(`AI Provider working: ${result.model}`);
-        else toast.error(`AI Provider failed: ${result.error}`);
+        try {
+          const result = await testProvider(provider, apiKey);
+          if (result.status === "success") toast.success(`AI Provider working: ${result.model}`);
+          else toast.error(`AI Provider failed: ${result.error}`);
+        } catch (provErr: any) {
+          toast.error(`AI Provider test failed: ${provErr.message}`);
+        }
       }
-    } catch {
-      toast.error("Cannot reach backend. Check the URL.");
+    } catch (err: any) {
+      toast.error(`Cannot reach backend: ${err.message}. Check the URL and ensure CORS is enabled.`);
     } finally {
       setTesting(false);
     }
@@ -117,7 +121,7 @@ export default function SettingsPage() {
         <div className="space-y-3">
           <div>
             <Label className="font-body text-sm">Backend API URL</Label>
-            <Input value={backendUrl} onChange={e => setBackendUrl(e.target.value)} placeholder="https://cae-backend.onrender.com" className="font-body font-mono text-sm" />
+            <Input value={backendUrl} onChange={e => setBackendUrl(e.target.value)} placeholder="https://cae-backend-7g72.onrender.com" className="font-body font-mono text-sm" />
           </div>
           <div>
             <Label className="font-body text-sm">AI Provider</Label>

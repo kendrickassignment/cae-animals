@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import caeLogoNew from "@/assets/cae-logo-new.png";
+import caeLogoTruth from "@/assets/cae-logo-truth.png";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -43,9 +43,11 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex">
       {/* Left panel - brand */}
-      <div className="hidden md:flex w-1/2 bg-primary items-start justify-center p-12 pt-[15vh]">
+      <div className="hidden md:flex w-1/2 bg-primary items-start justify-center p-12 pt-[12vh]">
         <div className="text-center">
-          <img src={caeLogoNew} alt="CAE Logo" className="h-24 mx-auto mb-6 mix-blend-multiply" />
+          <Link to="/">
+            <img src={caeLogoTruth} alt="CAE Logo" className="w-48 mx-auto mb-6 cursor-pointer" />
+          </Link>
           <p className="font-nav text-sm text-primary-foreground/70 tracking-widest mb-2">
             CORPORATE ACCOUNTABILITY ENGINE
           </p>
@@ -60,9 +62,9 @@ export default function Auth() {
         <div className="w-full max-w-sm">
           {/* Mobile brand */}
           <div className="md:hidden text-center mb-8">
-            <div className="bg-primary rounded-lg p-4 mb-4 inline-block">
-              <h1 className="font-display text-3xl text-primary-foreground">CAE</h1>
-            </div>
+            <Link to="/">
+              <img src={caeLogoTruth} alt="CAE Logo" className="w-32 mx-auto mb-2 cursor-pointer" />
+            </Link>
           </div>
 
           {/* Tabs */}
@@ -110,6 +112,12 @@ export default function Auth() {
               {loading ? "Loading..." : isSignUp ? "CREATE ACCOUNT" : "SIGN IN"}
             </Button>
           </form>
+
+          <p className="text-center mt-6">
+            <Link to="/" className="font-body text-xs text-muted-foreground hover:text-foreground transition-colors">
+              ← Back to Home
+            </Link>
+          </p>
         </div>
       </div>
     </div>
