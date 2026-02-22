@@ -10,7 +10,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { uploadReport, analyzeReport, getReportStatus } from "@/services/api";
+import { uploadReport, analyzeReport, getReportStatus, sanitizeErrorMessage } from "@/services/api";
 
 const RISK_COLORS: Record<string, string> = {
   critical: "#DC2626",
@@ -60,7 +60,7 @@ export default function Dashboard() {
               } else if (status.status === "failed") {
                 clearInterval(pollInterval);
                 await supabase.from("reports").update({ status: "failed" }).eq("id", report.id);
-                toast.error(`Analysis failed for ${uf.companyName}: ${status.error || "Unknown error"}`);
+                toast.error(`Analysis failed for ${uf.companyName}: ${sanitizeErrorMessage(status.error || "Unknown error")}`);
               }
             } catch { /* keep polling */ }
           }, 5000);
@@ -71,7 +71,7 @@ export default function Dashboard() {
         }
       }
       setUploadFiles([]);
-    } catch (err: any) { toast.error(`Error: ${err.message}`); }
+    } catch (err: any) { toast.error(`Error: ${sanitizeErrorMessage(err.message)}`); }
     finally { setAnalyzing(false); }
   };
 

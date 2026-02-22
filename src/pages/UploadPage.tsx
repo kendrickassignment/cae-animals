@@ -7,7 +7,7 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { uploadReport, analyzeReport, getReportStatus } from "@/services/api";
+import { uploadReport, analyzeReport, getReportStatus, sanitizeErrorMessage } from "@/services/api";
 
 export default function UploadPage() {
   const { user } = useAuth();
@@ -76,7 +76,7 @@ export default function UploadPage() {
               } else if (status.status === "failed") {
                 clearInterval(pollInterval);
                 await supabase.from("reports").update({ status: "failed" }).eq("id", report.id);
-                toast.error(`Analysis failed for ${uf.companyName}: ${status.error || "Unknown error"}`);
+                toast.error(`Analysis failed for ${uf.companyName}: ${sanitizeErrorMessage(status.error || "Unknown error")}`);
               }
             } catch {
               // Backend might be slow, keep polling
@@ -94,7 +94,7 @@ export default function UploadPage() {
 
       setFiles([]);
     } catch (err: any) {
-      toast.error(`Error: ${err.message}`);
+      toast.error(`Error: ${sanitizeErrorMessage(err.message)}`);
     } finally {
       setAnalyzing(false);
     }
