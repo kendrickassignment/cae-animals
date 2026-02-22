@@ -53,6 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
+    // Clear sensitive data from localStorage on sign-out
+    localStorage.removeItem("cae_backend_url");
+    localStorage.removeItem("cae_api_key");
+    localStorage.removeItem("cae_llm_provider");
     if (error) throw error;
   };
 
