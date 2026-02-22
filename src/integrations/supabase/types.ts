@@ -142,6 +142,24 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_rate_limits: {
+        Row: {
+          id: string
+          ip_address: string
+          submitted_at: string
+        }
+        Insert: {
+          id?: string
+          ip_address: string
+          submitted_at?: string
+        }
+        Update: {
+          id?: string
+          ip_address?: string
+          submitted_at?: string
+        }
+        Relationships: []
+      }
       findings: {
         Row: {
           analysis_id: string
