@@ -95,10 +95,10 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       {/* Top Bar */}
       <nav className="bg-primary h-16 flex items-center px-6 sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply" />
+        <Link to="/" className="flex items-center gap-3">
+          <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply cursor-pointer" />
           <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">Corporate Accountability Engine</span>
-        </div>
+        </Link>
         <div className="flex-1" />
         <div className="flex items-center gap-3">
           <a href="#contact" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">CONTACT</a>

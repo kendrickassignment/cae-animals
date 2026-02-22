@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { seedCompanies, seedAnalyses, getRiskBgColor, getRiskColor } from "@/data/seed-data";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { fuzzyMatch } from "@/lib/fuzzy-search";
 
 export default function Companies() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ export default function Companies() {
 
   const filtered = useMemo(() => {
     return seedCompanies.filter(c => {
-      if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (search && !fuzzyMatch(search, `${c.name} ${c.industry} ${c.headquarters_country}`)) return false;
       if (industryFilter !== "all" && c.industry !== industryFilter) return false;
       if (riskFilter !== "all" && c.latest_risk_level !== riskFilter) return false;
       return true;
