@@ -4,27 +4,31 @@
  */
 export function fuzzyMatch(query: string, target: string): boolean {
   if (!query) return true;
-  const q = query.toLowerCase();
+  const q = query.toLowerCase().trim();
   const t = target.toLowerCase();
   
+  if (!q) return true;
+
   // Exact substring match
   if (t.includes(q)) return true;
   
-  // Word-level partial matching: any word in query partially matches any word in target
+  // Word-level partial matching: every query word must match at least one target word
   const queryWords = q.split(/\s+/).filter(Boolean);
   const targetWords = t.split(/\s+/).filter(Boolean);
   
   const allWordsMatch = queryWords.every(qw =>
-    targetWords.some(tw => tw.includes(qw) || qw.includes(tw) || levenshteinDistance(qw, tw) <= Math.max(1, Math.floor(qw.length / 3)))
+    targetWords.some(tw => {
+      // Substring match (either direction, but query word must be >= 2 chars)
+      if (qw.length >= 2 && tw.includes(qw)) return true;
+      if (qw.length >= 2 && qw.includes(tw)) return true;
+      // Typo tolerance via Levenshtein - only for words of similar length
+      if (qw.length >= 3 && Math.abs(qw.length - tw.length) <= 2) {
+        return levenshteinDistance(qw, tw) <= Math.max(1, Math.floor(Math.min(qw.length, tw.length) / 3));
+      }
+      return false;
+    })
   );
-  if (allWordsMatch) return true;
-
-  // Sequential character match (fuzzy)
-  let qi = 0;
-  for (let ti = 0; ti < t.length && qi < q.length; ti++) {
-    if (q[qi] === t[ti]) qi++;
-  }
-  return qi === q.length;
+  return allWordsMatch;
 }
 
 function levenshteinDistance(a: string, b: string): number {
