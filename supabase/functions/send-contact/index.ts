@@ -14,7 +14,13 @@ function getCorsHeaders(req: Request): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "X-Content-Type-Options": "nosniff",
   };
+}
+
+function isOriginAllowed(req: Request): boolean {
+  const origin = req.headers.get("origin") || "";
+  return ALLOWED_ORIGINS.includes(origin);
 }
 
 function escapeHtml(text: string): string {
@@ -33,6 +39,14 @@ serve(async (req) => {
 
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: CORS_HEADERS });
+  }
+
+  // Reject requests from unauthorized origins
+  if (!isOriginAllowed(req)) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+      status: 403,
+      headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    });
   }
 
   try {
