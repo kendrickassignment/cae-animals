@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { fuzzyMatch } from "@/lib/fuzzy-search";
+import { fuzzyMatchName } from "@/lib/fuzzy-search";
 import { seedAnalyses, seedCompanies } from "@/data/seed-data";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useRealAnalyses } from "@/hooks/useRealAnalyses";
@@ -61,7 +61,7 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
 
     // Real analyses first (higher priority)
     realAnalyses.forEach(a => {
-      if (fuzzyMatch(searchQuery, `${a.company_name} ${a.summary || ""} ${a.global_claim || ""}`)) {
+      if (fuzzyMatchName(searchQuery, a.company_name)) {
         const key = a.company_name.toLowerCase();
         if (!seen.has(key)) {
           seen.add(key);
@@ -73,7 +73,7 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
     // Seed companies
     seedCompanies.forEach(c => {
       const key = c.name.toLowerCase();
-      if (!seen.has(key) && fuzzyMatch(searchQuery, `${c.name} ${c.industry} ${c.headquarters_country}`)) {
+      if (!seen.has(key) && fuzzyMatchName(searchQuery, c.name)) {
         seen.add(key);
         const analysis = seedAnalyses.find(a => a.company_name === c.name);
         results.push({ type: "company", label: c.name, path: analysis ? `/analysis/${analysis.id}` : "/companies" });
@@ -83,7 +83,7 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
     // Seed analyses
     seedAnalyses.forEach(a => {
       const key = a.company_name.toLowerCase();
-      if (!seen.has(key) && fuzzyMatch(searchQuery, `${a.company_name} ${a.summary} ${a.global_claim}`)) {
+      if (!seen.has(key) && fuzzyMatchName(searchQuery, a.company_name)) {
         seen.add(key);
         results.push({ type: "analysis", label: `${a.company_name} (${a.report_year})`, path: `/analysis/${a.id}` });
       }
