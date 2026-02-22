@@ -31,34 +31,35 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navbar - same as landing, auth-aware */}
-      <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
-        <Link to="/" className="flex items-center gap-3">
-          <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply cursor-pointer" />
-          <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">Corporate Accountability Engine</span>
-        </Link>
-        <div className="flex-1" />
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link to="/" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">HOME</Link>
-          <a href="/#contact" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">CONTACT</a>
-          {user ? (
-            <Link to="/dashboard">
+      {user ? (
+        /* Logged-in: simple back button, no navbar */
+        <div className="sticky top-0 z-50 bg-background border-b border-border px-4 sm:px-6 py-3 flex items-center">
+          <Link to="/dashboard">
+            <Button variant="outline" className="gap-2 font-body font-bold text-xs sm:text-sm">
+              ← Back to Dashboard
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        /* Public: full navbar */
+        <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
+          <Link to="/" className="flex items-center gap-3">
+            <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply cursor-pointer" />
+            <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">Corporate Accountability Engine</span>
+          </Link>
+          <div className="flex-1" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link to="/" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">HOME</Link>
+            <a href="/#contact" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">CONTACT</a>
+            <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">SIGN IN</Link>
+            <Link to="/auth">
               <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90">
-                Dashboard
+                Get Started
               </Button>
             </Link>
-          ) : (
-            <>
-              <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">SIGN IN</Link>
-              <Link to="/auth">
-                <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90">
-                  Get Started
-                </Button>
-              </Link>
-            </>
-          )}
-        </div>
-      </nav>
+          </div>
+        </nav>
+      )}
 
       <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 py-8 sm:py-12 px-4 sm:px-6">
         {/* Hero */}
