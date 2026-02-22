@@ -13,7 +13,12 @@ export default function Footer() {
           <div className="flex gap-6 font-nav text-xs tracking-wider text-sidebar-foreground/60">
             <Link to="/" className="hover:text-sidebar-primary transition-colors">HOME</Link>
             <Link to="/about" className="hover:text-sidebar-primary transition-colors">ABOUT</Link>
-            <a href="/#contact" className="hover:text-sidebar-primary transition-colors">CONTACT</a>
+            <a href="/#contact" onClick={(e) => {
+              if (window.location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }} className="hover:text-sidebar-primary transition-colors">CONTACT</a>
           </div>
         </div>
         <div className="mt-6 pt-4 border-t border-sidebar-border">
