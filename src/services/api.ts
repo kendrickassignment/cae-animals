@@ -85,7 +85,33 @@ export async function healthCheck() {
   return response.json();
 }
 
-export function saveBackendUrl(url: string) { localStorage.setItem("cae_backend_url", url.replace(/\/$/, "")); }
+const ALLOWED_BACKENDS = [
+  "https://cae-backend-7g72.onrender.com",
+  "http://localhost:8000",
+];
+
+export function saveBackendUrl(url: string) {
+  const cleanUrl = url.replace(/\/$/, "");
+  try {
+    const parsed = new URL(cleanUrl);
+    // Only allow HTTPS (or HTTP for localhost)
+    if (parsed.protocol !== "https:" && parsed.hostname !== "localhost") {
+      throw new Error("Backend URL must use HTTPS");
+    }
+    // Reject internal/private IPs
+    if (/^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/.test(parsed.hostname)) {
+      throw new Error("Internal IP addresses are not allowed");
+    }
+  } catch (err: any) {
+    if (err.message.includes("HTTPS") || err.message.includes("Internal")) throw err;
+    throw new Error("Invalid backend URL format");
+  }
+  localStorage.setItem("cae_backend_url", cleanUrl);
+}
+
+export function isAllowlistedBackend(url: string): boolean {
+  return ALLOWED_BACKENDS.includes(url.replace(/\/$/, ""));
+}
 export function saveProviderConfig(provider: string, apiKey: string) { localStorage.setItem("cae_llm_provider", provider); localStorage.setItem("cae_api_key", apiKey); }
 export function getStoredBackendUrl(): string { return localStorage.getItem("cae_backend_url") || "https://cae-backend-7g72.onrender.com"; }
 export function getStoredProvider(): string { return localStorage.getItem("cae_llm_provider") || "gemini"; }
