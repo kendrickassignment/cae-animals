@@ -16,49 +16,79 @@ export type Database = {
     Tables: {
       analysis_results: {
         Row: {
+          analyzed_at: string | null
           binding_language_count: number | null
+          company_name: string | null
+          cost_estimate_usd: number | null
           created_at: string
+          findings: Json | null
           global_claim: string | null
           hedging_language_count: number | null
           id: string
           indonesia_mentioned: boolean | null
           indonesia_status: string | null
+          input_tokens: number | null
+          llm_model: string | null
+          llm_provider: string | null
+          output_tokens: number | null
           overall_risk_level: string | null
           overall_risk_score: number | null
           report_id: string
+          report_year: number | null
           sea_countries_excluded: Json | null
           sea_countries_mentioned: Json | null
           summary: string | null
+          user_id: string | null
         }
         Insert: {
+          analyzed_at?: string | null
           binding_language_count?: number | null
+          company_name?: string | null
+          cost_estimate_usd?: number | null
           created_at?: string
+          findings?: Json | null
           global_claim?: string | null
           hedging_language_count?: number | null
           id?: string
           indonesia_mentioned?: boolean | null
           indonesia_status?: string | null
+          input_tokens?: number | null
+          llm_model?: string | null
+          llm_provider?: string | null
+          output_tokens?: number | null
           overall_risk_level?: string | null
           overall_risk_score?: number | null
           report_id: string
+          report_year?: number | null
           sea_countries_excluded?: Json | null
           sea_countries_mentioned?: Json | null
           summary?: string | null
+          user_id?: string | null
         }
         Update: {
+          analyzed_at?: string | null
           binding_language_count?: number | null
+          company_name?: string | null
+          cost_estimate_usd?: number | null
           created_at?: string
+          findings?: Json | null
           global_claim?: string | null
           hedging_language_count?: number | null
           id?: string
           indonesia_mentioned?: boolean | null
           indonesia_status?: string | null
+          input_tokens?: number | null
+          llm_model?: string | null
+          llm_provider?: string | null
+          output_tokens?: number | null
           overall_risk_level?: string | null
           overall_risk_score?: number | null
           report_id?: string
+          report_year?: number | null
           sea_countries_excluded?: Json | null
           sea_countries_mentioned?: Json | null
           summary?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -198,6 +228,7 @@ export type Database = {
       }
       reports: {
         Row: {
+          analysis_id: string | null
           company_name: string | null
           created_at: string
           file_name: string
@@ -214,6 +245,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          analysis_id?: string | null
           company_name?: string | null
           created_at?: string
           file_name: string
@@ -230,6 +262,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          analysis_id?: string | null
           company_name?: string | null
           created_at?: string
           file_name?: string
