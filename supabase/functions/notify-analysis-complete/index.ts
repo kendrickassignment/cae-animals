@@ -1,0 +1,109 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    const { analysis_id, company_name, report_year, risk_score, risk_level, uploader_user_id } = await req.json();
+
+    if (!analysis_id || !company_name || !uploader_user_id) {
+      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Get uploader info
+    const { data: uploaderData } = await supabase.auth.admin.getUserById(uploader_user_id);
+    const uploaderEmail = uploaderData?.user?.email || "Unknown user";
+    const uploaderName = uploaderData?.user?.user_metadata?.full_name || uploaderEmail;
+
+    // Get all admin user IDs
+    const { data: adminRoles } = await supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "admin");
+
+    if (!adminRoles || adminRoles.length === 0) {
+      return new Response(JSON.stringify({ success: true, message: "No admins to notify" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const adminUserIds = adminRoles.map((r: any) => r.user_id);
+    const notificationMessage = `New analysis completed: ${company_name} (${report_year || "N/A"}) — Risk: ${risk_level || "unknown"} (${risk_score ?? "N/A"}) — by ${uploaderName}`;
+
+    // Insert in-app notifications for all admins
+    const notifRows = adminUserIds.map((adminId: string) => ({
+      admin_user_id: adminId,
+      message: notificationMessage,
+      type: "success",
+      analysis_id,
+    }));
+
+    const { error: insertError } = await supabase.from("admin_notifications").insert(notifRows);
+    if (insertError) {
+      console.error("Failed to insert admin notifications:", insertError);
+    }
+
+    // Send email to all admin emails
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    if (RESEND_API_KEY) {
+      // Get admin emails
+      const adminEmails: string[] = [];
+      for (const adminId of adminUserIds) {
+        const { data: adminUser } = await supabase.auth.admin.getUserById(adminId);
+        if (adminUser?.user?.email) adminEmails.push(adminUser.user.email);
+      }
+
+      if (adminEmails.length > 0) {
+        const html = `
+          <h2>New Analysis Completed</h2>
+          <table style="border-collapse:collapse;margin:16px 0">
+            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Company</td><td>${company_name}</td></tr>
+            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Report Year</td><td>${report_year || "N/A"}</td></tr>
+            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Risk Level</td><td>${risk_level || "Unknown"}</td></tr>
+            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Risk Score</td><td>${risk_score ?? "N/A"}</td></tr>
+            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Uploaded by</td><td>${uploaderName} (${uploaderEmail})</td></tr>
+          </table>
+          <p>Log in to the Corporate Accountability Engine to review this analysis.</p>
+        `;
+
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
+          body: JSON.stringify({
+            from: "CAE Alerts <onboarding@resend.dev>",
+            to: adminEmails,
+            subject: `CAE: New analysis completed — ${company_name} (${report_year || ""})`,
+            html,
+          }),
+        });
+
+        if (!res.ok) {
+          console.error("Resend email error:", await res.text());
+        }
+      }
+    } else {
+      console.warn("RESEND_API_KEY not set, skipping admin email notifications");
+    }
+
+    return new Response(JSON.stringify({ success: true, admins_notified: adminUserIds.length }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Error in notify-analysis-complete:", error);
+    return new Response(JSON.stringify({ error: "Internal error" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});

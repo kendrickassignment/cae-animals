@@ -202,6 +202,18 @@ export default function UploadPage() {
                 addNotification(`Analysis completed: ${uf.companyName}`, "success");
                 queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
 
+                // Notify admins (fire-and-forget)
+                supabase.functions.invoke("notify-analysis-complete", {
+                  body: {
+                    analysis_id: savedId,
+                    company_name: uf.companyName,
+                    report_year: parseInt(uf.reportYear),
+                    risk_score: null,
+                    risk_level: null,
+                    uploader_user_id: user.id,
+                  },
+                }).catch((err) => console.warn("Admin notification failed:", err));
+
                 setTimeout(() => {
                   removeStage(key);
                   if (savedId) navigate(`/analysis/${savedId}`);

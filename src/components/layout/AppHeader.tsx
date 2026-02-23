@@ -9,6 +9,7 @@ import { fuzzyMatchName } from "@/lib/fuzzy-search";
 import { seedAnalyses, seedCompanies } from "@/data/seed-data";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useRealAnalyses } from "@/hooks/useRealAnalyses";
+import { useAdminNotifications } from "@/hooks/useAdminNotifications";
 
 interface AppHeaderProps {
   onToggleSidebar?: () => void;
@@ -33,7 +34,9 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { notifications, addNotification, markAllRead, unreadCount } = useNotifications();
+  const { notifications: adminNotifs, unreadCount: adminUnreadCount, markAllRead: markAdminRead } = useAdminNotifications();
   const { data: realAnalyses = [] } = useRealAnalyses();
+  const totalUnread = unreadCount + adminUnreadCount;
   const [darkMode, setDarkMode] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -169,33 +172,65 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
         <div className="relative" ref={notifRef}>
           <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 relative" onClick={() => { setShowNotifications(!showNotifications); setShowDropdown(false); }}>
             <Bell className="h-4 w-4" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-[10px] font-bold text-white flex items-center justify-center">{unreadCount}</span>
+            {totalUnread > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-[10px] font-bold text-white flex items-center justify-center">{totalUnread}</span>
             )}
           </Button>
           {showNotifications && (
-            <div className="absolute right-0 top-10 w-72 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+            <div className="absolute right-0 top-10 w-80 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden">
               <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                 <span className="font-nav text-xs tracking-wider">NOTIFICATIONS</span>
-                {notifications.length > 0 && (
-                  <button className="text-xs text-primary font-body" onClick={() => markAllRead()}>Mark all read</button>
+                {(notifications.length > 0 || adminNotifs.length > 0) && (
+                  <button className="text-xs text-primary font-body" onClick={() => { markAllRead(); markAdminRead(); }}>Mark all read</button>
                 )}
               </div>
-              <div className="max-h-64 overflow-y-auto">
-                {notifications.length === 0 ? (
-                  <p className="text-center text-muted-foreground font-body text-sm py-6">No notifications yet</p>
-                ) : (
-                  notifications.map(n => (
-                    <div key={n.id} className={`px-4 py-3 border-b border-border text-sm font-body ${n.read ? "" : "bg-muted/50"}`}>
-                      <div className="flex items-start gap-2">
-                        <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.type === "success" ? "bg-green-500" : n.type === "error" ? "bg-destructive" : n.type === "warning" ? "bg-yellow-500" : "bg-primary"}`} />
-                        <div>
-                          <p className="text-foreground">{n.message}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{n.time}</p>
+              <div className="max-h-72 overflow-y-auto">
+                {/* Admin notifications (persistent, from DB) */}
+                {adminNotifs.length > 0 && (
+                  <>
+                    <div className="px-4 py-1.5 bg-muted/30">
+                      <span className="font-nav text-[10px] tracking-wider text-muted-foreground">ADMIN ALERTS</span>
+                    </div>
+                    {adminNotifs.map(n => (
+                      <div
+                        key={`admin-${n.id}`}
+                        className={`px-4 py-3 border-b border-border text-sm font-body cursor-pointer hover:bg-muted/30 ${n.read ? "" : "bg-muted/50"}`}
+                        onClick={() => { if (n.analysis_id) { navigate(`/analysis/${n.analysis_id}`); setShowNotifications(false); } }}
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.type === "success" ? "bg-green-500" : n.type === "error" ? "bg-destructive" : n.type === "warning" ? "bg-yellow-500" : "bg-primary"}`} />
+                          <div>
+                            <p className="text-foreground">{n.message}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString()}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </>
+                )}
+                {/* Session notifications (in-memory) */}
+                {notifications.length > 0 && (
+                  <>
+                    {adminNotifs.length > 0 && (
+                      <div className="px-4 py-1.5 bg-muted/30">
+                        <span className="font-nav text-[10px] tracking-wider text-muted-foreground">SESSION</span>
+                      </div>
+                    )}
+                    {notifications.map(n => (
+                      <div key={n.id} className={`px-4 py-3 border-b border-border text-sm font-body ${n.read ? "" : "bg-muted/50"}`}>
+                        <div className="flex items-start gap-2">
+                          <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.type === "success" ? "bg-green-500" : n.type === "error" ? "bg-destructive" : n.type === "warning" ? "bg-yellow-500" : "bg-primary"}`} />
+                          <div>
+                            <p className="text-foreground">{n.message}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{n.time}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+                {notifications.length === 0 && adminNotifs.length === 0 && (
+                  <p className="text-center text-muted-foreground font-body text-sm py-6">No notifications yet</p>
                 )}
               </div>
             </div>
