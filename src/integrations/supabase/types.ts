@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_notifications: {
+        Row: {
+          admin_user_id: string
+          analysis_id: string | null
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          type: string
+        }
+        Insert: {
+          admin_user_id: string
+          analysis_id?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          type?: string
+        }
+        Update: {
+          admin_user_id?: string
+          analysis_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notifications_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analysis_flags: {
         Row: {
           analysis_id: string
