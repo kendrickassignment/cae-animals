@@ -218,16 +218,24 @@ export default function AnalysisDetail() {
   const documentConfidenceReason = rawDbRow?.document_confidence_reason || null;
 
   // ===== COMPANY HISTORY =====
+  const isCurrentIdUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || "");
+
   const { data: companyHistory = [] } = useQuery({
-    queryKey: ["company-history", analysis?.company_name],
+    queryKey: ["company-history", analysis?.company_name, id],
     queryFn: async () => {
       if (!analysis?.company_name) return [];
-      const { data, error } = await supabase
+      let query = supabase
         .from("analysis_results")
         .select("id, company_name, report_year, overall_risk_level, overall_risk_score, summary, created_at, user_id, findings")
         .ilike("company_name", analysis.company_name)
-        .neq("id", analysis.id)
         .order("created_at", { ascending: true });
+
+      // Only use .neq if current ID is a valid UUID (seed IDs like "a5" would cause 400)
+      if (isCurrentIdUuid) {
+        query = query.neq("id", id!);
+      }
+
+      const { data, error } = await query;
       if (error) return [];
       return (data || []).map((row: any) => ({
         id: row.id,
