@@ -5,7 +5,7 @@ import { Upload, FileText, Building2, AlertTriangle, BarChart3, CheckCircle2, XC
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { seedAnalyses, seedCompanies, getRiskBgColor } from "@/data/seed-data";
+import { seedAnalyses, getRiskBgColor } from "@/data/seed-data";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -118,28 +118,17 @@ export default function Dashboard() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "application/pdf": [".pdf"] }, maxFiles: 10 });
 
   const stats = useMemo(() => {
-    // Only count verified real analyses + all seed/demo analyses toward stats
-    const countedAnalyses = allAnalyses.filter(a => {
-      const isReal = (a as any).isReal;
-      if (!isReal) return true; // seed/demo always count
-      return (a as any).verified === true; // real analyses only count when verified
-    });
-    const totalReports = countedAnalyses.length;
-    const companyNames = new Set([...countedAnalyses.map(a => a.company_name), ...seedCompanies.map(c => c.name)]);
+    const totalReports = allAnalyses.length;
+    const companyNames = new Set(allAnalyses.map(a => a.company_name.toLowerCase()));
     const totalCompanies = companyNames.size;
-    const highRisk = countedAnalyses.filter(a => a.overall_risk_level === "critical" || a.overall_risk_level === "high").length;
-    const avgScore = totalReports > 0 ? Math.round(countedAnalyses.reduce((s, a) => s + a.overall_risk_score, 0) / totalReports) : 0;
+    const highRisk = allAnalyses.filter(a => a.overall_risk_level === "critical" || a.overall_risk_level === "high").length;
+    const avgScore = totalReports > 0 ? Math.round(allAnalyses.reduce((s, a) => s + a.overall_risk_score, 0) / totalReports) : 0;
     return { totalReports, totalCompanies, highRisk, avgScore };
   }, [allAnalyses]);
 
   const riskDistribution = useMemo(() => {
     const counts: Record<string, number> = { critical: 0, high: 0, medium: 0, low: 0 };
-    const countedAnalyses = allAnalyses.filter(a => {
-      const isReal = (a as any).isReal;
-      if (!isReal) return true;
-      return (a as any).verified === true;
-    });
-    countedAnalyses.forEach(a => { counts[a.overall_risk_level] = (counts[a.overall_risk_level] || 0) + 1; });
+    allAnalyses.forEach(a => { counts[a.overall_risk_level] = (counts[a.overall_risk_level] || 0) + 1; });
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
   }, [allAnalyses]);
 
