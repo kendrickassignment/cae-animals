@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, AlertTriangle, ChevronDown, ChevronRight, Download, Copy, FileDown, Loader2, History, TrendingUp, TrendingDown, Minus, CheckCircle2, Flag, ShieldAlert, FileText, ExternalLink, Shield, Send } from "lucide-react";
+import { ArrowLeft, AlertTriangle, ChevronDown, ChevronRight, Download, Copy, FileDown, Loader2, History, TrendingUp, TrendingDown, Minus, CheckCircle2, Flag, ShieldAlert, FileText, ExternalLink, Shield, Send, Trash2, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { seedAnalyses, getRiskBgColor, getIndonesiaStatusLabel, getIndonesiaStatusColor, getFindingTypeLabel } from "@/data/seed-data";
 import type { SeedAnalysis } from "@/data/seed-data";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -47,6 +49,10 @@ export default function AnalysisDetail() {
   const [showFlagForm, setShowFlagForm] = useState(false);
   const [showVerifyRequestForm, setShowVerifyRequestForm] = useState(false);
   const [verifyRequestNote, setVerifyRequestNote] = useState("");
+  const [editingCompany, setEditingCompany] = useState(false);
+  const [editingYear, setEditingYear] = useState(false);
+  const [editCompanyValue, setEditCompanyValue] = useState("");
+  const [editYearValue, setEditYearValue] = useState("");
 
   // Try seed data first
   const seedAnalysis = useMemo(() => seedAnalyses.find(a => a.id === id), [id]);
@@ -270,6 +276,50 @@ export default function AnalysisDetail() {
     }));
   }, [analysis]);
 
+  // ===== DELETE & EDIT =====
+  const canDelete = !isSeedData && (isAdmin || (!!user && analysisUserId === user.id));
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("analysis_results").delete().eq("id", id!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Analysis deleted");
+      queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
+      navigate("/dashboard");
+    },
+    onError: () => toast.error("Failed to delete analysis"),
+  });
+
+  const editMetadataMutation = useMutation({
+    mutationFn: async (updates: { company_name?: string; report_year?: number }) => {
+      const { error } = await supabase.from("analysis_results").update(updates).eq("id", id!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Metadata updated");
+      queryClient.invalidateQueries({ queryKey: ["analysis-detail", id] });
+      queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
+    },
+    onError: () => toast.error("Failed to update metadata"),
+  });
+
+  const handleSaveCompany = useCallback(() => {
+    if (editCompanyValue.trim() && editCompanyValue.trim() !== analysis?.company_name) {
+      editMetadataMutation.mutate({ company_name: editCompanyValue.trim() });
+    }
+    setEditingCompany(false);
+  }, [editCompanyValue, analysis?.company_name, editMetadataMutation]);
+
+  const handleSaveYear = useCallback(() => {
+    const yr = parseInt(editYearValue, 10);
+    if (yr && yr !== analysis?.report_year) {
+      editMetadataMutation.mutate({ report_year: yr });
+    }
+    setEditingYear(false);
+  }, [editYearValue, analysis?.report_year, editMetadataMutation]);
+
   // ===== HANDLERS =====
   const handleDownloadSource = async () => {
     if (!sourceReport?.file_url) return;
@@ -351,7 +401,28 @@ export default function AnalysisDetail() {
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="font-display text-4xl text-foreground">{analysis.company_name}</h1>
+            {editingCompany ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={editCompanyValue}
+                  onChange={e => setEditCompanyValue(e.target.value)}
+                  className="h-9 w-64 font-display text-2xl"
+                  autoFocus
+                  onKeyDown={e => { if (e.key === "Enter") handleSaveCompany(); if (e.key === "Escape") setEditingCompany(false); }}
+                />
+                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleSaveCompany}><Check className="h-4 w-4" /></Button>
+                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditingCompany(false)}><X className="h-4 w-4" /></Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <h1 className="font-display text-4xl text-foreground">{analysis.company_name}</h1>
+                {isAdmin && !isSeedData && (
+                  <button onClick={() => { setEditCompanyValue(analysis.company_name); setEditingCompany(true); }} className="text-muted-foreground hover:text-foreground transition-colors">
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            )}
             {/* VERIFIED BADGE */}
             {!isSeedData && isVerified && (
               <Tooltip>
@@ -384,7 +455,29 @@ export default function AnalysisDetail() {
             )}
           </div>
           <div className="flex gap-2 mt-2 flex-wrap">
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-secondary/20 text-secondary font-body">{analysis.report_year}</span>
+            {editingYear ? (
+              <div className="flex items-center gap-1">
+                <Input
+                  type="number"
+                  value={editYearValue}
+                  onChange={e => setEditYearValue(e.target.value)}
+                  className="h-7 w-24 text-xs"
+                  autoFocus
+                  onKeyDown={e => { if (e.key === "Enter") handleSaveYear(); if (e.key === "Escape") setEditingYear(false); }}
+                />
+                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleSaveYear}><Check className="h-3 w-3" /></Button>
+                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setEditingYear(false)}><X className="h-3 w-3" /></Button>
+              </div>
+            ) : (
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-secondary/20 text-secondary font-body inline-flex items-center gap-1">
+                {analysis.report_year}
+                {isAdmin && !isSeedData && (
+                  <button onClick={() => { setEditYearValue(String(analysis.report_year)); setEditingYear(true); }} className="text-secondary/60 hover:text-secondary transition-colors">
+                    <Pencil className="h-3 w-3" />
+                  </button>
+                )}
+              </span>
+            )}
             <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskBgColor(analysis.overall_risk_level)}`}>{analysis.overall_risk_level}</span>
             {/* AI CONFIDENCE BADGE */}
             {!isSeedData && documentConfidence && (
@@ -421,6 +514,26 @@ export default function AnalysisDetail() {
       {/* Admin Verify + Flag Actions */}
       {!isSeedData && (
         <div className="flex flex-wrap gap-2">
+          {canDelete && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="destructive" className="font-body text-xs font-bold" disabled={deleteMutation.isPending}>
+                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                  Delete Analysis
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Analysis</AlertDialogTitle>
+                  <AlertDialogDescription>Are you sure? This cannot be undone.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => deleteMutation.mutate()} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           {isAdmin && (
             <Button
               size="sm"
