@@ -15,6 +15,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { exportAnalysisPdf } from "@/lib/export-pdf";
 import { useAuth } from "@/hooks/useAuth";
+import { useNotifications } from "@/hooks/useNotifications";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useAnalysisFlags } from "@/hooks/useAnalysisFlags";
 
@@ -157,7 +158,8 @@ export default function AnalysisDetail() {
   });
 
   // 3. Flags
-  const { activeFlags, userHasFlagged, flagCount, showWarning, submitFlag, dismissAllFlags } = useAnalysisFlags(isSeedData ? undefined : id);
+  const { activeFlags, userHasFlagged, flagCount, showWarning, submitFlag, dismissAllFlags, unflagAnalysis, sendFlagNotification, isAdmin: isAdminFlag } = useAnalysisFlags(isSeedData ? undefined : id);
+  const { addNotification } = useNotifications();
 
   // Verification request status
   const { data: existingVerifyRequest } = useQuery({
@@ -332,9 +334,40 @@ export default function AnalysisDetail() {
 
   const handleSubmitFlag = () => {
     if (!flagReason.trim()) { toast.error("Please provide a reason"); return; }
-    submitFlag.mutate(flagReason.trim());
+    submitFlag.mutate(flagReason.trim(), {
+      onSuccess: () => {
+        // In-app notification for uploader
+        if (analysisUserId && analysis) {
+          addNotification(`Your analysis of ${analysis.company_name} has been flagged as suspicious. Reason: ${flagReason.trim()}`, "warning");
+          // Email notification
+          sendFlagNotification({
+            action: "flag",
+            companyName: analysis.company_name,
+            reason: flagReason.trim(),
+            uploaderUserId: analysisUserId,
+            analysisUrl: `${window.location.origin}/analysis/${id}`,
+          });
+        }
+      },
+    });
     setFlagReason("");
     setShowFlagForm(false);
+  };
+
+  const handleUnflag = () => {
+    unflagAnalysis.mutate(undefined, {
+      onSuccess: () => {
+        if (analysisUserId && analysis) {
+          addNotification(`Your analysis of ${analysis.company_name} has been unflagged.`, "success");
+          sendFlagNotification({
+            action: "unflag",
+            companyName: analysis.company_name,
+            uploaderUserId: analysisUserId,
+            analysisUrl: `${window.location.origin}/analysis/${id}`,
+          });
+        }
+      },
+    });
   };
 
   // ===== RENDER =====
@@ -546,20 +579,34 @@ export default function AnalysisDetail() {
               {isVerified ? "Remove Verification" : "Mark as Verified"}
             </Button>
           )}
-          {!userHasFlagged && (
+          {flagCount > 0 && isAdmin ? (
             <Button
               size="sm"
               variant="outline"
-              className="font-body text-xs font-bold border-risk-medium text-risk-medium hover:bg-risk-medium-bg"
-              onClick={() => setShowFlagForm(!showFlagForm)}
+              className="font-body text-xs font-bold border-risk-low text-risk-low hover:bg-risk-low-bg"
+              onClick={handleUnflag}
+              disabled={unflagAnalysis.isPending}
             >
-              <Flag className="h-3.5 w-3.5 mr-1.5" /> Flag as Suspicious
+              <Flag className="h-3.5 w-3.5 mr-1.5" /> Unflag Analysis
             </Button>
-          )}
-          {userHasFlagged && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-risk-medium-bg text-risk-medium">
-              <Flag className="h-3 w-3" /> You flagged this
-            </span>
+          ) : (
+            <>
+              {!userHasFlagged && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="font-body text-xs font-bold border-risk-medium text-risk-medium hover:bg-risk-medium-bg"
+                  onClick={() => setShowFlagForm(!showFlagForm)}
+                >
+                  <Flag className="h-3.5 w-3.5 mr-1.5" /> Flag as Suspicious
+                </Button>
+              )}
+              {userHasFlagged && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-risk-medium-bg text-risk-medium">
+                  <Flag className="h-3 w-3" /> You flagged this
+                </span>
+              )}
+            </>
           )}
         </div>
       )}
