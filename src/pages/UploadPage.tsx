@@ -3,7 +3,7 @@ import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,28 +13,118 @@ import { fetchAndSaveAnalysis } from "@/hooks/useRealAnalyses";
 import AnalysisProgress from "@/components/AnalysisProgress";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNotifications } from "@/hooks/useNotifications";
+import { computeFileHash } from "@/lib/file-hash";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+
+interface DuplicateInfo {
+  type: "hash" | "company_year";
+  analysisId: string;
+  companyName: string;
+  reportYear: number;
+  score: number | null;
+  date: string;
+  uploaderEmail: string;
+}
 
 export default function UploadPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { addNotification } = useNotifications();
-  const [files, setFiles] = useState<{ file: File; companyName: string; reportYear: string }[]>([]);
+  const [files, setFiles] = useState<{ file: File; companyName: string; reportYear: string; hash?: string }[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [progressStages, setProgressStages] = useState<Record<string, { stage: string; companyName: string }>>({});
 
-  const onDrop = useCallback((accepted: File[]) => {
-    setFiles(prev => [...prev, ...accepted.map(f => ({ file: f, companyName: "", reportYear: "2024" }))]);
+  // Duplicate detection state
+  const [duplicateDialog, setDuplicateDialog] = useState<DuplicateInfo | null>(null);
+  const duplicateResolveRef = useRef<((proceed: boolean) => void) | null>(null);
+
+  const onDrop = useCallback(async (accepted: File[]) => {
+    const newFiles = await Promise.all(
+      accepted.map(async (f) => {
+        const hash = await computeFileHash(f);
+        return { file: f, companyName: "", reportYear: "2024", hash };
+      })
+    );
+    setFiles((prev) => [...prev, ...newFiles]);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "application/pdf": [".pdf"] }, maxFiles: 10 });
 
   const updateStage = (key: string, stage: string, companyName: string) => {
-    setProgressStages(prev => ({ ...prev, [key]: { stage, companyName } }));
+    setProgressStages((prev) => ({ ...prev, [key]: { stage, companyName } }));
   };
 
   const removeStage = (key: string) => {
-    setProgressStages(prev => { const copy = { ...prev }; delete copy[key]; return copy; });
+    setProgressStages((prev) => { const copy = { ...prev }; delete copy[key]; return copy; });
+  };
+
+  const showDuplicateWarning = (info: DuplicateInfo): Promise<boolean> => {
+    return new Promise((resolve) => {
+      duplicateResolveRef.current = resolve;
+      setDuplicateDialog(info);
+    });
+  };
+
+  const handleDuplicateAction = (proceed: boolean) => {
+    if (!proceed && duplicateDialog) {
+      navigate(`/analysis/${duplicateDialog.analysisId}`);
+    }
+    duplicateResolveRef.current?.(proceed);
+    duplicateResolveRef.current = null;
+    setDuplicateDialog(null);
+  };
+
+  const checkFileHashDuplicate = async (hash: string): Promise<DuplicateInfo | null> => {
+    const { data } = await (supabase
+      .from("analysis_results")
+      .select("id, company_name, report_year, overall_risk_score, created_at, user_id") as any)
+      .eq("file_hash", hash)
+      .limit(1);
+    if (!data || data.length === 0) return null;
+    const row = data[0];
+    // Try to get uploader display name
+    let uploaderEmail = "another user";
+    if (row.user_id) {
+      const { data: nameData } = await supabase.rpc("get_display_name", { _target_user_id: row.user_id });
+      if (nameData) uploaderEmail = nameData;
+    }
+    return {
+      type: "hash",
+      analysisId: row.id,
+      companyName: row.company_name || "Unknown",
+      reportYear: row.report_year || 0,
+      score: row.overall_risk_score,
+      date: new Date(row.created_at).toLocaleDateString(),
+      uploaderEmail,
+    };
+  };
+
+  const checkCompanyYearDuplicate = async (companyName: string, reportYear: number): Promise<DuplicateInfo | null> => {
+    const { data } = await supabase
+      .from("analysis_results")
+      .select("id, company_name, report_year, overall_risk_score, created_at, user_id")
+      .filter("company_name", "ilike", companyName)
+      .eq("report_year", reportYear)
+      .limit(1);
+    if (!data || data.length === 0) return null;
+    const row = data[0];
+    let uploaderEmail = "another user";
+    if (row.user_id) {
+      const { data: nameData } = await supabase.rpc("get_display_name", { _target_user_id: row.user_id });
+      if (nameData) uploaderEmail = nameData;
+    }
+    return {
+      type: "company_year",
+      analysisId: row.id,
+      companyName: row.company_name || "Unknown",
+      reportYear: row.report_year || 0,
+      score: row.overall_risk_score,
+      date: new Date(row.created_at).toLocaleDateString(),
+      uploaderEmail,
+    };
   };
 
   const handleAnalyze = async () => {
@@ -42,6 +132,24 @@ export default function UploadPage() {
     setAnalyzing(true);
     try {
       for (const uf of files) {
+        // 1) File hash check
+        if (uf.hash) {
+          const hashDup = await checkFileHashDuplicate(uf.hash);
+          if (hashDup) {
+            const proceed = await showDuplicateWarning(hashDup);
+            if (!proceed) continue;
+          }
+        }
+
+        // 2) Company + year check
+        if (uf.companyName) {
+          const companyDup = await checkCompanyYearDuplicate(uf.companyName, parseInt(uf.reportYear));
+          if (companyDup) {
+            const proceed = await showDuplicateWarning(companyDup);
+            if (!proceed) continue;
+          }
+        }
+
         const key = `${uf.file.name}-${Date.now()}`;
         updateStage(key, "uploading", uf.companyName);
         addNotification(`Uploading: ${uf.companyName || uf.file.name}`, "info");
@@ -77,6 +185,11 @@ export default function UploadPage() {
                 const savedId = await fetchAndSaveAnalysis(
                   status.analysis_id, user.id, report.id, uf.companyName, parseInt(uf.reportYear)
                 );
+
+                // Save file_hash to the analysis result
+                if (savedId && uf.hash) {
+                  await supabase.from("analysis_results").update({ file_hash: uf.hash } as any).eq("id", savedId);
+                }
 
                 await supabase.from("reports").update({
                   status: "completed",
@@ -164,6 +277,42 @@ export default function UploadPage() {
           </Button>
         </div>
       )}
+
+      {/* Duplicate detection dialog */}
+      <Dialog open={!!duplicateDialog} onOpenChange={(open) => { if (!open) handleDuplicateAction(true); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display text-foreground">
+              {duplicateDialog?.type === "hash" ? "Duplicate PDF Detected" : "Existing Analysis Found"}
+            </DialogTitle>
+            <DialogDescription className="font-body text-muted-foreground pt-2">
+              {duplicateDialog?.type === "hash" ? (
+                <>
+                  This exact PDF was already analyzed by <strong>{duplicateDialog.uploaderEmail}</strong> on{" "}
+                  <strong>{duplicateDialog.date}</strong>.
+                  <br />
+                  Company: <strong>{duplicateDialog.companyName}</strong>
+                  {duplicateDialog.score !== null && <>, Score: <strong>{duplicateDialog.score}</strong></>}.
+                </>
+              ) : (
+                <>
+                  An analysis for <strong>{duplicateDialog?.companyName}</strong> ({duplicateDialog?.reportYear}) already exists,
+                  uploaded by <strong>{duplicateDialog?.uploaderEmail}</strong> on <strong>{duplicateDialog?.date}</strong>.
+                  Would you like to view it?
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => handleDuplicateAction(false)}>
+              View Existing Analysis
+            </Button>
+            <Button onClick={() => handleDuplicateAction(true)}>
+              Upload Anyway
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

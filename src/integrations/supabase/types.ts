@@ -61,6 +61,7 @@ export type Database = {
           created_at: string
           document_confidence: string | null
           document_confidence_reason: string | null
+          file_hash: string | null
           findings: Json | null
           global_claim: string | null
           hedging_language_count: number | null
@@ -91,6 +92,7 @@ export type Database = {
           created_at?: string
           document_confidence?: string | null
           document_confidence_reason?: string | null
+          file_hash?: string | null
           findings?: Json | null
           global_claim?: string | null
           hedging_language_count?: number | null
@@ -121,6 +123,7 @@ export type Database = {
           created_at?: string
           document_confidence?: string | null
           document_confidence_reason?: string | null
+          file_hash?: string | null
           findings?: Json | null
           global_claim?: string | null
           hedging_language_count?: number | null
