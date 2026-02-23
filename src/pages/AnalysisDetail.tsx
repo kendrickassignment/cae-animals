@@ -242,7 +242,7 @@ export default function AnalysisDetail() {
         top_findings: Array.isArray(row.findings) ? row.findings.slice(0, 3).map((f: any) => f.title || "Untitled") : [],
       }));
     },
-    enabled: !!analysis?.company_name && !isSeedData,
+    enabled: !!analysis?.company_name,
   });
 
   const seedHistory = useMemo(() => {
