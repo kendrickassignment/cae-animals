@@ -131,14 +131,10 @@ export default function AnalysisDetail() {
   const isVerified = rawDbRow?.verified === true;
   const verifyMutation = useMutation({
     mutationFn: async (verified: boolean) => {
-      const { error } = await supabase
-        .from("analysis_results")
-        .update({
-          verified,
-          verified_by: verified ? user?.id : null,
-          verified_at: verified ? new Date().toISOString() : null,
-        } as any)
-        .eq("id", id!);
+      const { error } = await supabase.rpc("set_analysis_verification", {
+        _analysis_id: id!,
+        _verified: verified,
+      });
       if (error) throw error;
     },
     onSuccess: (_, verified) => {

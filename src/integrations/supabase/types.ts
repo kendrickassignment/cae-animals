@@ -419,6 +419,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      set_analysis_verification: {
+        Args: { _analysis_id: string; _verified: boolean }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "researcher"
