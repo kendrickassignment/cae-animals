@@ -82,6 +82,7 @@ export default function UploadPage() {
       .from("analysis_results")
       .select("id, company_name, report_year, overall_risk_score, created_at, user_id") as any)
       .eq("file_hash", hash)
+      .not("user_id", "is", null)
       .limit(1);
     if (!data || data.length === 0) return null;
     const row = data[0];
@@ -108,6 +109,7 @@ export default function UploadPage() {
       .select("id, company_name, report_year, overall_risk_score, created_at, user_id")
       .filter("company_name", "ilike", companyName)
       .eq("report_year", reportYear)
+      .not("user_id", "is", null)
       .limit(1);
     if (!data || data.length === 0) return null;
     const row = data[0];
