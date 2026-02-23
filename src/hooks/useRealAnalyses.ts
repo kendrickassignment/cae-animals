@@ -68,7 +68,6 @@ export function useRealAnalyses() {
       const { data, error } = await supabase
         .from("analysis_results")
         .select("*")
-        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data || []).map(mapBackendToAnalysis);
