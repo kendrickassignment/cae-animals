@@ -115,8 +115,11 @@ export default function AnalysisDetail() {
     queryKey: ["uploader-profile", analysisUserId],
     queryFn: async () => {
       if (!analysisUserId) return null;
-      const { data } = await supabase.from("profiles").select("full_name").eq("id", analysisUserId).single();
-      return data;
+      const { data, error } = await supabase.rpc("get_display_name", {
+        _target_user_id: analysisUserId,
+      });
+      if (error) return null;
+      return { full_name: data };
     },
     enabled: !!analysisUserId,
   });
