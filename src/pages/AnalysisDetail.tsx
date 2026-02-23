@@ -265,11 +265,22 @@ export default function AnalysisDetail() {
       }));
   }, [analysis]);
 
+  // When viewing a real analysis: only show other real analyses (from DB, with user_id)
+  // When viewing a demo/seed analysis: show other demos + any real analyses
   const previousAnalyses = useMemo(() => {
-    const dbIds = new Set(companyHistory.map(a => a.id));
-    const combined = [...companyHistory, ...seedHistory.filter(s => !dbIds.has(s.id))];
-    return combined.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-  }, [companyHistory, seedHistory]);
+    const isCurrentReal = !isSeedData;
+    if (isCurrentReal) {
+      // Real analysis: only show real (DB) analyses that have a user_id
+      return companyHistory
+        .filter(a => !!a.user_id)
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    } else {
+      // Demo analysis: show seed history + real DB analyses
+      const dbIds = new Set(companyHistory.map(a => a.id));
+      const combined = [...companyHistory, ...seedHistory.filter(s => !dbIds.has(s.id))];
+      return combined.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    }
+  }, [companyHistory, seedHistory, isSeedData]);
 
   // ===== DERIVED =====
   const filteredFindings = useMemo(() => {
@@ -776,7 +787,10 @@ export default function AnalysisDetail() {
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <div className="flex items-center gap-2 shrink-0">
                       <span className="font-display text-2xl">{prev.overall_risk_score}</span>
-                      {scoreDiff > 0 ? (
+                    {/* Only show score diff between real analyses */}
+                      {(isSeedData || !prev.user_id) ? (
+                        <span className="flex items-center gap-0.5 text-muted-foreground text-xs font-bold"><Minus className="h-3.5 w-3.5" /> —</span>
+                      ) : scoreDiff > 0 ? (
                         <span className="flex items-center gap-0.5 text-risk-critical text-xs font-bold"><TrendingUp className="h-3.5 w-3.5" /> +{scoreDiff}</span>
                       ) : scoreDiff < 0 ? (
                         <span className="flex items-center gap-0.5 text-risk-low text-xs font-bold"><TrendingDown className="h-3.5 w-3.5" /> {scoreDiff}</span>

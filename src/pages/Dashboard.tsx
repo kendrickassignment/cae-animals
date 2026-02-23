@@ -117,20 +117,21 @@ export default function Dashboard() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "application/pdf": [".pdf"] }, maxFiles: 10 });
 
+  // Stats and charts use ONLY real analyses (user_id IS NOT NULL)
   const stats = useMemo(() => {
-    const totalReports = allAnalyses.length;
-    const companyNames = new Set(allAnalyses.map(a => a.company_name.toLowerCase()));
+    const totalReports = realAnalyses.length;
+    const companyNames = new Set(realAnalyses.map(a => a.company_name.toLowerCase()));
     const totalCompanies = companyNames.size;
-    const highRisk = allAnalyses.filter(a => a.overall_risk_level === "critical" || a.overall_risk_level === "high").length;
-    const avgScore = totalReports > 0 ? Math.round(allAnalyses.reduce((s, a) => s + a.overall_risk_score, 0) / totalReports) : 0;
+    const highRisk = realAnalyses.filter(a => a.overall_risk_level === "critical" || a.overall_risk_level === "high").length;
+    const avgScore = totalReports > 0 ? Math.round(realAnalyses.reduce((s, a) => s + a.overall_risk_score, 0) / totalReports) : 0;
     return { totalReports, totalCompanies, highRisk, avgScore };
-  }, [allAnalyses]);
+  }, [realAnalyses]);
 
   const riskDistribution = useMemo(() => {
     const counts: Record<string, number> = { critical: 0, high: 0, medium: 0, low: 0 };
-    allAnalyses.forEach(a => { counts[a.overall_risk_level] = (counts[a.overall_risk_level] || 0) + 1; });
+    realAnalyses.forEach(a => { counts[a.overall_risk_level] = (counts[a.overall_risk_level] || 0) + 1; });
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }, [allAnalyses]);
+  }, [realAnalyses]);
 
   return (
     <div className="space-y-6 animate-fade-in">
