@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { Upload, FileText, Building2, AlertTriangle, BarChart3, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,8 @@ export default function Dashboard() {
   const [uploadFiles, setUploadFiles] = useState<{ file: File; companyName: string; reportYear: string }[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [progressStages, setProgressStages] = useState<Record<string, { stage: string; companyName: string }>>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const { data: realAnalyses = [] } = useRealAnalyses();
 
@@ -228,44 +231,85 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {allAnalyses.map((analysis, i) => (
-                      <tr key={analysis.id} className={`border-t border-border hover:bg-muted/50 cursor-pointer transition-colors ${i % 2 === 1 ? "bg-muted/30" : ""}`} onClick={() => navigate(`/analysis/${analysis.id}`)}>
-                        <td className="p-3 font-body text-sm font-bold">{analysis.company_name}</td>
-                        <td className="p-3 font-body text-sm text-muted-foreground hidden sm:table-cell">{analysis.report_year}</td>
-                        <td className="p-3">
-                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskBgColor(analysis.overall_risk_level)}`}>{analysis.overall_risk_level}</span>
-                        </td>
-                        <td className="p-3 font-display text-lg hidden md:table-cell">{analysis.overall_risk_score}</td>
-                        <td className="p-3 hidden md:table-cell">
-                          {(analysis as any).isReal ? (
-                            (analysis as any).verified ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-risk-low-bg text-risk-low">
-                                <CheckCircle2 className="h-3 w-3" /> Verified
-                              </span>
+                    {(() => {
+                      const totalPages = Math.max(1, Math.ceil(allAnalyses.length / PAGE_SIZE));
+                      const safePage = Math.min(currentPage, totalPages);
+                      const start = (safePage - 1) * PAGE_SIZE;
+                      const pageItems = allAnalyses.slice(start, start + PAGE_SIZE);
+                      return pageItems.map((analysis, i) => (
+                        <tr key={analysis.id} className={`border-t border-border hover:bg-muted/50 cursor-pointer transition-colors ${i % 2 === 1 ? "bg-muted/30" : ""}`} onClick={() => navigate(`/analysis/${analysis.id}`)}>
+                          <td className="p-3 font-body text-sm font-bold">{analysis.company_name}</td>
+                          <td className="p-3 font-body text-sm text-muted-foreground hidden sm:table-cell">{analysis.report_year}</td>
+                          <td className="p-3">
+                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskBgColor(analysis.overall_risk_level)}`}>{analysis.overall_risk_level}</span>
+                          </td>
+                          <td className="p-3 font-display text-lg hidden md:table-cell">{analysis.overall_risk_score}</td>
+                          <td className="p-3 hidden md:table-cell">
+                            {(analysis as any).isReal ? (
+                              (analysis as any).verified ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-risk-low-bg text-risk-low">
+                                  <CheckCircle2 className="h-3 w-3" /> Verified
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground">
+                                  <XCircle className="h-3 w-3" /> Unverified
+                                </span>
+                              )
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground">
-                                <XCircle className="h-3 w-3" /> Unverified
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-risk-low-bg text-risk-low">
+                                <CheckCircle2 className="h-3 w-3" /> Demo
                               </span>
-                            )
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-risk-low-bg text-risk-low">
-                              <CheckCircle2 className="h-3 w-3" /> Demo
+                            )}
+                          </td>
+                          <td className="p-3 hidden lg:table-cell">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${(analysis as any).isReal ? "bg-primary/10 text-primary" : "bg-risk-low-bg text-risk-low"}`}>
+                              {(analysis as any).isReal ? "⚡ Live" : "✓ Demo"}
                             </span>
-                          )}
-                        </td>
-                        <td className="p-3 hidden lg:table-cell">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${(analysis as any).isReal ? "bg-primary/10 text-primary" : "bg-risk-low-bg text-risk-low"}`}>
-                            {(analysis as any).isReal ? "⚡ Live" : "✓ Demo"}
-                          </span>
-                        </td>
-                        <td className="p-3">
-                          <Button variant="ghost" size="sm" className="font-nav text-[11px] tracking-wider text-secondary">VIEW</Button>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="p-3">
+                            <Button variant="ghost" size="sm" className="font-nav text-[11px] tracking-wider text-secondary">VIEW</Button>
+                          </td>
+                        </tr>
+                      ));
+                    })()}
                   </tbody>
                 </table>
               </div>
+              {/* Pagination */}
+              {allAnalyses.length > PAGE_SIZE && (() => {
+                const totalPages = Math.max(1, Math.ceil(allAnalyses.length / PAGE_SIZE));
+                const safePage = Math.min(currentPage, totalPages);
+                return (
+                  <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
+                    <span className="font-body text-xs text-muted-foreground">
+                      {allAnalyses.length} total analyses
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={safePage <= 1}
+                        onClick={(e) => { e.stopPropagation(); setCurrentPage(p => Math.max(1, p - 1)); }}
+                        className="font-nav text-[11px] tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground border-none h-7 px-3"
+                      >
+                        <ChevronLeft className="h-3 w-3 mr-1" /> Previous
+                      </Button>
+                      <span className="font-body text-xs text-muted-foreground px-2">
+                        Page {safePage} of {totalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={safePage >= totalPages}
+                        onClick={(e) => { e.stopPropagation(); setCurrentPage(p => Math.min(totalPages, p + 1)); }}
+                        className="font-nav text-[11px] tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground border-none h-7 px-3"
+                      >
+                        Next <ChevronRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
