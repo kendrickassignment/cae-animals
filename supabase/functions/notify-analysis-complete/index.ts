@@ -22,6 +22,20 @@ serve(async (req) => {
       });
     }
 
+    // Server-side deduplication: check if notification for this analysis_id already exists
+    const { data: existingNotifs } = await supabase
+      .from("admin_notifications")
+      .select("id")
+      .eq("analysis_id", analysis_id)
+      .limit(1);
+
+    if (existingNotifs && existingNotifs.length > 0) {
+      console.log(`Notification for analysis ${analysis_id} already exists, skipping`);
+      return new Response(JSON.stringify({ success: true, skipped: true, reason: "already_notified" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Get uploader info
     const { data: uploaderData } = await supabase.auth.admin.getUserById(uploader_user_id);
     const uploaderEmail = uploaderData?.user?.email || "Unknown user";

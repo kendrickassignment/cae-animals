@@ -31,13 +31,13 @@ export function useAdminNotifications() {
       if (error) throw error;
       return (data || []) as AdminNotification[];
     },
-    enabled: !!user && isAdmin,
+    enabled: !!user,
     staleTime: 30000,
   });
 
   // Listen for realtime inserts
   useEffect(() => {
-    if (!user || !isAdmin) return;
+    if (!user) return;
 
     const channel = supabase
       .channel("admin-notif-realtime")

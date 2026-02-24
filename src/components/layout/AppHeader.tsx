@@ -59,13 +59,21 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
       setShowSearchResults(false);
       return;
     }
+    const q = searchQuery.trim().toLowerCase();
     const results: SearchResult[] = [];
     const seen = new Set<string>();
 
+    const matchesQuery = (analysis: { company_name: string; report_year: number; overall_risk_level: string }) => {
+      if (fuzzyMatchName(q, analysis.company_name)) return true;
+      if (String(analysis.report_year).includes(q)) return true;
+      if (analysis.overall_risk_level?.toLowerCase().includes(q)) return true;
+      return false;
+    };
+
     // Real analyses first (higher priority)
     realAnalyses.forEach(a => {
-      if (fuzzyMatchName(searchQuery, a.company_name)) {
-        const key = a.company_name.toLowerCase();
+      if (matchesQuery(a)) {
+        const key = `${a.company_name.toLowerCase()}-${a.report_year}`;
         if (!seen.has(key)) {
           seen.add(key);
           results.push({ type: "analysis", label: `${a.company_name} (${a.report_year})`, path: `/analysis/${a.id}` });
@@ -76,7 +84,7 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
     // Seed companies
     seedCompanies.forEach(c => {
       const key = c.name.toLowerCase();
-      if (!seen.has(key) && fuzzyMatchName(searchQuery, c.name)) {
+      if (!seen.has(key) && fuzzyMatchName(q, c.name)) {
         seen.add(key);
         const analysis = seedAnalyses.find(a => a.company_name === c.name);
         results.push({ type: "company", label: c.name, path: analysis ? `/analysis/${analysis.id}` : "/companies" });
@@ -85,10 +93,12 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
 
     // Seed analyses
     seedAnalyses.forEach(a => {
-      const key = a.company_name.toLowerCase();
-      if (!seen.has(key) && fuzzyMatchName(searchQuery, a.company_name)) {
-        seen.add(key);
-        results.push({ type: "analysis", label: `${a.company_name} (${a.report_year})`, path: `/analysis/${a.id}` });
+      if (matchesQuery(a)) {
+        const key = `${a.company_name.toLowerCase()}-${a.report_year}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          results.push({ type: "analysis", label: `${a.company_name} (${a.report_year})`, path: `/analysis/${a.id}` });
+        }
       }
     });
 

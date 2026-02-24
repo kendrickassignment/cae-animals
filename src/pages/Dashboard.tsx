@@ -76,6 +76,7 @@ export default function Dashboard() {
           updateStage(key, "analyzing", uf.companyName);
           addNotification(`Analyzing with AI: ${uf.companyName}`, "info");
 
+          let notifiedDash = false;
           const pollInterval = setInterval(async () => {
             try {
               const status = await getReportStatus(uploadResult.report_id);
@@ -88,6 +89,22 @@ export default function Dashboard() {
                 toast.success(`Analysis completed for ${uf.companyName}!`);
                 addNotification(`Analysis completed: ${uf.companyName}`, "success");
                 queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
+
+                // Notify admins (fire-and-forget, only once)
+                if (!notifiedDash) {
+                  notifiedDash = true;
+                  supabase.functions.invoke("notify-analysis-complete", {
+                    body: {
+                      analysis_id: savedId,
+                      company_name: uf.companyName,
+                      report_year: parseInt(uf.reportYear),
+                      risk_score: null,
+                      risk_level: null,
+                      uploader_user_id: user.id,
+                    },
+                  }).catch((err) => console.warn("Admin notification failed:", err));
+                }
+
                 setTimeout(() => removeStage(key), 2000);
               } else if (status.status === "failed") {
                 clearInterval(pollInterval);

@@ -103,6 +103,21 @@ serve(async (req) => {
       console.warn("RESEND_API_KEY not set, skipping email");
     }
 
+    // Insert in-app notification for the uploader
+    const notifMessage = isFlagged
+      ? `Your analysis for ${company_name} has been flagged: ${reason || "No reason given"}`
+      : `Flag removed from your analysis for ${company_name}`;
+
+    const { error: notifError } = await supabase.from("admin_notifications").insert({
+      admin_user_id: uploader_user_id,
+      message: notifMessage,
+      type: isFlagged ? "warning" : "info",
+      analysis_id,
+    });
+    if (notifError) {
+      console.error("Failed to insert flag notification:", notifError);
+    }
+
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...CORS, "Content-Type": "application/json" },
     });

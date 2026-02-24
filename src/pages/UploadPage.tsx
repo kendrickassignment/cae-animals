@@ -177,6 +177,7 @@ export default function UploadPage() {
           addNotification(`Analyzing with AI: ${uf.companyName}`, "info");
 
           // Poll every 3 seconds
+          let notified = false;
           const pollInterval = setInterval(async () => {
             try {
               const status = await getReportStatus(uploadResult.report_id);
@@ -204,17 +205,20 @@ export default function UploadPage() {
                 addNotification(`Analysis completed: ${uf.companyName}`, "success");
                 queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
 
-                // Notify admins (fire-and-forget)
-                supabase.functions.invoke("notify-analysis-complete", {
-                  body: {
-                    analysis_id: savedId,
-                    company_name: uf.companyName,
-                    report_year: parseInt(uf.reportYear),
-                    risk_score: null,
-                    risk_level: null,
-                    uploader_user_id: user.id,
-                  },
-                }).catch((err) => console.warn("Admin notification failed:", err));
+                // Notify admins (fire-and-forget, only once)
+                if (!notified) {
+                  notified = true;
+                  supabase.functions.invoke("notify-analysis-complete", {
+                    body: {
+                      analysis_id: savedId,
+                      company_name: uf.companyName,
+                      report_year: parseInt(uf.reportYear),
+                      risk_score: null,
+                      risk_level: null,
+                      uploader_user_id: user.id,
+                    },
+                  }).catch((err) => console.warn("Admin notification failed:", err));
+                }
 
                 setTimeout(() => {
                   removeStage(key);
