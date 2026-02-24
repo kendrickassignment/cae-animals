@@ -1,8 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getAnalysis } from "@/services/api";
 import type { SeedAnalysis, SeedFinding } from "@/data/seed-data";
+import { useEffect } from "react";
 
 export interface RealAnalysis extends SeedAnalysis {
   llm_provider?: string;
@@ -60,6 +61,23 @@ function mapBackendToAnalysis(row: any): RealAnalysis {
 
 export function useRealAnalyses() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Realtime subscription for analysis_results changes (verified updates, new inserts, etc.)
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("analysis-results-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "analysis_results" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["real-analyses", user.id] });
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, queryClient]);
 
   return useQuery({
     queryKey: ["real-analyses", user?.id],
