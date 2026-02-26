@@ -2,10 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = [
-  "http://localhost:5173",
-  "http://localhost:8080",
-  "https://cae-animals.lovable.app",
-  "https://id-preview--66fa6b17-db0f-4366-ba7e-e60ac0ceec2b.lovable.app",
+  "https://cae-animals.com",
 ];
 
 function getCorsHeaders(req: Request): Record<string, string> {
