@@ -7,9 +7,9 @@
 
 # 🔍 Corporate Accountability Engine (CAE)
 
-**An adversarial AI platform that analyzes corporate sustainability reports to detect greenwashing, evasion patterns, and broken cage-free egg commitments — with a focus on Southeast Asia.**
+**An adversarial AI platform that analyzes corporate sustainability reports to detect greenwashing, evasion patterns, and broken cage-free egg commitments — with a focus on Indonesia.**
 
-> *"Truth. Extracted."* — [truthextracted.com](https://truthextracted.com)
+> *"Truth. Extracted."* — [cae-animals.com](https://cae-animals.com)
 
 Built for [Act For Farmed Animals (AFFA)](https://www.actforfarmedanimals.org/) / [Sinergia Animal International](https://www.sinergiaanimal.org/) to hold multinational corporations accountable for their animal welfare promises.
 
@@ -23,7 +23,7 @@ CAE uploads corporate sustainability PDFs, parses them, and uses adversarial AI 
 |---|---------|-------------|----------|
 | 1 | **Strategic Silence** | Company avoids mentioning cage-free eggs entirely — the absence IS the evidence | 🔴 Critical |
 | 2 | **Hedging Language** | "We aspire to..." / "We aim to..." — soft language that avoids binding commitments | 🟡 Medium |
-| 3 | **Geographic Exclusion** | Global commitments that quietly exclude Southeast Asian markets | 🔴 Critical |
+| 3 | **Geographic Exclusion** | Global commitments that quietly exclude Indonesian markets | 🔴 Critical |
 | 4 | **Franchise Firewall** | Parent company deflects responsibility to franchisees | 🟠 High |
 | 5 | **Timeline Deferral** | Pushing deadlines indefinitely ("by 2030... by 2035... by 2040...") | 🟠 High |
 | 6 | **Availability Clause** | "Subject to local supply availability" — built-in escape hatches | 🟡 Medium |
@@ -69,6 +69,14 @@ CAE uploads corporate sustainability PDFs, parses them, and uses adversarial AI 
 │   Storage       │     │   Analysis Alerts  │     │                │
 │   Realtime      │     │                    │     │                │
 └─────────────────┘     └────────────────────┘     └────────────────┘
+
+         │
+         ▼
+┌─────────────────┐
+│   Analytics     │
+│   Flock (proxy) │
+│   Privacy-first │
+└─────────────────┘
 ```
 
 ### Tech Stack
@@ -76,6 +84,7 @@ CAE uploads corporate sustainability PDFs, parses them, and uses adversarial AI 
 | Layer | Technology | Purpose |
 |---|---|---|
 | **Frontend** | React, TypeScript, Tailwind CSS, shadcn/ui | Dashboard, analysis display, company tracking |
+| **SEO** | react-helmet-async | Dynamic per-route meta tags (title, description, canonical, OG) |
 | **Backend** | Python, FastAPI, PyPDF2/pdfplumber | PDF upload, parsing, AI orchestration, finding deduplication |
 | **AI Engine** | Google Gemini 2.5 Flash (default) | Adversarial analysis with 1M token context window |
 | **AI Alternatives** | Groq (Llama 3.3 70B), Mistral (Small), OpenAI (GPT-4o) | Configurable per-analysis or globally |
@@ -83,8 +92,9 @@ CAE uploads corporate sustainability PDFs, parses them, and uses adversarial AI 
 | **Storage** | Supabase Storage | PDF file storage with ownership policies |
 | **Edge Functions** | Supabase Edge Functions (Deno) | Notification delivery, flag/unflag alerts |
 | **Email** | Resend API | Flag notifications, analysis completion alerts |
+| **Analytics** | Flock (proxied via cae-animals.com) | Privacy-friendly traffic analytics |
 | **Hosting** | Lovable (frontend), Render (backend) | Free tier deployment |
-| **Domain** | truthextracted.com (IONOS) | Custom domain |
+| **Domain** | cae-animals.com | Custom domain with SSL |
 
 ### AI Providers
 
@@ -123,6 +133,14 @@ CAE uploads corporate sustainability PDFs, parses them, and uses adversarial AI 
 - **Score trend indicators** — Shows +/- score change between real analyses
 - **CSV export** of all findings
 - **Download original PDF**
+
+### 📖 About Page
+
+- **Our Mission** — Why CAE exists, the accountability gap in corporate commitments
+- **How CAE Works** — 4-step methodology breakdown (Upload → AI Analysis → Pattern Detection → Evidence Report)
+- **9 Evasion Patterns Explained** — Each pattern with detailed description and real-world examples
+- **Built By** — Kendrick Filbert, Act For Farmed Animals — expanded bio and motivation
+- **Tech Stack** — Each technology with explanation of its role in the pipeline
 
 ### 🛡️ Admin Features
 
@@ -181,11 +199,13 @@ All tables have RLS enabled with granular policies:
 | Table | SELECT | INSERT | UPDATE | DELETE |
 |---|---|---|---|---|
 | `analysis_results` | Own + Verified + Seed (`user_id IS NULL`) + Admin sees all | Authenticated | Owner only | Owner only |
+| `analysis_flags` | Own flags + Admin sees all | Authenticated | Owner only | Owner only |
+| `verification_requests` | Own requests + Admin sees all | Authenticated | Admin only | — |
 | `admin_notifications` | Own notifications (`admin_user_id = auth.uid()`) | Blocked client-side (`WITH CHECK (false)`); edge functions use service role | Recipient only | Recipient only |
 | `companies` | All authenticated | Authenticated | Owner only | Owner only |
 | `findings` | All authenticated | Report owner (via subquery) | Report owner | Report owner |
-| `reports` | All authenticated | Authenticated | Owner only | Owner only |
-| `profiles` | Own profile only | Own profile only | Own profile only | — |
+| `reports` | Own + Verified-linked + Seed (`user_id IS NULL`) + Admin sees all | Authenticated | Owner only | Owner only |
+| `profiles` | Own profile + Admin sees all | Own profile only | Own profile only | — |
 | `user_roles` | Own roles only | Service role only | — | — |
 | `contact_rate_limits` | Service role only | Service role only | — | — |
 
@@ -212,16 +232,66 @@ All tables have RLS enabled with granular policies:
 - ✅ Client-side inserts to `admin_notifications` blocked (`WITH CHECK (false)`)
 - ✅ Contact form input sanitization (HTML entity escaping)
 - ✅ Contact form rate limiting (3 requests/IP/hour)
-- ✅ CORS restricted to specific frontend origins
+- ✅ All 4 edge functions CORS-restricted to `cae-animals.com` only (no wildcard), with 403 origin rejection
 - ✅ localStorage cleared on sign-out
 - ✅ Leaked password protection enabled
 - ✅ Storage DELETE policy with ownership verification
-- ✅ Edge function CORS restricted (no wildcard)
 - ✅ Content security headers (X-Content-Type-Options: nosniff)
 - ✅ Tamper-proof scoring — Python enforces score-to-level mapping; AI cannot override
 - ✅ AI-generated fields protected — no manual editing of scores/findings
 - ✅ SHA-256 file hashing for duplicate detection
 - ✅ Audit trail — upload timestamps, flag history, verification status tracked
+
+---
+
+## 🔍 SEO
+
+### Meta Tags (Server-Rendered)
+
+Static fallback meta tags in `index.html` ensure crawlers see content immediately:
+
+| Tag | Value |
+|---|---|
+| **Title** | CAE — Cage-Free Egg Accountability \| Sustainability Report Analysis |
+| **Description** | Analyze corporate sustainability reports to expose hidden exclusions, greenwashing, and broken cage-free egg promises across Indonesia. Track animal welfare accountability now. |
+| **Canonical** | https://cae-animals.com/ |
+| **Author** | CAE Team |
+
+### Dynamic Per-Route Meta (Client-Side)
+
+`react-helmet-async` overrides meta tags per route in the browser:
+
+| Route | Title | Canonical |
+|---|---|---|
+| `/` | CAE — Cage-Free Egg Accountability \| Sustainability Report Analysis | https://cae-animals.com/ |
+| `/about` | About CAE — Mission, Methodology & Team \| Cage-Free Egg Accountability | https://cae-animals.com/about |
+
+### Open Graph & Social
+
+- `og:title`, `og:description`, `og:url`, `og:image`, `og:type` — all set
+- `twitter:card`, `twitter:title`, `twitter:description`, `twitter:image` — all set
+- Social preview verified via Facebook Sharing Debugger ✅
+
+### Structured Data (JSON-LD)
+
+Two schemas validated by Google Rich Results Test:
+
+1. **Organization** — name, alternateName (CAE), url, description
+2. **WebApplication** — name, url, applicationCategory (BusinessApplication), operatingSystem (Web)
+
+### Technical SEO
+
+- ✅ `robots.txt` — 6 private routes blocked (`/login`, `/register`, `/dashboard`, `/settings`, `/analysis/`, `/companies`)
+- ✅ `sitemap.xml` — 2 public pages (`/`, `/about`), submitted to Google Search Console
+- ✅ Google Search Console verified — "Page is on Google"
+- ✅ HTTPS enforced
+- ✅ Mobile responsive (`viewport` meta tag)
+- ✅ `lang="en"`, `charset=UTF-8`
+- ✅ Favicon (PNG)
+
+### Analytics
+
+- Flock analytics proxied through `cae-animals.com/~api/analytics` (privacy-friendly, no third-party cookies)
 
 ---
 
@@ -342,6 +412,28 @@ processing_completed_at   timestamptz
 created_at                timestamptz DEFAULT now()
 ```
 
+### `analysis_flags`
+
+```sql
+id              uuid PRIMARY KEY DEFAULT gen_random_uuid()
+analysis_id     uuid REFERENCES analysis_results
+user_id         uuid REFERENCES auth.users
+reason          text
+created_at      timestamptz DEFAULT now()
+```
+
+### `verification_requests`
+
+```sql
+id              uuid PRIMARY KEY DEFAULT gen_random_uuid()
+analysis_id     uuid REFERENCES analysis_results
+user_id         uuid REFERENCES auth.users
+status          text           -- 'pending', 'approved', 'rejected'
+reviewed_by     uuid REFERENCES auth.users
+reviewed_at     timestamptz
+created_at      timestamptz DEFAULT now()
+```
+
 ### `admin_notifications`
 
 ```sql
@@ -428,6 +520,8 @@ created_at timestamptz DEFAULT now()
 |---|---|---|
 | `notify-analysis-complete` | Analysis saved | Sends in-app + email notification to all admins |
 | `notify-flag-status` | Flag/unflag action | Sends in-app + email notification to analysis uploader |
+| `send-contact` | Contact form submit | Sends contact form email with rate limiting |
+| `send-verification-request` | Verification request | Sends verification request notification |
 
 ---
 
@@ -493,7 +587,7 @@ def score_to_level(score: int) -> str:
 | **Franchise Firewall** | +15 | Commitments limited to company-owned |
 | **Corporate Ghosting** | +15 | No external accountability mechanism |
 | **Commitment Downgrade** | +15 | Weakened language from previous years |
-| **Timeline Deferral** | +10 | SEA deadlines pushed beyond 2030 |
+| **Timeline Deferral** | +10 | Indonesia deadlines pushed beyond 2030 |
 | **Hedging Language** | +2 each | Non-binding phrases (max +10) |
 | **Availability Clause** | +5 each | Escape conditions (max +10) |
 | **Binding Language** | -3 each | Strong commitments (max -15) |
@@ -522,14 +616,16 @@ Demo data is identified by `user_id IS NULL`.
 
 | Service | Cost | Notes |
 |---|---|---|
-| Domain (IONOS) | $1/year | truthextracted.com |
+| Domain | $7/year | cae-animals.com |
 | Frontend (Lovable) | $25/month | React hosting + deployment |
 | Backend (Render) | Free | Free tier |
 | AI Engine (Gemini) | Free | Free tier (1M token context) |
+| AI Engine (GPT) | $25/month | Paid (1M token context) |
 | Database (Supabase) | Free | PostgreSQL + Auth + Storage + Realtime |
 | Edge Functions (Supabase) | Free | Notification delivery |
 | Email (Resend) | Free | 100 emails/day free tier |
-| **Total** | **~$26/month** | |
+| Analytics (Flock) | Free | Privacy-friendly tracking |
+| **Total** | **~$50+/month** | |
 
 ---
 
@@ -541,7 +637,12 @@ Demo data is identified by `user_id IS NULL`.
 - [x] Duplicate detection — SHA-256 file hash + company/year check
 - [x] Finding deduplication — AI prompt grouping + Python safety net
 - [x] Demo/real data separation
-- [ ] Custom domain email (alerts@truthextracted.com)
+- [x] Custom domain — cae-animals.com
+- [x] SEO optimization — meta tags, structured data, sitemap, Google Search Console
+- [x] About page — mission, methodology, team, tech stack
+- [x] Security hardening — RLS policies, CORS restriction, rate limiting
+- [x] Analytics — Flock privacy-friendly tracking
+- [ ] Custom domain email (alerts@cae-animals.com)
 - [ ] Bulk upload & batch analysis
 - [ ] API access for programmatic analysis
 - [ ] Multi-language support (Bahasa Indonesia, Thai, Vietnamese)
@@ -558,8 +659,8 @@ Demo data is identified by `user_id IS NULL`.
 CAE supports AFFA's mission by providing:
 
 - **Evidence-based accountability** — exact quotes, page numbers, pattern detection
-- **Southeast Asia focus** — specifically tracks Indonesia, Thailand, Philippines, Vietnam, Malaysia
-- **Multilingual analysis** — reads reports in Bahasa Indonesia, Thai, and other local languages
+- **Indonesia focus** — specifically tracks cage-free egg commitments in Indonesia
+- **Multilingual analysis** — reads reports in Bahasa Indonesia and English
 - **Permanent record** — all analyses stored in Supabase, persisting until account deletion
 - **Team collaboration** — multi-user dashboard with admin verification workflow
 
@@ -589,5 +690,5 @@ This project is built for nonprofit animal welfare research. For licensing inqui
 <br>
 <em>Because corporate promises should be verifiable.</em>
 <br><br>
-<a href="https://truthextracted.com">truthextracted.com</a>
+<a href="https://cae-animals.com">cae-animals.com</a>
 </p>
