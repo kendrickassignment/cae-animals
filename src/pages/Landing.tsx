@@ -1,5 +1,19 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Upload, Search, FileText, Shield, VolumeX, Globe, Store, Clock, LogOut, Ghost, TrendingDown, EyeOff, CalendarClock } from "lucide-react";
+import {
+  Upload,
+  Search,
+  FileText,
+  Shield,
+  VolumeX,
+  Globe,
+  Store,
+  Clock,
+  LogOut,
+  Ghost,
+  TrendingDown,
+  EyeOff,
+  CalendarClock,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,15 +25,51 @@ import { useAuth } from "@/hooks/useAuth";
 import caeLogoDark from "@/assets/cae-logo-dark.png";
 
 const evasionPatterns = [
-  { icon: Shield, title: "HEDGING LANGUAGE", desc: "Non-binding phrases like 'we aim to' or 'where feasible' that sound like commitments but are not." },
-  { icon: VolumeX, title: "STRATEGIC SILENCE", desc: "Countries like Indonesia simply not mentioned anywhere in the progress report." },
-  { icon: Globe, title: "GEOGRAPHIC TIERING", desc: "'Leading markets' get real commitments; 'Elsewhere globally' gets a 2030 deadline." },
-  { icon: Store, title: "FRANCHISE FIREWALL", desc: "Commitments cover 'company-operated stores' only — franchises and licensees are excluded." },
-  { icon: Clock, title: "AVAILABILITY CLAUSE", desc: "'Where supply is readily available' — an indefinite, subjective deferral with no metrics." },
-  { icon: CalendarClock, title: "TIMELINE DEFERRAL", desc: "Pushing deadlines indefinitely with vague future dates like 'by 2030' without interim milestones." },
-  { icon: EyeOff, title: "SILENT DELISTING", desc: "Quietly removing previously listed commitments or countries from updated reports without disclosure." },
-  { icon: Ghost, title: "CORPORATE GHOSTING", desc: "Completely ceasing to report on previously made promises, hoping no one notices." },
-  { icon: TrendingDown, title: "COMMITMENT DOWNGRADE", desc: "Weakening the language of existing commitments in newer reports compared to original pledges." },
+  {
+    icon: Shield,
+    title: "HEDGING LANGUAGE",
+    desc: "Non-binding phrases like 'we aim to' or 'where feasible' that sound like commitments but are not.",
+  },
+  {
+    icon: VolumeX,
+    title: "STRATEGIC SILENCE",
+    desc: "Countries like Indonesia simply not mentioned anywhere in the progress report.",
+  },
+  {
+    icon: Globe,
+    title: "GEOGRAPHIC TIERING",
+    desc: "'Leading markets' get real commitments; 'Elsewhere globally' gets a 2030 deadline.",
+  },
+  {
+    icon: Store,
+    title: "FRANCHISE FIREWALL",
+    desc: "Commitments cover 'company-operated stores' only — franchises and licensees are excluded.",
+  },
+  {
+    icon: Clock,
+    title: "AVAILABILITY CLAUSE",
+    desc: "'Where supply is readily available' — an indefinite, subjective deferral with no metrics.",
+  },
+  {
+    icon: CalendarClock,
+    title: "TIMELINE DEFERRAL",
+    desc: "Pushing deadlines indefinitely with vague future dates like 'by 2030' without interim milestones.",
+  },
+  {
+    icon: EyeOff,
+    title: "SILENT DELISTING",
+    desc: "Quietly removing previously listed commitments or countries from updated reports without disclosure.",
+  },
+  {
+    icon: Ghost,
+    title: "CORPORATE GHOSTING",
+    desc: "Completely ceasing to report on previously made promises, hoping no one notices.",
+  },
+  {
+    icon: TrendingDown,
+    title: "COMMITMENT DOWNGRADE",
+    desc: "Weakening the language of existing commitments in newer reports compared to original pledges.",
+  },
 ];
 
 function CountUp({ target, suffix = "" }: { target: string; suffix?: string }) {
@@ -27,9 +77,12 @@ function CountUp({ target, suffix = "" }: { target: string; suffix?: string }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setVisible(true);
-    }, { threshold: 0.5 });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
+      { threshold: 0.5 },
+    );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, []);
@@ -61,7 +114,9 @@ function ContactSection() {
       });
       if (error) throw error;
       toast.success("Message sent! We'll get back to you soon.");
-      setName(""); setEmail(""); setMessage("");
+      setName("");
+      setEmail("");
+      setMessage("");
     } catch {
       toast.error("Failed to send message. Please try again.");
     } finally {
@@ -76,15 +131,27 @@ function ContactSection() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="font-body text-sm font-bold text-foreground block mb-1">Name</label>
-            <Input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" maxLength={100} />
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" maxLength={100} />
           </div>
           <div>
             <label className="font-body text-sm font-bold text-foreground block mb-1">Email</label>
-            <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" maxLength={255} />
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              maxLength={255}
+            />
           </div>
           <div>
             <label className="font-body text-sm font-bold text-foreground block mb-1">Message</label>
-            <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Your message..." rows={5} maxLength={2000} />
+            <Textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Your message..."
+              rows={5}
+              maxLength={2000}
+            />
           </div>
           <Button type="submit" className="w-full font-body font-bold" disabled={sending}>
             {sending ? "SENDING..." : "SEND MESSAGE"}
@@ -110,27 +177,55 @@ export default function Landing() {
       <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
         <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-3">
           <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply cursor-pointer" />
-          <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">Corporate Accountability Engine</span>
+          <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">
+            Corporate Accountability Engine
+          </span>
         </Link>
         <div className="flex-1" />
         <div className="flex items-center gap-2 sm:gap-3">
-          <a href="#contact" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">CONTACT</a>
-          <Link to="/about" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">ABOUT</Link>
+          <a
+            href="#contact"
+            className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block"
+          >
+            CONTACT
+          </a>
+          <Link
+            to="/about"
+            className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block"
+          >
+            ABOUT
+          </Link>
           {user ? (
             <>
-              <Link to="/dashboard" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">DASHBOARD</Link>
+              <Link
+                to="/dashboard"
+                className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all"
+              >
+                DASHBOARD
+              </Link>
               <div className="h-8 w-8 rounded-full bg-sidebar flex items-center justify-center text-sidebar-foreground text-xs font-bold">
                 {user.email?.charAt(0).toUpperCase() || "U"}
               </div>
-              <button onClick={handleSignOut} className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all flex items-center gap-1">
+              <button
+                onClick={handleSignOut}
+                className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all flex items-center gap-1"
+              >
                 <LogOut className="h-3 w-3" /> SIGN OUT
               </button>
             </>
           ) : (
             <>
-              <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">SIGN IN</Link>
+              <Link
+                to="/auth"
+                className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all"
+              >
+                SIGN IN
+              </Link>
               <Link to="/auth">
-                <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90">
+                <Button
+                  variant="outline"
+                  className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90"
+                >
                   Get Started
                 </Button>
               </Link>
@@ -142,17 +237,23 @@ export default function Landing() {
       {/* Hero */}
       <section className="py-20 md:py-32 px-6 text-center max-w-4xl mx-auto animate-fade-in">
         <h1 className="font-display text-5xl md:text-7xl text-foreground leading-tight mb-6">
-          EXPOSING CORPORATE<br />GREENWASHING WITH AI
+          EXPOSING CORPORATE
+          <br />
+          GREENWASHING WITH AI
         </h1>
         <p className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-          The Corporate Accountability Engine analyzes sustainability reports to detect hidden exclusions, hedging language, and broken promises in cage-free egg commitments across Southeast Asia.
+          The Corporate Accountability Engine analyzes sustainability reports to detect hidden exclusions, hedging
+          language, and broken promises in cage-free egg commitments across Indonesia.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/auth">
             <Button className="font-body font-bold text-base px-8 py-6 rounded-lg">START ANALYZING</Button>
           </Link>
           <a href="#how-it-works">
-            <Button variant="outline" className="font-body font-bold text-base px-8 py-6 rounded-lg border-2 border-foreground text-foreground hover:bg-foreground hover:text-background">
+            <Button
+              variant="outline"
+              className="font-body font-bold text-base px-8 py-6 rounded-lg border-2 border-foreground text-foreground hover:bg-foreground hover:text-background"
+            >
               LEARN HOW IT WORKS
             </Button>
           </a>
@@ -165,9 +266,24 @@ export default function Landing() {
           <h2 className="font-display text-4xl text-center text-foreground mb-14">HOW IT WORKS</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon: Upload, step: "01", title: "UPLOAD", desc: "Upload corporate sustainability reports (PDF format)" },
-              { icon: Search, step: "02", title: "ANALYZE", desc: "AI scans for 5 types of greenwashing evasion patterns" },
-              { icon: FileText, step: "03", title: "EXPOSE", desc: "Get citation-backed evidence with exact page numbers" },
+              {
+                icon: Upload,
+                step: "01",
+                title: "UPLOAD",
+                desc: "Upload corporate sustainability reports (PDF format)",
+              },
+              {
+                icon: Search,
+                step: "02",
+                title: "ANALYZE",
+                desc: "AI scans for 9 types of greenwashing evasion patterns",
+              },
+              {
+                icon: FileText,
+                step: "03",
+                title: "EXPOSE",
+                desc: "Get citation-backed evidence with exact page numbers",
+              },
             ].map((item, i) => (
               <div
                 key={item.step}
