@@ -1,10 +1,21 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = ["https://cae-animals.com"];
+
+function getCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get("origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  };
+}
+
+function isOriginAllowed(req: Request): boolean {
+  const origin = req.headers.get("origin") || "";
+  return ALLOWED_ORIGINS.includes(origin);
+}
 
 function escapeHtml(text: string): string {
   const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
@@ -12,8 +23,17 @@ function escapeHtml(text: string): string {
 }
 
 serve(async (req) => {
+  const CORS = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: CORS });
+  }
+
+  if (!isOriginAllowed(req)) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), {
+      status: 403,
+      headers: { ...CORS, "Content-Type": "application/json" },
+    });
   }
 
   try {
@@ -26,7 +46,7 @@ serve(async (req) => {
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
 
@@ -36,7 +56,7 @@ serve(async (req) => {
     if (authError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
 
@@ -45,7 +65,7 @@ serve(async (req) => {
     if (!analysis_id) {
       return new Response(JSON.stringify({ error: "analysis_id required" }), {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
 
@@ -60,7 +80,7 @@ serve(async (req) => {
     if (count && count > 0) {
       return new Response(JSON.stringify({ error: "You already submitted a request" }), {
         status: 409,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
 
@@ -75,7 +95,7 @@ serve(async (req) => {
       console.error("Insert error:", insertError);
       return new Response(JSON.stringify({ error: "Failed to save request" }), {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
 
@@ -118,13 +138,13 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({ success: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...CORS, "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Error:", error);
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...CORS, "Content-Type": "application/json" },
     });
   }
 });
