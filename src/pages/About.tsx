@@ -49,15 +49,35 @@ export default function About() {
         <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
           <Link to="/" className="flex items-center gap-3">
             <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply cursor-pointer" />
-            <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">Corporate Accountability Engine</span>
+            <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">
+              Corporate Accountability Engine
+            </span>
           </Link>
           <div className="flex-1" />
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">HOME</Link>
-            <a href="/#contact" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">CONTACT</a>
-            <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">SIGN IN</Link>
+            <Link
+              to="/"
+              className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block"
+            >
+              HOME
+            </Link>
+            <a
+              href="/#contact"
+              className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block"
+            >
+              CONTACT
+            </a>
+            <Link
+              to="/auth"
+              className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all"
+            >
+              SIGN IN
+            </Link>
             <Link to="/auth">
-              <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90">
+              <Button
+                variant="outline"
+                className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90"
+              >
                 Get Started
               </Button>
             </Link>
@@ -70,7 +90,8 @@ export default function About() {
         <div className="bg-card rounded-lg border-t-4 border-primary p-8 text-center">
           <img src={caeLogoTruth} alt="CAE Logo" className="w-[200px] mx-auto mb-4" />
           <p className="font-body text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            An adversarial AI engine that audits corporate sustainability reports to detect greenwashing in cage-free egg commitments across Southeast Asia.
+            An adversarial AI engine that audits corporate sustainability reports to detect greenwashing in cage-free
+            egg commitments across Indonesia.
           </p>
         </div>
 
@@ -78,7 +99,11 @@ export default function About() {
         <div className="bg-card rounded-lg border-l-4 border-destructive p-8">
           <h3 className="font-display text-2xl mb-4">THE PROBLEM</h3>
           <p className="font-body text-muted-foreground leading-relaxed">
-            Multinational food corporations publish hundreds page sustainability reports claiming global cage-free commitments. Hidden in footnotes, appendices, and legal clauses are exclusions that exempt entire regions like Indonesia and Southeast Asia. Manual auditing takes 2 weeks per company. The volume makes real-time accountability impossible. Corporations enjoy positive PR while continuing battery-cage operations without scrutiny.
+            Multinational food corporations publish hundreds page sustainability reports claiming global cage-free
+            commitments. Hidden in footnotes, appendices, and legal clauses are exclusions that exempt entire regions
+            like Indonesia and Southeast Asia. Manual auditing takes 2 weeks per company. The volume makes real-time
+            accountability impossible. Corporations enjoy positive PR while continuing battery-cage operations without
+            scrutiny.
           </p>
         </div>
 
@@ -86,7 +111,9 @@ export default function About() {
         <div className="bg-card rounded-lg border-l-4 border-risk-low p-8">
           <h3 className="font-display text-2xl mb-4">THE SOLUTION</h3>
           <p className="font-body text-muted-foreground leading-relaxed mb-6">
-            CAE uses adversarial AI to ingest corporate PDFs, detect deceptive hedging language, expose geographical exclusions, and surface citation-backed evidence with exact page numbers — in under 60 seconds. Cost per report: $0.15. The result is an instant, audit-ready scorecard for campaigners.
+            CAE uses adversarial AI to ingest corporate PDFs, detect deceptive hedging language, expose geographical
+            exclusions, and surface citation-backed evidence with exact page numbers — in between 3-5 minutes. Cost per
+            report: $0.15. The result is an instant, audit-ready scorecard for campaigners.
           </p>
           <div className="flex flex-wrap gap-2">
             {evasionPatterns.map((pattern) => (
@@ -102,9 +129,11 @@ export default function About() {
           <h3 className="font-display text-2xl mb-4">BUILT BY</h3>
           <div>
             <h4 className="font-display text-2xl mb-1">Kendrick Filbert</h4>
-            <p className="font-body text-muted-foreground mb-4">AI PM & QA Specialist @Microsoft</p>
+            <p className="font-body text-muted-foreground mb-4">Act For Farmed Animals</p>
             <p className="font-body text-muted-foreground leading-relaxed mb-6">
-              Building AI-powered tools for animal welfare accountability. The Corporate Accountability Engine was developed to give advocacy researchers instant, evidence-backed intelligence against corporate greenwashing — turning a 2-week audit into a 60-second operation.
+              Building AI-powered tools for animal welfare accountability. The Corporate Accountability Engine was
+              developed to give advocacy researchers instant, evidence-backed intelligence against corporate
+              greenwashing — turning a 2-week audit into a 3-5 minutes operation.
             </p>
             <div className="flex gap-3 flex-wrap">
               <a href="https://www.linkedin.com/in/kendrick-filbert/" target="_blank" rel="noopener noreferrer">
@@ -134,10 +163,7 @@ export default function About() {
           <h3 className="font-display text-2xl mb-4">TECH STACK</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {techStack.map((tech) => (
-              <div
-                key={tech}
-                className="bg-muted rounded-full px-4 py-2 text-center font-body text-sm text-foreground"
-              >
+              <div key={tech} className="bg-muted rounded-full px-4 py-2 text-center font-body text-sm text-foreground">
                 {tech}
               </div>
             ))}
