@@ -26,15 +26,47 @@ import caeLogoDark from "@/assets/cae-logo-dark.png";
 import Footer from "@/components/layout/Footer";
 
 const evasionPatterns = [
-  { icon: Shield, title: "Hedging Language", desc: "Vague words like 'aspire to', 'work towards' that avoid firm commitments." },
-  { icon: VolumeX, title: "Strategic Silence", desc: "Completely omitting specific countries or regions from reporting." },
-  { icon: Globe, title: "Geographic Tiering", desc: "Different standards for different regions — 'leading markets' vs everywhere else." },
+  {
+    icon: Shield,
+    title: "Hedging Language",
+    desc: "Vague words like 'aspire to', 'work towards' that avoid firm commitments.",
+  },
+  {
+    icon: VolumeX,
+    title: "Strategic Silence",
+    desc: "Completely omitting specific countries or regions from reporting.",
+  },
+  {
+    icon: Globe,
+    title: "Geographic Tiering",
+    desc: "Different standards for different regions — 'leading markets' vs everywhere else.",
+  },
   { icon: Store, title: "Franchise Firewall", desc: "Excluding franchise operations from cage-free commitments." },
-  { icon: Clock, title: "Availability Clause", desc: "'Subject to local availability' escape clauses with no measurable criteria." },
-  { icon: CalendarClock, title: "Timeline Deferral", desc: "Pushing deadlines indefinitely into the future without interim milestones." },
-  { icon: EyeOff, title: "Silent Delisting", desc: "Quietly removing previous commitments from updated reports without disclosure." },
-  { icon: Ghost, title: "Corporate Ghosting", desc: "Ignoring follow-up inquiries about commitments, hoping no one notices." },
-  { icon: TrendingDown, title: "Commitment Downgrade", desc: "Weakening language from previous reports to reduce accountability." },
+  {
+    icon: Clock,
+    title: "Availability Clause",
+    desc: "'Subject to local availability' escape clauses with no measurable criteria.",
+  },
+  {
+    icon: CalendarClock,
+    title: "Timeline Deferral",
+    desc: "Pushing deadlines indefinitely into the future without interim milestones.",
+  },
+  {
+    icon: EyeOff,
+    title: "Silent Delisting",
+    desc: "Quietly removing previous commitments from updated reports without disclosure.",
+  },
+  {
+    icon: Ghost,
+    title: "Corporate Ghosting",
+    desc: "Ignoring follow-up inquiries about commitments, hoping no one notices.",
+  },
+  {
+    icon: TrendingDown,
+    title: "Commitment Downgrade",
+    desc: "Weakening language from previous reports to reduce accountability.",
+  },
 ];
 
 const techStack = [
@@ -47,10 +79,30 @@ const techStack = [
 ];
 
 const steps = [
-  { icon: Upload, step: "01", title: "UPLOAD", desc: "Users upload corporate sustainability report PDFs for analysis." },
-  { icon: Brain, step: "02", title: "AI ANALYSIS", desc: "Adversarial AI powered by Google Gemini scans every page, footnote, and appendix." },
-  { icon: ScanSearch, step: "03", title: "PATTERN DETECTION", desc: "The engine detects 9 distinct evasion patterns used to obscure regional exclusions." },
-  { icon: FileCheck, step: "04", title: "EVIDENCE REPORT", desc: "Citation-backed scorecard with exact page numbers, generated in 3–5 minutes at $0.15 per report." },
+  {
+    icon: Upload,
+    step: "01",
+    title: "UPLOAD",
+    desc: "Users upload corporate sustainability report PDFs for analysis.",
+  },
+  {
+    icon: Brain,
+    step: "02",
+    title: "AI ANALYSIS",
+    desc: "Adversarial AI powered by Google Gemini scans every page, footnote, and appendix.",
+  },
+  {
+    icon: ScanSearch,
+    step: "03",
+    title: "PATTERN DETECTION",
+    desc: "The engine detects 9 distinct evasion patterns used to obscure regional exclusions.",
+  },
+  {
+    icon: FileCheck,
+    step: "04",
+    title: "EVIDENCE REPORT",
+    desc: "Citation-backed scorecard with exact page numbers, generated in 3–5 minutes at $0.15 per report.",
+  },
 ];
 
 export default function About() {
@@ -60,14 +112,22 @@ export default function About() {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>About CAE — Mission, Methodology & Team | Cage-Free Egg Accountability</title>
-        <meta name="description" content="Learn how CAE uses adversarial AI to detect 9 evasion patterns in corporate sustainability reports. Built by Kendrick Filbert at Act For Farmed Animals." />
-        <link rel="canonical" href="https://cae-animals.com/about" />
+        <meta
+          name="description"
+          content="Learn how CAE uses adversarial AI to detect 9 evasion patterns in corporate sustainability reports. Built by Kendrick Filbert at Act For Farmed Animals."
+        />
         <meta property="og:title" content="About CAE — Mission, Methodology & Team | Cage-Free Egg Accountability" />
-        <meta property="og:description" content="Learn how CAE uses adversarial AI to detect 9 evasion patterns in corporate sustainability reports. Built by Kendrick Filbert at Act For Farmed Animals." />
+        <meta
+          property="og:description"
+          content="Learn how CAE uses adversarial AI to detect 9 evasion patterns in corporate sustainability reports. Built by Kendrick Filbert at Act For Farmed Animals."
+        />
         <meta property="og:url" content="https://cae-animals.com/about" />
         <meta property="og:type" content="website" />
         <meta name="twitter:title" content="About CAE — Mission, Methodology & Team | Cage-Free Egg Accountability" />
-        <meta name="twitter:description" content="Learn how CAE uses adversarial AI to detect 9 evasion patterns in corporate sustainability reports. Built by Kendrick Filbert at Act For Farmed Animals." />
+        <meta
+          name="twitter:description"
+          content="Learn how CAE uses adversarial AI to detect 9 evasion patterns in corporate sustainability reports. Built by Kendrick Filbert at Act For Farmed Animals."
+        />
       </Helmet>
 
       {user ? (
@@ -88,17 +148,29 @@ export default function About() {
           </Link>
           <div className="flex-1" />
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">
+            <Link
+              to="/"
+              className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block"
+            >
               HOME
             </Link>
-            <a href="/#contact" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block">
+            <a
+              href="/#contact"
+              className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all hidden sm:block"
+            >
               CONTACT
             </a>
-            <Link to="/auth" className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all">
+            <Link
+              to="/auth"
+              className="font-nav text-xs text-primary-foreground tracking-wider hover:underline underline-offset-4 transition-all"
+            >
               SIGN IN
             </Link>
             <Link to="/auth">
-              <Button variant="outline" className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90">
+              <Button
+                variant="outline"
+                className="bg-sidebar text-sidebar-foreground border-none font-body font-bold text-xs sm:text-sm px-3 sm:px-5 hover:bg-sidebar/90"
+              >
                 Get Started
               </Button>
             </Link>
@@ -107,7 +179,6 @@ export default function About() {
       )}
 
       <div className="max-w-4xl mx-auto space-y-10 py-10 sm:py-16 px-4 sm:px-6">
-
         {/* Hero */}
         <div className="text-center">
           <img src={caeLogoTruth} alt="CAE Logo" className="w-[180px] mx-auto mb-4" />
@@ -169,10 +240,10 @@ export default function About() {
           <h3 className="font-display text-2xl mb-1">Kendrick Filbert</h3>
           <p className="font-body text-muted-foreground mb-4">Act For Farmed Animals</p>
           <p className="font-body text-muted-foreground leading-relaxed mb-6">
-            As a researcher at Act For Farmed Animals, I spent weeks manually auditing corporate sustainability
-            reports — cross-referencing footnotes, appendices, and legal clauses across hundreds of pages. The
-            Corporate Accountability Engine was born from that frustration. What took 2 weeks now takes 3–5 minutes.
-            Our goal: give every animal welfare advocate access to instant, evidence-backed corporate intelligence.
+            As a researcher at Act For Farmed Animals, I spent weeks manually auditing corporate sustainability reports
+            — cross-referencing footnotes, appendices, and legal clauses across hundreds of pages. The Corporate
+            Accountability Engine was born from that frustration. What took 2 weeks now takes 3–5 minutes. Our goal:
+            give every animal welfare advocate access to instant, evidence-backed corporate intelligence.
           </p>
           <div className="flex gap-3 flex-wrap">
             <a href="https://www.linkedin.com/in/kendrick-filbert/" target="_blank" rel="noopener noreferrer">
@@ -199,7 +270,9 @@ export default function About() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {techStack.map((t) => (
               <div key={t.name} className="bg-muted rounded-lg p-4">
-                <Badge variant="secondary" className="font-nav text-[11px] tracking-wider mb-2">{t.name}</Badge>
+                <Badge variant="secondary" className="font-nav text-[11px] tracking-wider mb-2">
+                  {t.name}
+                </Badge>
                 <p className="font-body text-xs text-muted-foreground leading-relaxed">{t.desc}</p>
               </div>
             ))}
@@ -209,9 +282,7 @@ export default function About() {
         {/* CTA */}
         <div className="text-center py-6">
           <Link to="/auth">
-            <Button className="font-body font-bold text-base px-10 py-6 rounded-lg">
-              START ANALYZING
-            </Button>
+            <Button className="font-body font-bold text-base px-10 py-6 rounded-lg">START ANALYZING</Button>
           </Link>
         </div>
 

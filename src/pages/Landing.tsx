@@ -176,10 +176,15 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>CAE — Cage-Free Egg Accountability | Sustainability Report Analysis</title>
-        <meta name="description" content="Analyze corporate sustainability reports to expose hidden exclusions, greenwashing, and broken cage-free egg promises across Indonesia. Track animal welfare accountability now." />
-        <link rel="canonical" href="https://cae-animals.com/" />
+        <meta
+          name="description"
+          content="Analyze corporate sustainability reports to expose hidden exclusions, greenwashing, and broken cage-free egg promises across Indonesia. Track animal welfare accountability now."
+        />
         <meta property="og:title" content="CAE — Cage-Free Egg Accountability | Sustainability Report Analysis" />
-        <meta property="og:description" content="Analyze corporate sustainability reports to expose hidden exclusions, greenwashing, and broken cage-free egg promises across Indonesia. Track animal welfare accountability now." />
+        <meta
+          property="og:description"
+          content="Analyze corporate sustainability reports to expose hidden exclusions, greenwashing, and broken cage-free egg promises across Indonesia. Track animal welfare accountability now."
+        />
         <meta property="og:url" content="https://cae-animals.com/" />
       </Helmet>
       <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
