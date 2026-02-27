@@ -241,7 +241,7 @@ export default function About() {
           <h3 className="font-display text-2xl mb-1">Kendrick Filbert</h3>
           <p className="font-body text-muted-foreground mb-4">Act For Farmed Animals</p>
           <p className="font-body text-muted-foreground leading-relaxed mb-6">
-            As a researcher at Act For Farmed Animals, I spent weeks manually auditing corporate sustainability reports
+            As a key players at Act For Farmed Animals, I spent weeks manually auditing corporate sustainability reports
             — cross-referencing footnotes, appendices, and legal clauses across hundreds of pages. The Corporate
             Accountability Engine was born from that frustration. What took 2 weeks now takes 3–5 minutes. Our goal:
             give every animal welfare advocate access to instant, evidence-backed corporate intelligence.
