@@ -121,6 +121,7 @@ export default function About() {
           property="og:description"
           content="Learn how CAE uses adversarial AI to detect 9 evasion patterns in corporate sustainability reports. Built by Kendrick Filbert at Act For Farmed Animals."
         />
+        <link rel="canonical" href="https://cae-animals.com/about" />
         <meta property="og:url" content="https://cae-animals.com/about" />
         <meta property="og:type" content="website" />
         <meta name="twitter:title" content="About CAE — Mission, Methodology & Team | Cage-Free Egg Accountability" />
