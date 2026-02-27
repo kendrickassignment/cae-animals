@@ -14,9 +14,11 @@ export default function Footer() {
             <Link to="/" className="hover:text-sidebar-primary transition-colors">HOME</Link>
             <Link to="/about" className="hover:text-sidebar-primary transition-colors">ABOUT</Link>
             <a href="/#contact" onClick={(e) => {
+              e.preventDefault();
               if (window.location.pathname === '/') {
-                e.preventDefault();
                 document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                window.location.href = '/#contact';
               }
             }} className="hover:text-sidebar-primary transition-colors">CONTACT</a>
           </div>

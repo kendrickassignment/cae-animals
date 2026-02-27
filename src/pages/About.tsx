@@ -282,7 +282,7 @@ export default function About() {
 
         {/* CTA */}
         <div className="text-center py-6">
-          <Link to="/auth">
+          <Link to={user ? "/dashboard" : "/auth"}>
             <Button className="font-body font-bold text-base px-10 py-6 rounded-lg">START ANALYZING</Button>
           </Link>
         </div>
