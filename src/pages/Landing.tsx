@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Footer from "@/components/layout/Footer";
+import FAQSection, { faqJsonLd } from "@/components/landing/FAQSection";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -186,6 +187,7 @@ export default function Landing() {
           content="Analyze corporate sustainability reports to expose hidden exclusions, greenwashing, and broken cage-free egg promises across Indonesia. Track animal welfare accountability now."
         />
         <meta property="og:url" content="https://cae-animals.com/" />
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>
       <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
         <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-3">
@@ -352,6 +354,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* FAQ */}
+      <FAQSection />
 
       {/* Contact */}
       <ContactSection />
