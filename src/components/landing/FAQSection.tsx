@@ -1,9 +1,4 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const faqs = [
   {
@@ -12,7 +7,7 @@ const faqs = [
   },
   {
     q: "How does CAE work?",
-    a: "Upload a company's sustainability report PDF and CAE's AI engine analyzes the entire document in approximately 3 minutes — extracting findings with direct quotes, scoring accountability, and providing actionable recommendations.",
+    a: "Upload a company's sustainability report PDF and CAE's AI engine analyzes the entire document in approximately 3-5 minutes — extracting findings with direct quotes, scoring accountability, and providing actionable recommendations.",
   },
   {
     q: "What does CAE detect?",
@@ -24,7 +19,7 @@ const faqs = [
   },
   {
     q: "How long does an analysis take?",
-    a: "It depends on the number of pages and content. A full analysis of a hundred-page report takes approximately 3–5 minutes, compared to the 2 weeks typically required for manual report review.",
+    a: "It depends on the number of pages and content. A full analysis of a hundred-page report takes approximately 5 minutes, compared to the 2 weeks typically required for manual report review.",
   },
   {
     q: "Is CAE free to use?",
@@ -32,7 +27,7 @@ const faqs = [
   },
   {
     q: "What types of reports can CAE analyze?",
-    a: "CAE analyzes corporate sustainability reports, CSR reports, ESG disclosures, and annual reports in PDF format that contain animal welfare or cage-free egg commitments.",
+    a: "CAE analyzes corporate sustainability reports, CSR reports, ESG disclosures, public releases and annual reports in PDF format that contain animal welfare or cage-free egg commitments. (Max 10 reports per analysis)",
   },
 ];
 
@@ -53,9 +48,7 @@ export default function FAQSection() {
   return (
     <section className="py-20 px-6 bg-sidebar">
       <div className="max-w-3xl mx-auto">
-        <h2 className="font-display text-4xl text-center text-sidebar-foreground mb-12">
-          FREQUENTLY ASKED QUESTIONS
-        </h2>
+        <h2 className="font-display text-4xl text-center text-sidebar-foreground mb-12">FREQUENTLY ASKED QUESTIONS</h2>
         <Accordion type="single" collapsible className="space-y-3">
           {faqs.map((faq, i) => (
             <AccordionItem
