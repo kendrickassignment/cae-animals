@@ -1,22 +1,17 @@
 import { useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Upload, FileText, Building2, AlertTriangle, BarChart3, CheckCircle2, XCircle, ShieldCheck, Files } from "lucide-react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, Building2, AlertTriangle, BarChart3, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getRiskBgColor } from "@/data/seed-data";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { uploadReport, analyzeReport, getReportStatus, sanitizeErrorMessage } from "@/services/api";
-import { useRealAnalyses, fetchAndSaveAnalysis } from "@/hooks/useRealAnalyses";
+import { useRealAnalyses } from "@/hooks/useRealAnalyses";
 import AnalysisProgress from "@/components/AnalysisProgress";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNotifications } from "@/hooks/useNotifications";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { computeFileHash } from "@/lib/file-hash";
+import { useAnalysisQueue, type UploadFile } from "@/hooks/useAnalysisQueue";
 
 const RISK_COLORS: Record<string, string> = {
   critical: "#DC2626",
@@ -27,13 +22,9 @@ const RISK_COLORS: Record<string, string> = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const isAdmin = useIsAdmin();
-  const queryClient = useQueryClient();
-  const { addNotification } = useNotifications();
-  const [uploadFiles, setUploadFiles] = useState<{ file: File; companyName: string; reportYear: string }[]>([]);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [progressStages, setProgressStages] = useState<Record<string, { stage: string; companyName: string }>>({});
+  const { jobs, isProcessing, submitFiles } = useAnalysisQueue();
+  const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
 
@@ -44,98 +35,44 @@ export default function Dashboard() {
     return realAnalyses;
   }, [realAnalyses]);
 
-  const updateStage = (key: string, stage: string, companyName: string) => {
-    setProgressStages(prev => ({ ...prev, [key]: { stage, companyName } }));
-  };
-  const removeStage = (key: string) => {
-    setProgressStages(prev => { const copy = { ...prev }; delete copy[key]; return copy; });
+  const mergedGroups = useMemo(() => {
+    const groups = new Map<string, number>();
+    for (const f of uploadFiles) {
+      if (!f.companyName) continue;
+      const key = `${f.companyName.toLowerCase().trim()}::${f.reportYear}`;
+      groups.set(key, (groups.get(key) || 0) + 1);
+    }
+    return groups;
+  }, [uploadFiles]);
+
+  const getMergeCount = (companyName: string, reportYear: string) => {
+    if (!companyName) return 0;
+    return mergedGroups.get(`${companyName.toLowerCase().trim()}::${reportYear}`) || 0;
   };
 
   const handleAnalyze = async () => {
-    if (!user) { toast.error("You must be signed in."); return; }
-    setAnalyzing(true);
-    try {
-      for (const uf of uploadFiles) {
-        const key = `${uf.file.name}-${Date.now()}`;
-        updateStage(key, "uploading", uf.companyName);
-        addNotification(`Uploading: ${uf.companyName || uf.file.name}`, "info");
-
-        const filePath = `${user.id}/${Date.now()}_${uf.file.name}`;
-        const { error: storageError } = await supabase.storage.from("reports").upload(filePath, uf.file);
-        if (storageError) { toast.error(`Storage upload failed: ${storageError.message}`); removeStage(key); continue; }
-
-        const { data: report, error: dbError } = await supabase.from("reports").insert({
-          user_id: user.id, file_name: uf.file.name, file_size: uf.file.size, file_url: filePath,
-          company_name: uf.companyName, report_year: parseInt(uf.reportYear), status: "uploading",
-        }).select().single();
-        if (dbError || !report) { toast.error(`Failed to create report record`); removeStage(key); continue; }
-
-        try {
-          const uploadResult = await uploadReport(uf.file);
-          updateStage(key, "processing", uf.companyName);
-          addNotification(`Processing PDF: ${uf.companyName}`, "info");
-          await supabase.from("reports").update({ status: "processing" }).eq("id", report.id);
-          await analyzeReport(uploadResult.report_id, uf.companyName, parseInt(uf.reportYear));
-          updateStage(key, "analyzing", uf.companyName);
-          addNotification(`Analyzing with AI: ${uf.companyName}`, "info");
-
-          let notifiedDash = false;
-          const pollInterval = setInterval(async () => {
-            try {
-              const status = await getReportStatus(uploadResult.report_id);
-              if (status.status === "completed" && status.analysis_id) {
-                clearInterval(pollInterval);
-                updateStage(key, "saving", uf.companyName);
-                const savedId = await fetchAndSaveAnalysis(status.analysis_id, user.id, report.id, uf.companyName, parseInt(uf.reportYear));
-                await supabase.from("reports").update({ status: "completed", processing_completed_at: new Date().toISOString(), analysis_id: savedId } as any).eq("id", report.id);
-                updateStage(key, "completed", uf.companyName);
-                toast.success(`Analysis completed for ${uf.companyName}!`);
-                addNotification(`Analysis completed: ${uf.companyName}`, "success");
-                queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
-
-                // Notify admins (fire-and-forget, only once)
-                if (!notifiedDash) {
-                  notifiedDash = true;
-                  supabase.functions.invoke("notify-analysis-complete", {
-                    body: {
-                      analysis_id: savedId,
-                      company_name: uf.companyName,
-                      report_year: parseInt(uf.reportYear),
-                      risk_score: null,
-                      risk_level: null,
-                      uploader_user_id: user.id,
-                    },
-                  }).catch((err) => console.warn("Admin notification failed:", err));
-                }
-
-                setTimeout(() => removeStage(key), 2000);
-              } else if (status.status === "failed") {
-                clearInterval(pollInterval);
-                await supabase.from("reports").update({ status: "failed" }).eq("id", report.id);
-                toast.error(`Analysis failed: ${sanitizeErrorMessage(status.error || "Unknown error")}`);
-                addNotification(`Analysis failed: ${uf.companyName}`, "error");
-                removeStage(key);
-              }
-            } catch { /* keep polling */ }
-          }, 3000);
-          setTimeout(() => { clearInterval(pollInterval); removeStage(key); }, 300000);
-        } catch {
-          await supabase.from("reports").update({ status: "pending" }).eq("id", report.id);
-          toast.warning(`${uf.file.name} saved to cloud. Backend analysis will run when available.`);
-          addNotification(`${uf.file.name} queued for analysis`, "warning");
-          removeStage(key);
-        }
-      }
-      setUploadFiles([]);
-    } catch (err: any) { toast.error(`Error: ${sanitizeErrorMessage(err.message)}`); }
-    finally { setAnalyzing(false); }
+    await submitFiles(uploadFiles);
+    setUploadFiles([]);
   };
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setUploadFiles(prev => [...prev, ...acceptedFiles.map(f => ({ file: f, companyName: "", reportYear: "2024" }))]);
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const filesWithHash = await Promise.all(
+      acceptedFiles.map(async (file) => ({
+        file,
+        companyName: "",
+        reportYear: "2024",
+        hash: await computeFileHash(file),
+      })),
+    );
+
+    setUploadFiles((prev) => [...prev, ...filesWithHash]);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "application/pdf": [".pdf"] }, maxFiles: 10 });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "application/pdf": [".pdf"] },
+    maxFiles: 10,
+  });
 
   // Stats and charts use ONLY real analyses (user_id IS NOT NULL)
   const stats = useMemo(() => {
@@ -191,31 +128,42 @@ export default function Dashboard() {
           </div>
 
           {/* Progress */}
-          {Object.entries(progressStages).length > 0 && (
+          {jobs.length > 0 && (
             <div className="space-y-3">
-              {Object.entries(progressStages).map(([key, { stage, companyName }]) => (
-                <AnalysisProgress key={key} stage={stage} companyName={companyName} />
+              {jobs.map((job) => (
+                <AnalysisProgress key={job.key} stage={job.stage} companyName={job.companyName} />
               ))}
             </div>
           )}
 
           {uploadFiles.length > 0 && (
             <div className="bg-card rounded-lg border border-border p-4 space-y-3">
-              {uploadFiles.map((uf, i) => (
-                <div key={i} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center p-3 bg-muted rounded-md">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-body text-sm font-bold truncate">{uf.file.name}</p>
-                    <p className="font-body text-xs text-muted-foreground">{(uf.file.size / 1024 / 1024).toFixed(1)} MB</p>
+              {uploadFiles.map((uf, i) => {
+                const mergeCount = getMergeCount(uf.companyName, uf.reportYear);
+                return (
+                  <div key={i} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center p-3 bg-muted rounded-md">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-body text-sm font-bold truncate">{uf.file.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-body text-xs text-muted-foreground">{(uf.file.size / 1024 / 1024).toFixed(1)} MB</p>
+                        {mergeCount > 1 && (
+                          <span className="flex items-center gap-0.5 text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                            <Files className="h-3 w-3" />
+                            {mergeCount} files will merge
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Input placeholder="Company Name" value={uf.companyName} onChange={(e) => { const copy = [...uploadFiles]; copy[i].companyName = e.target.value; setUploadFiles(copy); }} className="w-full sm:w-40 text-sm font-body" />
+                    <Select value={uf.reportYear} onValueChange={(v) => { const copy = [...uploadFiles]; copy[i].reportYear = v; setUploadFiles(copy); }}>
+                      <SelectTrigger className="w-full sm:w-24 text-sm font-body"><SelectValue /></SelectTrigger>
+                      <SelectContent>{[2026, 2025, 2024, 2023, 2022, 2021, 2020].map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
+                    </Select>
                   </div>
-                  <Input placeholder="Company Name" value={uf.companyName} onChange={(e) => { const copy = [...uploadFiles]; copy[i].companyName = e.target.value; setUploadFiles(copy); }} className="w-full sm:w-40 text-sm font-body" />
-                  <Select value={uf.reportYear} onValueChange={(v) => { const copy = [...uploadFiles]; copy[i].reportYear = v; setUploadFiles(copy); }}>
-                    <SelectTrigger className="w-full sm:w-24 text-sm font-body"><SelectValue /></SelectTrigger>
-                    <SelectContent>{[2026, 2025, 2024, 2023, 2022, 2021, 2020].map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-              ))}
-              <Button className="w-full font-body font-bold" disabled={uploadFiles.some(f => !f.companyName) || analyzing} onClick={handleAnalyze}>
-                {analyzing ? "ANALYZING..." : "START ANALYSIS"}
+                );
+              })}
+              <Button className="w-full font-body font-bold" disabled={uploadFiles.some(f => !f.companyName) || isProcessing} onClick={handleAnalyze}>
+                {isProcessing ? "ANALYZING..." : "START ANALYSIS"}
               </Button>
             </div>
           )}
