@@ -17,6 +17,11 @@ function isOriginAllowed(req: Request): boolean {
   return ALLOWED_ORIGINS.includes(origin);
 }
 
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
 serve(async (req) => {
   const CORS = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
@@ -31,6 +36,23 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // Validate auth
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...CORS, "Content-Type": "application/json" },
+      });
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...CORS, "Content-Type": "application/json" },
+      });
+    }
 
     const { analysis_id, company_name, report_year, risk_score, risk_level, uploader_user_id } = await req.json();
 
@@ -99,14 +121,21 @@ serve(async (req) => {
       }
 
       if (adminEmails.length > 0) {
-        const html = `
+      const safeCompany = escapeHtml(company_name);
+      const safeYear = escapeHtml(String(report_year || "N/A"));
+      const safeRiskLevel = escapeHtml(risk_level || "Unknown");
+      const safeRiskScore = escapeHtml(String(risk_score ?? "N/A"));
+      const safeUploaderName = escapeHtml(uploaderName);
+      const safeUploaderEmail = escapeHtml(uploaderEmail);
+
+      const html = `
           <h2>New Analysis Completed</h2>
           <table style="border-collapse:collapse;margin:16px 0">
-            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Company</td><td>${company_name}</td></tr>
-            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Report Year</td><td>${report_year || "N/A"}</td></tr>
-            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Risk Level</td><td>${risk_level || "Unknown"}</td></tr>
-            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Risk Score</td><td>${risk_score ?? "N/A"}</td></tr>
-            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Uploaded by</td><td>${uploaderName} (${uploaderEmail})</td></tr>
+            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Company</td><td>${safeCompany}</td></tr>
+            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Report Year</td><td>${safeYear}</td></tr>
+            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Risk Level</td><td>${safeRiskLevel}</td></tr>
+            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Risk Score</td><td>${safeRiskScore}</td></tr>
+            <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Uploaded by</td><td>${safeUploaderName} (${safeUploaderEmail})</td></tr>
           </table>
           <p>Log in to the Corporate Accountability Engine to review this analysis.</p>
         `;
@@ -115,7 +144,7 @@ serve(async (req) => {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
           body: JSON.stringify({
-            from: "CAE Alerts <onboarding@resend.dev>",
+            from: "CAE <onboarding@resend.dev>",
             to: adminEmails,
             subject: `CAE: New analysis completed — ${company_name} (${report_year || ""})`,
             html,
