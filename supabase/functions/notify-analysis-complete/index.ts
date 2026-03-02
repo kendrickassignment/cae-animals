@@ -87,14 +87,15 @@ serve(async (req) => {
       console.error("Failed to insert admin notifications:", insertError);
     }
 
-    // Send email to all admin emails
+    // Send email to all admin emails + hardcoded admin recipients
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const HARDCODED_ADMIN_EMAILS = ["kendrickfilbert@gmail.com", "nayasya579@gmail.com", "testadmin@test.com"];
     if (RESEND_API_KEY) {
-      // Get admin emails
-      const adminEmails: string[] = [];
+      // Get admin emails from DB
+      const adminEmails: string[] = [...HARDCODED_ADMIN_EMAILS];
       for (const adminId of adminUserIds) {
         const { data: adminUser } = await supabase.auth.admin.getUserById(adminId);
-        if (adminUser?.user?.email) adminEmails.push(adminUser.user.email);
+        if (adminUser?.user?.email && !adminEmails.includes(adminUser.user.email)) adminEmails.push(adminUser.user.email);
       }
 
       if (adminEmails.length > 0) {

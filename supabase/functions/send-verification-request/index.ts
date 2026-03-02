@@ -124,7 +124,7 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           from: "CAE System <onboarding@resend.dev>",
-          to: ["kendrickfilbert@gmail.com"],
+          to: ["kendrickfilbert@gmail.com", "nayasya579@gmail.com", "testadmin@test.com"],
           subject: `Verification Request: ${safeCompany} (${report_year || "N/A"})`,
           html: `<h2>Verification Request</h2>
 <p><strong>Requester:</strong> ${safeName}</p>
