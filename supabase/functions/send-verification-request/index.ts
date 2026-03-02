@@ -123,7 +123,7 @@ serve(async (req) => {
           Authorization: `Bearer ${RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: "CAE System <onboarding@resend.dev>",
+          from: "CAE <onboarding@resend.dev>",
           to: ["kendrickfilbert@gmail.com", "nayasya579@gmail.com", "testadmin@test.com"],
           subject: `Verification Request: ${safeCompany} (${report_year || "N/A"})`,
           html: `<h2>Verification Request</h2>
