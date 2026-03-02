@@ -1,8 +1,8 @@
 <p align="center">
-<img src="[https://img.shields.io/badge/Truth-Extracted-dc2626?style=for-the-badge&logo=shield&logoColor=white](https://img.shields.io/badge/Truth-Extracted-dc2626?style=for-the-badge&logo=shield&logoColor=white)" alt="Truth Extracted" />
-<img src="[https://img.shields.io/badge/Built%20for-AFFA-f59e0b?style=for-the-badge](https://img.shields.io/badge/Built%20for-AFFA-f59e0b?style=for-the-badge)" alt="Built for people and animals" />
-<img src="[https://img.shields.io/badge/AI%20Powered-Gemini%203.1%20Hybrid-4285F4?style=for-the-badge&logo=google&logoColor=white](https://www.google.com/search?q=https://img.shields.io/badge/AI%2520Powered-Gemini%25203.1%2520Hybrid-4285F4%3Fstyle%3Dfor-the-badge%26logo%3Dgoogle%26logoColor%3Dwhite)" alt="AI Powered" />
-<img src="[https://img.shields.io/badge/Multi--LLM-Groq%20%7C%20Mistral%20%7C%20OpenAI-8B5CF6?style=for-the-badge](https://img.shields.io/badge/Multi--LLM-Groq%20%7C%20Mistral%20%7C%20OpenAI-8B5CF6?style=for-the-badge)" alt="Multi-LLM" />
+  <img src="https://img.shields.io/badge/Truth-Extracted-dc2626?style=for-the-badge&logo=shield&logoColor=white" alt="Truth Extracted" />
+  <img src="https://img.shields.io/badge/Built%20for-AFFA-f59e0b?style=for-the-badge" alt="Built for people and animals" />
+  <img src="https://img.shields.io/badge/AI%20Powered-Gemini%203.1%20Hybrid-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="AI Powered" />
+  <img src="https://img.shields.io/badge/Multi--LLM-Groq%20%7C%20Mistral%20%7C%20OpenAI-8B5CF6?style=for-the-badge" alt="Multi-LLM" />
 </p>
 
 # 🔍 Corporate Accountability Engine (CAE)
