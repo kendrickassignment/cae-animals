@@ -54,8 +54,8 @@ export async function analyzeReport(reportId: string, companyName?: string, repo
   });
 }
 
-export async function getReportStatus(reportId: string) {
-  return apiFetch<{ id: string; file_name: string; company_name: string | null; status: string; page_count: number | null; analysis_id?: string; error?: string }>(`/reports/${reportId}`);
+export async function getReportStatus(reportId: string, signal?: AbortSignal) {
+  return apiFetch<{ id: string; file_name: string; company_name: string | null; status: string; page_count: number | null; analysis_id?: string; error?: string }>(`/reports/${reportId}`, { signal });
 }
 
 export async function getAnalysis(analysisId: string) {

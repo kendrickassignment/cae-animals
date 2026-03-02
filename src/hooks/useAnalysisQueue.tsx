@@ -1,5 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { createContext, useContext, useState, useCallback, useRef, useEffect, ReactNode } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,7 +6,7 @@ import { uploadReport, analyzeReport, getReportStatus, sanitizeErrorMessage } fr
 import { fetchAndSaveAnalysis } from "@/hooks/useRealAnalyses";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNotifications } from "@/hooks/useNotifications";
-import { computeFileHash } from "@/lib/file-hash";
+import { mergePdfFiles } from "@/lib/merge-pdf-files";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -77,6 +76,14 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
   // Duplicate detection state
   const [duplicateDialog, setDuplicateDialog] = useState<DuplicateInfo | null>(null);
   const duplicateResolveRef = useRef<((proceed: boolean) => void) | null>(null);
+  const pollCleanupMapRef = useRef<Map<string, () => void>>(new Map());
+
+  useEffect(() => {
+    return () => {
+      pollCleanupMapRef.current.forEach((cleanup) => cleanup());
+      pollCleanupMapRef.current.clear();
+    };
+  }, []);
 
   /* ---- helpers ---- */
 
@@ -85,6 +92,8 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeJob = useCallback((key: string) => {
+    pollCleanupMapRef.current.get(key)?.();
+    pollCleanupMapRef.current.delete(key);
     setJobs(prev => prev.filter(j => j.key !== key));
   }, []);
 
@@ -166,6 +175,7 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
       const elapsed = Date.now() - startTime;
 
       if (elapsed > POLLING_TIMEOUT) {
+        pollCleanupMapRef.current.delete(key);
         updateJob(key, { stage: "failed" });
         toast.error(`Analysis timed out for ${companyName}`);
         addNotification(`Analysis timed out: ${companyName}`, "error");
@@ -182,7 +192,7 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
       abortController = new AbortController();
 
       try {
-        const status = await getReportStatus(reportId);
+        const status = await getReportStatus(reportId, abortController.signal);
 
         if (status.status === "completed" && status.analysis_id) {
           updateJob(key, { stage: "saving" });
@@ -216,12 +226,14 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
           }).catch((err) => console.warn("Admin notification failed:", err));
 
           setTimeout(() => removeJob(key), 4000);
+          pollCleanupMapRef.current.delete(key);
           return; // stop polling
         } else if (status.status === "failed") {
           updateJob(key, { stage: "failed" });
           toast.error(`Analysis failed for ${companyName}: ${sanitizeErrorMessage(status.error || "Unknown error")}`);
           addNotification(`Analysis failed: ${companyName}`, "error");
           setTimeout(() => removeJob(key), 6000);
+          pollCleanupMapRef.current.delete(key);
           return; // stop polling
         }
       } catch {
@@ -242,6 +254,7 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
     return () => {
       clearTimeout(timeoutId);
       abortController?.abort();
+      pollCleanupMapRef.current.delete(key);
     };
   };
 
@@ -266,8 +279,8 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
         const reportYear = parseInt(first.reportYear);
         const fileCount = groupFiles.length;
 
-        // Duplicate checks (use first file's hash)
-        if (first.hash) {
+        // Duplicate checks
+        if (fileCount === 1 && first.hash) {
           const hashDup = await checkFileHashDuplicate(first.hash);
           if (hashDup) {
             const proceed = await showDuplicateWarning(hashDup);
@@ -285,63 +298,94 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
         const key = `${companyName}-${reportYear}-${Date.now()}`;
         const job: AnalysisJob = { key, companyName, reportYear: first.reportYear, stage: "uploading", fileCount };
         setJobs(prev => [...prev, job]);
-        addNotification(`Uploading: ${companyName}${fileCount > 1 ? ` (${fileCount} files)` : ""}`, "info");
 
-        // Upload ALL files in the group, collect report_ids
-        const uploadedReportIds: string[] = [];
-        let firstReportDbId = "";
-        let firstFileHash = first.hash;
+        const mergeLabel = fileCount > 1 ? ` (${fileCount} files merged)` : "";
+        addNotification(`Uploading: ${companyName}${mergeLabel}`, "info");
 
-        for (const uf of groupFiles) {
-          const filePath = `${user.id}/${Date.now()}_${uf.file.name}`;
-          const { error: storageError } = await supabase.storage.from("reports").upload(filePath, uf.file);
-          if (storageError) { toast.error(`Storage upload failed: ${storageError.message}`); continue; }
-
-          const { data: report, error: dbError } = await supabase.from("reports").insert({
-            user_id: user.id, file_name: uf.file.name, file_size: uf.file.size, file_url: filePath,
-            company_name: companyName, report_year: reportYear, status: "uploading",
-          }).select().single();
-          if (dbError || !report) { toast.error("Failed to create report record"); continue; }
-
-          if (!firstReportDbId) firstReportDbId = report.id;
-
-          try {
-            const uploadResult = await uploadReport(uf.file);
-            uploadedReportIds.push(uploadResult.report_id);
-          } catch {
-            await supabase.from("reports").update({ status: "pending" }).eq("id", report.id);
-            toast.warning(`${uf.file.name} saved to cloud. Backend analysis will run when available.`);
-          }
-        }
-
-        if (uploadedReportIds.length === 0) {
+        // Build ONE analysis source file per company/year group
+        let analysisSourceFile: File;
+        try {
+          analysisSourceFile = await mergePdfFiles(groupFiles.map(gf => gf.file), companyName, reportYear);
+        } catch (mergeError: any) {
           updateJob(key, { stage: "failed" });
-          setTimeout(() => removeJob(key), 3000);
+          toast.error(`Failed to merge PDFs for ${companyName}: ${sanitizeErrorMessage(mergeError?.message || "Invalid PDF")}`);
+          addNotification(`Merge failed: ${companyName}`, "error");
+          setTimeout(() => removeJob(key), 6000);
           continue;
         }
 
-        // Analyze using the FIRST uploaded report_id (the backend merges if needed)
-        // For multiple files, we still send one analyze call per uploaded report
-        // The backend currently processes per-report, so we analyze each and take the last completed
-        updateJob(key, { stage: "processing" });
-        addNotification(`Processing PDF: ${companyName}`, "info");
+        const fileHashForRecord = fileCount === 1 ? first.hash : undefined;
 
-        let lastReportId = uploadedReportIds[0];
-        for (const rid of uploadedReportIds) {
-          try {
-            await analyzeReport(rid, companyName, reportYear);
-            lastReportId = rid;
-          } catch {
-            // continue with next
+        try {
+          const filePath = `${user.id}/${Date.now()}_${analysisSourceFile.name}`;
+          const { error: storageError } = await supabase.storage.from("reports").upload(filePath, analysisSourceFile);
+          if (storageError) {
+            throw new Error(`Storage upload failed: ${storageError.message}`);
           }
+
+          const { data: report, error: dbError } = await supabase.from("reports").insert({
+            user_id: user.id,
+            file_name: analysisSourceFile.name,
+            file_size: analysisSourceFile.size,
+            file_url: filePath,
+            company_name: companyName,
+            report_year: reportYear,
+            status: "uploading",
+          }).select().single();
+
+          if (dbError || !report) {
+            throw new Error("Failed to create report record");
+          }
+
+          let uploadResult: { report_id: string };
+          try {
+            uploadResult = await uploadReport(analysisSourceFile);
+          } catch {
+            await supabase.from("reports").update({ status: "pending" }).eq("id", report.id);
+            updateJob(key, { stage: "failed" });
+            toast.warning(`${analysisSourceFile.name} saved to cloud. Backend analysis will run when available.`);
+            addNotification(`${analysisSourceFile.name} queued for analysis`, "warning");
+            setTimeout(() => removeJob(key), 6000);
+            continue;
+          }
+
+          updateJob(key, { stage: "processing" });
+          addNotification(`Processing PDF: ${companyName}${mergeLabel}`, "info");
+          await supabase.from("reports").update({ status: "processing" }).eq("id", report.id);
+
+          try {
+            await analyzeReport(uploadResult.report_id, companyName, reportYear);
+          } catch {
+            await supabase.from("reports").update({ status: "pending" }).eq("id", report.id);
+            updateJob(key, { stage: "failed" });
+            toast.warning(`${analysisSourceFile.name} saved to cloud. Backend analysis will run when available.`);
+            addNotification(`${analysisSourceFile.name} queued for analysis`, "warning");
+            setTimeout(() => removeJob(key), 6000);
+            continue;
+          }
+
+          updateJob(key, { stage: "analyzing" });
+          addNotification(`Analyzing with AI: ${companyName}${mergeLabel}`, "info");
+
+          // Start adaptive polling (persists across navigation)
+          const cleanup = pollForCompletion(
+            uploadResult.report_id,
+            key,
+            companyName,
+            reportYear,
+            report.id,
+            fileHashForRecord,
+            fileCount,
+          );
+          if (cleanup) {
+            pollCleanupMapRef.current.set(key, cleanup);
+          }
+        } catch (groupError: any) {
+          updateJob(key, { stage: "failed" });
+          toast.error(`Error: ${sanitizeErrorMessage(groupError?.message || "Unknown error")}`);
+          addNotification(`Analysis failed: ${companyName}`, "error");
+          setTimeout(() => removeJob(key), 6000);
         }
-
-        updateJob(key, { stage: "analyzing" });
-        addNotification(`Analyzing with AI: ${companyName}`, "info");
-        await supabase.from("reports").update({ status: "processing" }).eq("id", firstReportDbId);
-
-        // Start adaptive polling (persists across navigation)
-        pollForCompletion(lastReportId, key, companyName, reportYear, firstReportDbId, firstFileHash, fileCount);
       }
     } catch (err: any) {
       toast.error(`Error: ${sanitizeErrorMessage(err.message)}`);
