@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { NotificationProvider } from "@/hooks/useNotifications";
+import { AnalysisQueueProvider } from "@/hooks/useAnalysisQueue";
+import FloatingAnalysisProgress from "@/components/FloatingAnalysisProgress";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -34,7 +36,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AnalysisQueueProvider>
           <ScrollToTop />
+          <FloatingAnalysisProgress />
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
@@ -48,6 +52,7 @@ const App = () => (
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </AnalysisQueueProvider>
         </BrowserRouter>
       </TooltipProvider>
       </NotificationProvider>
