@@ -2,11 +2,11 @@ import { useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, Building2, AlertTriangle, BarChart3, CheckCircle2, XCircle } from "lucide-react";
+import { Upload, FileText, Building2, AlertTriangle, BarChart3, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { seedAnalyses, getRiskBgColor } from "@/data/seed-data";
+import { getRiskBgColor } from "@/data/seed-data";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,7 @@ import { useRealAnalyses, fetchAndSaveAnalysis } from "@/hooks/useRealAnalyses";
 import AnalysisProgress from "@/components/AnalysisProgress";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const RISK_COLORS: Record<string, string> = {
   critical: "#DC2626",
@@ -27,6 +28,7 @@ const RISK_COLORS: Record<string, string> = {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isAdmin = useIsAdmin();
   const queryClient = useQueryClient();
   const { addNotification } = useNotifications();
   const [uploadFiles, setUploadFiles] = useState<{ file: File; companyName: string; reportYear: string }[]>([]);
@@ -37,11 +39,9 @@ export default function Dashboard() {
 
   const { data: realAnalyses = [] } = useRealAnalyses();
 
-  // Combine seed + real, real takes priority for same company
+  // Only show real (live) analyses — no demo/seed data
   const allAnalyses = useMemo(() => {
-    const realCompanies = new Set(realAnalyses.map(a => a.company_name.toLowerCase()));
-    const filtered = seedAnalyses.filter(s => !realCompanies.has(s.company_name.toLowerCase()));
-    return [...realAnalyses, ...filtered];
+    return realAnalyses;
   }, [realAnalyses]);
 
   const updateStage = (key: string, stage: string, companyName: string) => {
@@ -155,6 +155,13 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Admin Badge */}
+      {isAdmin && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-lg w-fit">
+          <ShieldCheck className="h-5 w-5 text-primary" />
+          <span className="font-nav text-xs tracking-wider text-primary uppercase">Admin</span>
+        </div>
+      )}
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
@@ -245,25 +252,19 @@ export default function Dashboard() {
                           </td>
                           <td className="p-3 font-display text-lg hidden md:table-cell">{analysis.overall_risk_score}</td>
                           <td className="p-3 hidden md:table-cell">
-                            {(analysis as any).isReal ? (
-                              (analysis as any).verified ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-risk-low-bg text-risk-low">
-                                  <CheckCircle2 className="h-3 w-3" /> Verified
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground">
-                                  <XCircle className="h-3 w-3" /> Unverified
-                                </span>
-                              )
-                            ) : (
+                            {(analysis as any).verified ? (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-risk-low-bg text-risk-low">
-                                <CheckCircle2 className="h-3 w-3" /> Demo
+                                <CheckCircle2 className="h-3 w-3" /> Verified
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-muted text-muted-foreground">
+                                <XCircle className="h-3 w-3" /> Unverified
                               </span>
                             )}
                           </td>
                           <td className="p-3 hidden lg:table-cell">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${(analysis as any).isReal ? "bg-primary/10 text-primary" : "bg-risk-low-bg text-risk-low"}`}>
-                              {(analysis as any).isReal ? "⚡ Live" : "✓ Demo"}
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary">
+                              ⚡ Live
                             </span>
                           </td>
                           <td className="p-3">
