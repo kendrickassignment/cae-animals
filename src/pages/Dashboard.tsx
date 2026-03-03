@@ -12,6 +12,14 @@ import AnalysisProgress from "@/components/AnalysisProgress";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { computeFileHash } from "@/lib/file-hash";
 import { useAnalysisQueue, type UploadFile } from "@/hooks/useAnalysisQueue";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const RISK_COLORS: Record<string, string> = {
   critical: "#DC2626",
@@ -23,7 +31,7 @@ const RISK_COLORS: Record<string, string> = {
 export default function Dashboard() {
   const navigate = useNavigate();
   const isAdmin = useIsAdmin();
-  const { jobs, isProcessing, submitFiles } = useAnalysisQueue();
+  const { jobs, isProcessing, submitFiles, duplicateDialog, handleDuplicateAction } = useAnalysisQueue();
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
@@ -55,6 +63,13 @@ export default function Dashboard() {
     setUploadFiles([]);
   };
 
+  const onDuplicateAction = (proceed: boolean) => {
+    if (!proceed && duplicateDialog) {
+      navigate(`/analysis/${duplicateDialog.analysisId}`);
+    }
+    handleDuplicateAction(proceed);
+  };
+
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const filesWithHash = await Promise.all(
       acceptedFiles.map(async (file) => ({
@@ -71,7 +86,7 @@ export default function Dashboard() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "application/pdf": [".pdf"] },
-    maxFiles: 10,
+    maxFiles: 30,
   });
 
   // Stats and charts use ONLY real analyses (user_id IS NOT NULL)
@@ -124,7 +139,7 @@ export default function Dashboard() {
             <input {...getInputProps()} />
             <Upload className="h-10 w-10 text-primary mx-auto mb-3" />
             <p className="font-body text-foreground font-bold mb-1">{isDragActive ? "Drop PDF reports here..." : "Drop PDF reports here or click to upload"}</p>
-            <p className="font-body text-sm text-muted-foreground">Accepts .pdf files (up to 10 at once)</p>
+            <p className="font-body text-sm text-muted-foreground">Accepts .pdf files (up to 30 at once)</p>
           </div>
 
           {/* Progress */}
@@ -149,7 +164,7 @@ export default function Dashboard() {
                         {mergeCount > 1 && (
                           <span className="flex items-center gap-0.5 text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
                             <Files className="h-3 w-3" />
-                            {mergeCount} files will merge
+                            {mergeCount} merged for {uf.companyName} {uf.reportYear}
                           </span>
                         )}
                       </div>
@@ -286,6 +301,40 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      <Dialog open={!!duplicateDialog} onOpenChange={(open) => { if (!open) onDuplicateAction(false); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display text-foreground">
+              {duplicateDialog?.type === "hash" ? "Duplicate PDF Detected" : "Existing Analysis Found"}
+            </DialogTitle>
+            <DialogDescription className="font-body text-muted-foreground pt-2">
+              {duplicateDialog?.type === "hash" ? (
+                <>
+                  This exact PDF was already analyzed by <strong>{duplicateDialog.uploaderEmail}</strong> on{" "}
+                  <strong>{duplicateDialog.date}</strong>.
+                  <br />
+                  Company: <strong>{duplicateDialog.companyName}</strong>
+                  {duplicateDialog.score !== null && <>, Score: <strong>{duplicateDialog.score}</strong></>}.
+                </>
+              ) : (
+                <>
+                  An analysis for <strong>{duplicateDialog?.companyName}</strong> ({duplicateDialog?.reportYear}) already exists,
+                  uploaded by <strong>{duplicateDialog?.uploaderEmail}</strong> on <strong>{duplicateDialog?.date}</strong>.
+                  Would you like to view it?
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => onDuplicateAction(false)}>
+              View Existing Analysis
+            </Button>
+            <Button onClick={() => onDuplicateAction(true)}>
+              Upload Anyway
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

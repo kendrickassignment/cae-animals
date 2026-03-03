@@ -28,7 +28,7 @@ export default function UploadPage() {
     setFiles((prev) => [...prev, ...newFiles]);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "application/pdf": [".pdf"] }, maxFiles: 10 });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "application/pdf": [".pdf"] }, maxFiles: 30 });
 
   // Compute merged group info for visual indicator
   const mergedGroups = useMemo(() => {
@@ -70,7 +70,7 @@ export default function UploadPage() {
         <input {...getInputProps()} />
         <Upload className="h-12 w-12 text-primary mx-auto mb-4" />
         <p className="font-body text-foreground font-bold text-lg mb-1">Drop PDF reports here or click to upload</p>
-        <p className="font-body text-sm text-muted-foreground">Accepts .pdf files (up to 10 at once, max 50MB each)</p>
+        <p className="font-body text-sm text-muted-foreground">Accepts .pdf files (up to 30 at once, max 50MB each)</p>
       </div>
 
       {/* Progress indicators from global queue */}
@@ -95,7 +95,7 @@ export default function UploadPage() {
                     {mergeCount > 1 && (
                       <span className="flex items-center gap-0.5 text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
                         <Files className="h-3 w-3" />
-                        {mergeCount} files will merge
+                        {mergeCount} merged for {uf.companyName} {uf.reportYear}
                       </span>
                     )}
                   </div>
@@ -121,7 +121,7 @@ export default function UploadPage() {
       )}
 
       {/* Duplicate detection dialog */}
-      <Dialog open={!!duplicateDialog} onOpenChange={(open) => { if (!open) onDuplicateAction(true); }}>
+      <Dialog open={!!duplicateDialog} onOpenChange={(open) => { if (!open) onDuplicateAction(false); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-display text-foreground">
