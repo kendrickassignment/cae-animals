@@ -207,11 +207,26 @@ export default function AnalysisDetail() {
     queryKey: ["source-report", reportId],
     queryFn: async () => {
       if (!reportId) return null;
-      const { data } = await supabase.from("reports").select("file_name, file_size, page_count, file_url, user_id").eq("id", reportId).single();
+      const { data } = await supabase.from("reports").select("file_name, file_size, page_count, file_url, user_id, report_type").eq("id", reportId).single();
       return data;
     },
     enabled: !!reportId && !isSeedData,
   });
+
+  const originalBundleFiles = useMemo(() => {
+    const reportType = (sourceReport as any)?.report_type;
+    if (!reportType || typeof reportType !== "string") return [] as Array<{ name: string; path: string; size?: number }>;
+
+    try {
+      const parsed = JSON.parse(reportType);
+      if (parsed?.kind !== "merged_bundle_v1" || !Array.isArray(parsed.files)) return [];
+      return parsed.files
+        .filter((f: any) => typeof f?.path === "string" && typeof f?.name === "string")
+        .map((f: any) => ({ name: f.name, path: f.path, size: f.size }));
+    } catch {
+      return [];
+    }
+  }, [sourceReport]);
 
   // 5. AI Confidence
   const documentConfidence = rawDbRow?.document_confidence || null;
@@ -349,6 +364,16 @@ export default function AnalysisDetail() {
       if (data?.signedUrl) window.open(data.signedUrl, "_blank");
       else toast.error("Could not generate download link");
     } catch { toast.error("Download failed"); }
+  };
+
+  const handleDownloadOriginalFromBundle = async (path: string) => {
+    try {
+      const { data } = await supabase.storage.from("reports").createSignedUrl(path, 300);
+      if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+      else toast.error("Could not generate download link");
+    } catch {
+      toast.error("Download failed");
+    }
   };
 
   const handleSubmitFlag = () => {
@@ -705,8 +730,26 @@ export default function AnalysisDetail() {
           </div>
           {sourceReport.file_url && (
             <Button size="sm" variant="outline" className="font-body text-xs font-bold" onClick={handleDownloadSource}>
-              <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Download Original PDF
+              <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> {originalBundleFiles.length > 0 ? "Download Merged PDF" : "Download Original PDF"}
             </Button>
+          )}
+          {originalBundleFiles.length > 0 && (
+            <div className="mt-3 space-y-2">
+              <p className="font-body text-xs text-muted-foreground uppercase tracking-wider">Original uploaded documents</p>
+              <div className="space-y-2">
+                {originalBundleFiles.map((bundleFile, idx) => (
+                  <Button
+                    key={`${bundleFile.path}-${idx}`}
+                    size="sm"
+                    variant="ghost"
+                    className="w-full justify-start font-body text-xs"
+                    onClick={() => handleDownloadOriginalFromBundle(bundleFile.path)}
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> {bundleFile.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       )}

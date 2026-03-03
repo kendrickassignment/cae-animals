@@ -143,7 +143,7 @@ export default function About() {
         <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
           <Link to="/" className="flex items-center gap-3">
             <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply cursor-pointer" />
-            <span className="font-nav text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">
+            <span className="font-nav font-bold text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">
               Corporate Accountability Engine
             </span>
           </Link>
@@ -182,7 +182,7 @@ export default function About() {
       <div className="max-w-4xl mx-auto space-y-10 py-10 sm:py-16 px-4 sm:px-6">
         {/* Hero */}
         <div className="text-center">
-          <img src={caeLogoTruth} alt="CAE Logo" className="w-[180px] mx-auto mb-4" />
+          <img src={caeLogoTruth} alt="CAE Logo" className="w-[240px] sm:w-[300px] mx-auto mb-4" />
           <h1 className="font-display text-4xl sm:text-5xl text-foreground mb-2">ABOUT CAE</h1>
           <p className="font-body text-muted-foreground text-sm tracking-wider">Truth. Extracted.</p>
         </div>

@@ -100,12 +100,13 @@ export default function Auth() {
             </div>
             <div className="space-y-2">
               <Label className="font-body text-sm">Password</Label>
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required className="font-body" />
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="8–64 characters" minLength={isSignUp ? 8 : undefined} maxLength={64} required className="font-body" />
+              {isSignUp && <p className="font-body text-xs text-muted-foreground">Use a password between 8 and 64 characters.</p>}
             </div>
             {isSignUp && (
               <div className="space-y-2">
                 <Label className="font-body text-sm">Confirm Password</Label>
-                <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" required className="font-body" />
+                <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Re-enter password" minLength={8} maxLength={64} required className="font-body" />
               </div>
             )}
             <Button type="submit" className="w-full font-body font-bold text-sm py-5" disabled={loading}>
