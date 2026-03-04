@@ -78,6 +78,25 @@ export async function testProvider(provider: string, apiKey?: string) {
   });
 }
 
+export async function analyzeMultiReport(
+  reportIds: string[],
+  companyName?: string,
+  reportYear?: number,
+) {
+  const { provider, apiKey } = getProviderConfig();
+  return apiFetch<{ report_id: string; status: string; merged_files: number; message: string }>("/analyze-multi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      report_ids: reportIds,
+      company_name: companyName || null,
+      report_year: reportYear || null,
+      provider: provider || null,
+      api_key: apiKey || null,
+    }),
+  });
+}
+
 export async function healthCheck() {
   const url = `${getBackendUrl()}/`;
   const response = await fetch(url, { mode: "cors" });

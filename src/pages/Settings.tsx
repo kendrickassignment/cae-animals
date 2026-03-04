@@ -6,6 +6,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { saveBackendUrl, saveProviderConfig, getStoredBackendUrl, getStoredProvider, healthCheck, testProvider } from "@/services/api";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -115,35 +117,43 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* API Config */}
-      <div className="bg-card rounded-lg border border-border p-6 space-y-4">
-        <h3 className="font-display text-lg">AI ENGINE CONFIGURATION</h3>
-        <div className="space-y-3">
-          <div>
-            <Label className="font-body text-sm">Backend API URL</Label>
-            <Input value={backendUrl} onChange={e => setBackendUrl(e.target.value)} placeholder="https://cae-backend-7g72.onrender.com" className="font-body font-mono text-sm" />
-          </div>
-          <div>
-            <Label className="font-body text-sm">AI Provider</Label>
-            <select value={provider} onChange={e => setProvider(e.target.value)} className="w-full font-body text-sm bg-card border border-border rounded-lg px-3 py-2">
-              <option value="gemini">Google Gemini (Free)</option>
-              <option value="groq">Groq - Llama 3 (Free)</option>
-              <option value="openai">OpenAI GPT-4o</option>
-              <option value="mistral">Mistral (Free)</option>
-            </select>
-          </div>
-          <div>
-            <Label className="font-body text-sm">API Key</Label>
-            <Input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="Your API key (optional for free providers)" className="font-body font-mono text-sm" />
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="font-body font-bold text-sm border-2" onClick={handleTestConnection} disabled={testing}>
-              {testing ? "Testing..." : "TEST CONNECTION"}
-            </Button>
-            <Button className="font-body font-bold text-sm" onClick={handleSaveApi}>SAVE SETTINGS</Button>
-          </div>
+      {/* API Config — Advanced */}
+      <Collapsible>
+        <div className="bg-card rounded-lg border border-border p-6">
+          <CollapsibleTrigger className="flex items-center justify-between w-full">
+            <div>
+              <h3 className="font-display text-lg flex items-center gap-2">⚙️ Advanced: AI Engine Configuration</h3>
+              <p className="font-body text-xs text-muted-foreground mt-1 text-left">Default settings work for most users. Only change these if you have your own API key.</p>
+            </div>
+            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform [[data-state=open]_&]:rotate-180" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-3">
+            <div>
+              <Label className="font-body text-sm">Backend API URL</Label>
+              <Input value={backendUrl} onChange={e => setBackendUrl(e.target.value)} placeholder="https://cae-backend-7g72.onrender.com" className="font-body font-mono text-sm" />
+            </div>
+            <div>
+              <Label className="font-body text-sm">AI Provider</Label>
+              <select value={provider} onChange={e => setProvider(e.target.value)} className="w-full font-body text-sm bg-card border border-border rounded-lg px-3 py-2">
+                <option value="gemini">Google Gemini (Free)</option>
+                <option value="groq">Groq - Llama 3 (Free)</option>
+                <option value="openai">OpenAI GPT-4o</option>
+                <option value="mistral">Mistral (Free)</option>
+              </select>
+            </div>
+            <div>
+              <Label className="font-body text-sm">API Key</Label>
+              <Input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="Your API key (optional for free providers)" className="font-body font-mono text-sm" />
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" className="font-body font-bold text-sm border-2" onClick={handleTestConnection} disabled={testing}>
+                {testing ? "Testing..." : "TEST CONNECTION"}
+              </Button>
+              <Button className="font-body font-bold text-sm" onClick={handleSaveApi}>SAVE SETTINGS</Button>
+            </div>
+          </CollapsibleContent>
         </div>
-      </div>
+      </Collapsible>
 
       {/* Danger Zone */}
       <div className="bg-card rounded-lg border-2 border-destructive/30 p-6">

@@ -192,9 +192,9 @@ export default function Landing() {
       <nav className="bg-primary h-16 flex items-center px-4 sm:px-6 sticky top-0 z-50">
         <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-3">
           <img src={caeLogoDark} alt="CAE Logo" className="h-10 mix-blend-multiply cursor-pointer" />
-          <span className="font-nav font-bold text-[10px] text-primary-foreground/70 tracking-wider hidden sm:block">
+           <span className="font-nav font-bold text-sm text-primary-foreground tracking-wider hidden sm:block">
             Corporate Accountability Engine
-          </span>
+           </span>
         </Link>
         <div className="flex-1" />
         <div className="flex items-center gap-2 sm:gap-3">

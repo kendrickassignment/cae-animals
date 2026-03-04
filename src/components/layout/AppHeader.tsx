@@ -16,6 +16,7 @@ interface AppHeaderProps {
 }
 
 const dropdownNav = [
+  { title: "Home", path: "/", icon: LayoutDashboard },
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "New Analysis", path: "/upload", icon: Upload },
   { title: "Companies", path: "/companies", icon: Building2 },

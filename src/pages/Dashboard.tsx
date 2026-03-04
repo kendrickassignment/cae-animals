@@ -86,7 +86,7 @@ export default function Dashboard() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "application/pdf": [".pdf"] },
-    maxFiles: 30,
+    maxFiles: 10,
   });
 
   // Stats and charts use ONLY real analyses (user_id IS NOT NULL)
@@ -138,8 +138,8 @@ export default function Dashboard() {
           <div {...getRootProps()} className={`bg-card rounded-lg border-2 border-dashed p-8 text-center cursor-pointer transition-all hover:border-primary ${isDragActive ? "border-primary bg-primary/5" : "border-border"}`}>
             <input {...getInputProps()} />
             <Upload className="h-10 w-10 text-primary mx-auto mb-3" />
-            <p className="font-body text-foreground font-bold mb-1">{isDragActive ? "Drop PDF reports here..." : "Drop PDF reports here or click to upload"}</p>
-            <p className="font-body text-sm text-muted-foreground">Accepts .pdf files (up to 30 at once)</p>
+            <p className="font-body text-foreground font-bold mb-1">{isDragActive ? "Drop PDF reports here..." : "Drag and drop your PDFs here, or click to browse"}</p>
+            <p className="font-body text-sm text-muted-foreground">PDF files only • Max 50MB per file • Up to 10 files</p>
           </div>
 
           {/* Progress */}
@@ -177,8 +177,12 @@ export default function Dashboard() {
                   </div>
                 );
               })}
+              <div className="flex items-center justify-between text-xs font-body text-muted-foreground px-1">
+                <span>{uploadFiles.length} file{uploadFiles.length !== 1 ? "s" : ""} selected</span>
+                <span>Total: {(uploadFiles.reduce((s, f) => s + f.file.size, 0) / 1024 / 1024).toFixed(1)} MB</span>
+              </div>
               <Button className="w-full font-body font-bold" disabled={uploadFiles.some(f => !f.companyName) || isProcessing} onClick={handleAnalyze}>
-                {isProcessing ? "ANALYZING..." : "START ANALYSIS"}
+                {isProcessing ? "ANALYZING..." : uploadFiles.length > 1 ? `ANALYZE ${uploadFiles.length} REPORTS (MERGED)` : "ANALYZE REPORT"}
               </Button>
             </div>
           )}
