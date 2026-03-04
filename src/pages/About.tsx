@@ -169,10 +169,11 @@ export default function About() {
           <h2 className="font-display text-2xl mb-4 flex items-center gap-2">OUR MISSION</h2>
           <p className="font-body text-muted-foreground leading-relaxed text-lg">
             Multinationals food companies, hotels and retails often promise to go "cage-free" globally to look good in
-            public eye. But if you read their reports (ESG, Sustainability, Annual Reports etc), they frequently leave
-            out countries like Indonesia. We built the **Corporate Accountability Engine (CAE)** to catch these hidden
-            tricks automatically. Our mission is to make it easy for any volunteer or advocate to hold big corporations
-            accountable.
+            the public eye. But if you read their reports (ESG, Sustainability, Annual Reports etc), they frequently
+            leave out countries like Indonesia. We built the{" "}
+            <strong className="text-foreground font-bold">Corporate Accountability Engine (CAE)</strong> to catch these
+            hidden tricks automatically. Our mission is to make it easy for any volunteer or advocate to hold big
+            corporations accountable.
           </p>
         </section>
 
@@ -183,10 +184,10 @@ export default function About() {
             <div>
               <h2 className="font-display text-xl mb-3 uppercase">Why Indonesia?</h2>
               <p className="font-body text-sm text-muted-foreground leading-relaxed">
-                Many companies claim they can't go cage-free in Indonesia because of "lack of regulation." **This is no
-                longer true.** Since 2025, Indonesia has recognized cage-free systems (Permentan No. 32). CAE is
-                specifically programmed to flag when companies use outdated legal excuses to avoid protecting animals in
-                our region.
+                Many companies claim they can't go cage-free in Indonesia because of "lack of regulation."{" "}
+                <strong className="text-foreground font-bold">This is no longer true.</strong> Since 2025, Indonesia has
+                recognized cage-free systems (Permentan No. 32). CAE is specifically programmed to flag when companies
+                use outdated legal excuses to avoid protecting animals in our region.
               </p>
             </div>
           </div>
