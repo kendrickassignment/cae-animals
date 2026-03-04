@@ -55,7 +55,10 @@ function JobCard({ job }: { job: AnalysisJob }) {
           </span>
         )}
       </div>
-      <p className="font-body text-xs text-muted-foreground mb-1.5">{STAGE_LABEL[job.stage] ?? job.stage}</p>
+      <p className="font-body text-xs text-muted-foreground mb-1.5">
+        {STAGE_LABEL[job.stage] ?? job.stage}
+        {job.fileCount > 1 && job.stage !== "completed" && job.stage !== "failed" ? ` (${job.fileCount} files merged)` : ""}
+      </p>
       {!isTerminal && <Progress value={progress} className="h-1.5" />}
     </motion.div>
   );

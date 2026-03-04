@@ -1,4 +1,4 @@
-import { LayoutDashboard, Upload, Building2, Settings, Info, LogOut, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, LayoutDashboard, Upload, Building2, Settings, Info, LogOut, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { NavLink, useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -6,6 +6,7 @@ import caeLogoTruth from "@/assets/cae-logo-truth.png";
 import { useState, useEffect } from "react";
 
 const navItems = [
+  { title: "HOME", path: "/", icon: Home },
   { title: "DASHBOARD", path: "/dashboard", icon: LayoutDashboard },
   { title: "NEW ANALYSIS", path: "/upload", icon: Upload },
   { title: "COMPANIES", path: "/companies", icon: Building2 },

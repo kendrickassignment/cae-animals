@@ -1,5 +1,5 @@
 import { useDropzone } from "react-dropzone";
-import { Upload, Files } from "lucide-react";
+import { Upload, Files, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,7 +28,12 @@ export default function UploadPage() {
     setFiles((prev) => [...prev, ...newFiles]);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { "application/pdf": [".pdf"] }, maxFiles: 30 });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "application/pdf": [".pdf"] },
+    maxFiles: 10,
+    onDropRejected: () => toast.error("Maximum 10 files allowed per analysis."),
+  });
 
   // Compute merged group info for visual indicator
   const mergedGroups = useMemo(() => {
@@ -69,8 +74,8 @@ export default function UploadPage() {
       >
         <input {...getInputProps()} />
         <Upload className="h-12 w-12 text-primary mx-auto mb-4" />
-        <p className="font-body text-foreground font-bold text-lg mb-1">Drop PDF reports here or click to upload</p>
-        <p className="font-body text-sm text-muted-foreground">Accepts .pdf files (up to 30 at once, max 50MB each)</p>
+        <p className="font-body text-foreground font-bold text-lg mb-1">Drag and drop your PDFs here, or click to browse</p>
+        <p className="font-body text-sm text-muted-foreground">PDF files only • Max 50MB per file • Up to 10 files</p>
       </div>
 
       {/* Progress indicators from global queue */}
@@ -100,6 +105,9 @@ export default function UploadPage() {
                     )}
                   </div>
                 </div>
+                <button onClick={() => setFiles(prev => prev.filter((_, idx) => idx !== i))} className="text-muted-foreground hover:text-destructive transition-colors shrink-0" title="Remove file">
+                  <X className="h-4 w-4" />
+                </button>
                 <Input
                   placeholder="Company Name" value={uf.companyName}
                   onChange={e => { const c = [...files]; c[i].companyName = e.target.value; setFiles(c); }}
@@ -114,8 +122,12 @@ export default function UploadPage() {
               </div>
             );
           })}
+          <div className="flex items-center justify-between text-xs font-body text-muted-foreground px-1">
+            <span>{files.length} file{files.length !== 1 ? "s" : ""} selected</span>
+            <span>Total: {(files.reduce((s, f) => s + f.file.size, 0) / 1024 / 1024).toFixed(1)} MB</span>
+          </div>
           <Button className="w-full font-body font-bold" disabled={files.some(f => !f.companyName) || isProcessing} onClick={handleAnalyze}>
-            {isProcessing ? "ANALYZING..." : "START ANALYSIS"}
+            {isProcessing ? "ANALYZING..." : files.length > 1 ? `ANALYZE ${files.length} REPORTS (MERGED)` : "ANALYZE REPORT"}
           </Button>
         </div>
       )}
