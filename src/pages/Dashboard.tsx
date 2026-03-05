@@ -9,6 +9,7 @@ import { getRiskBgColor } from "@/data/seed-data";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useRealAnalyses } from "@/hooks/useRealAnalyses";
 import AnalysisProgress from "@/components/AnalysisProgress";
+import RiskScoreLegend from "@/components/RiskScoreLegend";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { computeFileHash } from "@/lib/file-hash";
 import { useAnalysisQueue, type UploadFile } from "@/hooks/useAnalysisQueue";
@@ -303,6 +304,7 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
+          <RiskScoreLegend className="mt-5 pt-4 border-t border-border" />
         </div>
       </div>
       <Dialog open={!!duplicateDialog} onOpenChange={(open) => { if (!open) onDuplicateAction(false); }}>

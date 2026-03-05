@@ -239,6 +239,48 @@ export default function About() {
           </div>
         </section>
 
+        {/* SCORING METHODOLOGY */}
+        <section className="space-y-6">
+          <h2 className="font-display text-2xl text-center uppercase">Scoring Methodology Details</h2>
+          <p className="font-body text-sm text-muted-foreground text-center max-w-2xl mx-auto">
+            The AI Risk Score is calculated by summing penalty and reward points based on the following factors detected in each report.
+          </p>
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-sidebar text-sidebar-foreground">
+                    <th className="font-nav text-[11px] tracking-wider text-left p-3">FACTOR</th>
+                    <th className="font-nav text-[11px] tracking-wider text-left p-3">POINTS</th>
+                    <th className="font-nav text-[11px] tracking-wider text-left p-3">CONDITION</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { factor: "Strategic Silence", points: "+35", condition: "Indonesia not mentioned in cage-free context", penalty: true },
+                    { factor: "Geographic Exclusion", points: "+30", condition: "Indonesia explicitly excluded", penalty: true },
+                    { factor: "Franchise Firewall", points: "+15", condition: "Commitments limited to company-owned", penalty: true },
+                    { factor: "Corporate Ghosting", points: "+15", condition: "No external accountability mechanism", penalty: true },
+                    { factor: "Commitment Downgrade", points: "+15", condition: "Weakened language from previous years", penalty: true },
+                    { factor: "Timeline Deferral", points: "+10", condition: "Indonesia deadlines pushed beyond 2030", penalty: true },
+                    { factor: "Hedging Language", points: "+2 each", condition: "Non-binding phrases (max +10)", penalty: true },
+                    { factor: "Availability Clause", points: "+5 each", condition: "Escape conditions (max +10)", penalty: true },
+                    { factor: "Binding Language", points: "−3 each", condition: "Strong commitments (max −15)", penalty: false },
+                    { factor: "Third-Party Audit", points: "−5", condition: "Independent verification exists", penalty: false },
+                    { factor: "Indonesia Data", points: "−10", condition: "Indonesia-specific progress reported", penalty: false },
+                  ].map((row, i) => (
+                    <tr key={row.factor} className={`border-t border-border ${i % 2 === 1 ? "bg-muted/30" : ""}`}>
+                      <td className="p-3 font-body text-sm font-bold">{row.factor}</td>
+                      <td className={`p-3 font-display text-sm font-bold ${row.penalty ? "text-destructive" : "text-risk-low"}`}>{row.points}</td>
+                      <td className="p-3 font-body text-xs text-muted-foreground">{row.condition}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
         {/* BUILT BY */}
         <section className="bg-sidebar text-sidebar-foreground rounded-2xl p-8 sm:p-12 relative overflow-hidden">
           <div className="relative z-10">
