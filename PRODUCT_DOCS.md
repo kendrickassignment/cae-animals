@@ -638,7 +638,7 @@ The Settings screen handles BYOK with two clear priorities: make it easy to use,
 
 ## 12. Deployment & Infrastructure
 
-### Current Setup
+### Current Setup (will increased as more usage)
 
 | Component | Where | Cost |
 |-----------|-------|------|
@@ -646,8 +646,8 @@ The Settings screen handles BYOK with two clear priorities: make it easy to use,
 | Frontend | Lovable (Pro) | $25/mo |
 | Database | Supabase (Free tier) | $0/mo |
 | Domain | cae-animals.com | ~$7/yr |
-| AI API | Google Gemini (Free tier) | $0/mo |
-| **Total** | | **~$26/mo** |
+| AI API | Google Gemini (Tier 1) | $300 |
+| **Total** | | **~$326/mo** |
 
 ### What You Need to Deploy
 
@@ -823,7 +823,7 @@ Time-to-Value is the most important UX metric. It captures the full experience: 
               ▼              ▼              ▼
         ┌──────────┐  ┌──────────┐  ┌──────────┐
         │ Gemini   │  │ Groq     │  │ Mistral  │
-        │ (Free)   │  │ (Free)   │  │ (Free)   │
+        │ (Paid)   │  │ (Free)   │  │ (Free)   │
         └──────────┘  └──────────┘  └──────────┘
 ```
 
