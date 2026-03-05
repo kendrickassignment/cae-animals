@@ -261,7 +261,7 @@ export default function Landing() {
           language, and broken promises in cage-free egg commitments across Indonesia.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link to="/auth">
+          <Link to={user ? "/dashboard" : "/auth"}>
             <Button className="font-body font-bold text-base px-8 py-6 rounded-lg">START ANALYZING</Button>
           </Link>
           <a href="#how-it-works">

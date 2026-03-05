@@ -144,6 +144,10 @@ export default function SettingsPage() {
             <div>
               <Label className="font-body text-sm">API Key</Label>
               <Input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="Your API key (optional for free providers)" className="font-body font-mono text-sm" />
+              <p className="font-body text-xs text-muted-foreground flex items-start gap-1.5 mt-1.5">
+                <span className="shrink-0">🔒</span>
+                <span>Secure & Stateless: Your key is encrypted in transit and never stored in our database. Use your own key to bypass public server limits (503 errors) and enable bulk auditing.</span>
+              </p>
             </div>
             <div className="flex gap-3">
               <Button variant="outline" className="font-body font-bold text-sm border-2" onClick={handleTestConnection} disabled={testing}>
