@@ -5,7 +5,7 @@
 **Product Owner:** Kendrick  
 **Version:** 2.2.0  
 **Last Updated:** March 5, 2026  
-**Status:** In Production (Backend) Â· Frontend in Development  
+**Status:** In Production (Backend) · Frontend in Development  
 **Methodology:** Agile (2-week sprints, continuous iteration)
 
 ---
@@ -44,13 +44,13 @@
 
 ## 1. Product Mission
 
-Corporate sustainability reports are supposed to hold companies accountable. In practice, they do the opposite â€” they give multinational food brands a 200-page shield to hide behind while making commitments they never intend to keep in Southeast Asia.
+Corporate sustainability reports are supposed to hold companies accountable. In practice, they do the opposite — they give multinational food brands a 200-page shield to hide behind while making commitments they never intend to keep in Southeast Asia.
 
 CAE exists to strip that shield away.
 
 The engine reads these reports the way a skeptical auditor would: looking for what's missing, what's been softened, and what's been quietly removed since last year. Every finding comes with a page number, a direct quote, and a severity score. Nothing vague. Nothing interpretive. Just evidence that advocacy teams can put on the table in a corporate meeting and say: *explain this.*
 
-The organizations doing this work â€” AFFA, Sinergia Animal International, and the broader Open Wing Alliance â€” have the expertise to catch greenwashing. They don't have the bandwidth to manually read hundreds of reports a year. CAE gives them that bandwidth back.
+The organizations doing this work — AFFA, Sinergia Animal International, and the broader Open Wing Alliance — have the expertise to catch greenwashing. They don't have the bandwidth to manually read hundreds of reports a year. CAE gives them that bandwidth back.
 
 ---
 
@@ -69,15 +69,15 @@ Within two years, CAE should be the default tool that animal welfare organizatio
 
 ### Principles That Don't Bend
 
-**Skepticism is the product, not a feature.** The AI assumes the report is designed to mislead. That's not a prompt engineering choice â€” it's the entire product identity. Everything downstream follows from this: the scoring weights, the UI language, the brand.
+**Skepticism is the product, not a feature.** The AI assumes the report is designed to mislead. That's not a prompt engineering choice — it's the entire product identity. Everything downstream follows from this: the scoring weights, the UI language, the brand.
 
 **If you can't cite it, you can't claim it.** Every finding must include the exact quote and the page number. An analyst should be able to flip to the page and verify within seconds. No black boxes.
 
 **Cost can't be a barrier.** The target users are NGOs operating on grant money. If the tool costs $500/month, it dies when the funding cycle ends. Every architectural decision is filtered through this constraint.
 
-**The AI proposes. Python decides.** LLMs are probabilistic â€” they'll occasionally assign "Medium" risk to a score of 85 because the language *sounds* reasonable. Deterministic validation ensures the math always wins. One inconsistency in a stakeholder meeting and the tool loses all credibility.
+**The AI proposes. Python decides.** LLMs are probabilistic — they'll occasionally assign "Medium" risk to a score of 85 because the language *sounds* reasonable. Deterministic validation ensures the math always wins. One inconsistency in a stakeholder meeting and the tool loses all credibility.
 
-**Keys belong to users, not to us.** When someone provides their own API key, it lives in their browser and travels with the request. It never touches our database, our logs, or our disk. This isn't just security hygiene â€” it's a trust decision.
+**Keys belong to users, not to us.** When someone provides their own API key, it lives in their browser and travels with the request. It never touches our database, our logs, or our disk. This isn't just security hygiene — it's a trust decision.
 
 ---
 
@@ -85,7 +85,7 @@ Within two years, CAE should be the default tool that animal welfare organizatio
 
 ### Where CAE Sits in the Market
 
-There are ESG platforms â€” MSCI, Sustainalytics, CDP â€” that rate companies on broad sustainability performance. Companies spend significant effort gaming those ratings. CAE doesn't play that game.
+There are ESG platforms — MSCI, Sustainalytics, CDP — that rate companies on broad sustainability performance. Companies spend significant effort gaming those ratings. CAE doesn't play that game.
 
 CAE does something narrower and sharper: it takes the company's own published words and audits them for specific evasion tactics. Not "how sustainable is this company overall" but "is this company using its 300-page report to hide the fact that its cage-free commitment doesn't apply to Indonesia?"
 
@@ -93,25 +93,25 @@ That specificity is the positioning. A generic greenwashing detector tells you a
 
 ### How We Get There
 
-**Phase 1 â€” Prove it works with one team (now).** AFFA's campaign team is the first real user. Validate that the findings are accurate enough to cite in meetings. Iterate the scoring until experts say "yes, this matches what I'd find manually."
+**Phase 1 — Prove it works with one team (now).** AFFA's campaign team is the first real user. Validate that the findings are accurate enough to cite in meetings. Iterate the scoring until experts say "yes, this matches what I'd find manually."
 
-**Phase 2 â€” Open it to the network.** The Open Wing Alliance has 90+ member organizations. Offer CAE as a free tool or a self-hostable repo. Let the advocacy community validate and extend it.
+**Phase 2 — Open it to the network.** The Open Wing Alliance has 90+ member organizations. Offer CAE as a free tool or a self-hostable repo. Let the advocacy community validate and extend it.
 
-**Phase 3 â€” Make it public.** A dashboard where journalists, investors, or anyone can look up a company's cage-free commitment status by country. Companies can't quietly avoid accountability when the scores are public.
+**Phase 3 — Make it public.** A dashboard where journalists, investors, or anyone can look up a company's cage-free commitment status by country. Companies can't quietly avoid accountability when the scores are public.
 
 ### What Makes CAE Hard to Replicate
 
 The moat isn't any single feature. It's the combination:
 
 - **Domain-specific adversarial prompting** that knows the difference between a genuine commitment and a carefully worded escape clause
-- **Cost architecture** that runs on free tiers â€” competitors building on paid APIs can't match the unit economics for NGO users
+- **Cost architecture** that runs on free tiers — competitors building on paid APIs can't match the unit economics for NGO users
 - **A validation layer** that prevents the AI from producing inconsistent output, which most LLM-powered tools don't bother with
-- **Southeast Asia regulatory intelligence** baked into the analysis â€” no other tool knows about Permentan No. 32/2025
+- **Southeast Asia regulatory intelligence** baked into the analysis — no other tool knows about Permentan No. 32/2025
 - **Stateless key management** that eliminates the security liability of storing user credentials
 
 ### Bets We're Making
 
-We're betting that prompt engineering with hard validation will outperform fine-tuned models for this use case â€” cheaper to maintain, faster to iterate, and no training data dependency.
+We're betting that prompt engineering with hard validation will outperform fine-tuned models for this use case — cheaper to maintain, faster to iterate, and no training data dependency.
 
 We're betting that Google will keep Gemini's free tier viable long enough for CAE to prove its value. If that changes, the multi-provider architecture means we can switch to Groq or Mistral in one environment variable.
 
@@ -123,17 +123,17 @@ We're betting that evidence quality matters more than analysis speed. Campaign t
 
 ### What's Actually Happening
 
-Every year, hundreds of food companies publish sustainability reports claiming progress toward cage-free egg commitments. These reports are long (often 200â€“300 pages), written in dense ESG language, and sometimes published in local languages like Bahasa Indonesia or Thai.
+Every year, hundreds of food companies publish sustainability reports claiming progress toward cage-free egg commitments. These reports are long (often 200–300 pages), written in dense ESG language, and sometimes published in local languages like Bahasa Indonesia or Thai.
 
 The problem isn't that the claims are false. It's that they're *carefully true in a way that's functionally misleading.*
 
-A company writes "100% cage-free by 2025" on page 7, then on page 2, a scope statement limits the commitment to "company-owned operations" â€” quietly excluding 98% of their restaurants that are franchised. Indonesia gets twelve mentions across the report for things like palm oil and youth employment, but zero mentions in the cage-free section. Commitment language shifts from "will source" to "aims to continue our work with suppliers" â€” a downgrade buried in a SASB disclosure appendix that nobody reads.
+A company writes "100% cage-free by 2025" on page 7, then on page 2, a scope statement limits the commitment to "company-owned operations" — quietly excluding 98% of their restaurants that are franchised. Indonesia gets twelve mentions across the report for things like palm oil and youth employment, but zero mentions in the cage-free section. Commitment language shifts from "will source" to "aims to continue our work with suppliers" — a downgrade buried in a SASB disclosure appendix that nobody reads.
 
 ### Why Manual Auditing Can't Keep Up
 
-On the NGO side, teams of 3â€“5 analysts are responsible for monitoring 50+ companies annually. Each report takes one to two weeks to review manually â€” cross-referencing footnotes, tracking language changes from prior years, checking which countries are included versus excluded.
+On the NGO side, teams of 3–5 analysts are responsible for monitoring 50+ companies annually. Each report takes one to two weeks to review manually — cross-referencing footnotes, tracking language changes from prior years, checking which countries are included versus excluded.
 
-The math: 50 companies Ã— 2 weeks per report = 100 weeks of analyst time per cycle. Even with a dedicated team, it's structurally impossible to cover every report at the depth needed to catch these patterns.
+The math: 50 companies × 2 weeks per report = 100 weeks of analyst time per cycle. Even with a dedicated team, it's structurally impossible to cover every report at the depth needed to catch these patterns.
 
 ### What's At Stake
 
@@ -141,7 +141,7 @@ This isn't an abstract compliance problem. Hundreds of millions of laying hens a
 
 ### The Gap
 
-An AI that reads these reports adversarially â€” treating silence as evidence, hedging as evasion, and scope limitations as firewalls â€” can compress two weeks of expert review into three minutes. Not by replacing the analyst's judgment, but by doing the reading at scale and surfacing the evidence the analyst needs to act on.
+An AI that reads these reports adversarially — treating silence as evidence, hedging as evasion, and scope limitations as firewalls — can compress two weeks of expert review into three minutes. Not by replacing the analyst's judgment, but by doing the reading at scale and surfacing the evidence the analyst needs to act on.
 
 ---
 
@@ -153,14 +153,14 @@ An AI that reads these reports adversarially â€” treating silence as eviden
 |-----|-------------|------------------------|
 | **Campaign managers** at Sinergia Animal | Run corporate engagement campaigns across Indonesia and SEA | Specific, citable evidence to put on the table in meetings with corporate sustainability teams |
 | **Research analysts** at AFFA | Produce accountability reports covering 50+ companies annually | Standardized risk assessments they can compare across companies and track year-over-year |
-| **Policy advocates** | Engage government bodies and industry groups | Aggregate data showing systemic patterns â€” "here's how 15 companies all exclude Indonesia the same way" |
+| **Policy advocates** | Engage government bodies and industry groups | Aggregate data showing systemic patterns — "here's how 15 companies all exclude Indonesia the same way" |
 
 ### Who Will Use It Next
 
 | Who | What They Need |
 |-----|---------------|
-| **Partner analysts** across the Open Wing Alliance (90+ orgs) | The same capability, applied to their local markets â€” Thailand, Vietnam, Philippines |
-| **Investigative journalists** | Evidence-grade findings they can cite â€” page numbers, direct quotes, pattern classifications |
+| **Partner analysts** across the Open Wing Alliance (90+ orgs) | The same capability, applied to their local markets — Thailand, Vietnam, Philippines |
+| **Investigative journalists** | Evidence-grade findings they can cite — page numbers, direct quotes, pattern classifications |
 | **Developers at partner orgs** | API access to plug CAE into their own monitoring workflows |
 
 ### How the Workflow Actually Looks
@@ -168,8 +168,8 @@ An AI that reads these reports adversarially â€” treating silence as eviden
 An analyst downloads a company's latest sustainability report. They upload it to CAE. Three minutes later, they have a risk score, a list of specific findings (each with page citations and exact quotes), and an Indonesia compliance status. They export the findings as CSV, paste the relevant ones into a briefing document, and walk into a corporate engagement meeting with evidence that would have taken two weeks to compile manually.
 
 ```
-Upload PDF â†’ Wait ~3 min â†’ Review findings â†’ Export CSV â†’ Use in meeting
-     â”‚            â”‚              â”‚                â”‚
+Upload PDF → Wait ~3 min → Review findings → Export CSV → Use in meeting
+     │            │              │                │
    /upload    /analyze     /analysis/{id}   /analysis/{id}/export
 ```
 
@@ -177,11 +177,11 @@ Upload PDF â†’ Wait ~3 min â†’ Review findings â†’ Export CSV â�
 
 | Story | Priority | Status |
 |-------|----------|--------|
-| Upload a PDF and get evidence-grade findings in under 5 minutes | P0 | âœ… Done |
-| Merge a main report + appendix to catch contradictions between documents | P0 | âœ… Done |
-| Export findings as CSV for briefing documents and presentations | P0 | âœ… Done |
-| Use my own API key so I'm not limited by shared quota | P1 | âœ… Done |
-| Know exactly which documents succeeded and failed in a multi-file upload | P1 | âœ… Done |
+| Upload a PDF and get evidence-grade findings in under 5 minutes | P0 | ✅ Done |
+| Merge a main report + appendix to catch contradictions between documents | P0 | ✅ Done |
+| Export findings as CSV for briefing documents and presentations | P0 | ✅ Done |
+| Use my own API key so I'm not limited by shared quota | P1 | ✅ Done |
+| Know exactly which documents succeeded and failed in a multi-file upload | P1 | ✅ Done |
 | Upload 50 reports and have them processed overnight | P2 | Planned |
 | Compare this year's report to last year's to spot downgrades | P2 | Planned |
 | Look up any company's score without uploading anything | P3 | Vision |
@@ -198,7 +198,7 @@ Upload PDF â†’ Wait ~3 min â†’ Review findings â†’ Export CSV â�
 - Multi-file merge: combine up to 10 PDFs into a single analysis (catches contradictions across documents)
 - Deterministic scoring that the AI cannot override
 - Indonesia-specific compliance assessment with regulatory context
-- Support for multiple LLM providers (Gemini, Groq, Mistral, OpenAI) â€” switchable per request
+- Support for multiple LLM providers (Gemini, Groq, Mistral, OpenAI) — switchable per request
 - Stateless Bring Your Own Key (BYOK) for users who want to use their own API quota
 - Automatic data lifecycle management (source PDFs deleted after analysis, results expire after 90 days)
 - Partial failure handling when some files in a batch can't be processed
@@ -229,19 +229,19 @@ Users upload a corporate sustainability report in PDF format. The system validat
 | Max file size | 50 MB |
 | Format | PDF only, must contain selectable text (not scanned/image-based) |
 | Storage | Local filesystem, deleted automatically after analysis completes |
-| Duplicate detection | SHA-256 hash comparison â€” returns existing report ID if match found |
+| Duplicate detection | SHA-256 hash comparison — returns existing report ID if match found |
 | Response | Unique report ID |
 
 When a user uploads a scanned PDF (common for older reports), the system detects low text extractability and returns a clear message explaining that the file needs to be a text-based export, not a scan. This prevents wasted analysis runs and eliminates the most common support scenario.
 
-**What this means for analysts:** The upload is drag-and-drop simple. If something's wrong with the file â€” wrong format, too large, scanned instead of text â€” the system tells you exactly what happened and what to do about it. Duplicate uploads are caught automatically, so analysts don't waste time re-running the same report.
+**What this means for analysts:** The upload is drag-and-drop simple. If something's wrong with the file — wrong format, too large, scanned instead of text — the system tells you exactly what happened and what to do about it. Duplicate uploads are caught automatically, so analysts don't waste time re-running the same report.
 
 **Acceptance Criteria:**
-- Valid text-based PDF â†’ success with unique report ID
-- Non-PDF file â†’ clear error explaining accepted format
-- File over 50MB â†’ clear error with size limit
-- Scanned/image PDF â†’ explanation that CAE needs text-based PDFs, with suggestion to download from company website instead of scanning
-- Duplicate PDF (matching hash) â†’ notification with link to existing analysis and option to re-run
+- Valid text-based PDF → success with unique report ID
+- Non-PDF file → clear error explaining accepted format
+- File over 50MB → clear error with size limit
+- Scanned/image PDF → explanation that CAE needs text-based PDFs, with suggestion to download from company website instead of scanning
+- Duplicate PDF (matching hash) → notification with link to existing analysis and option to re-run
 
 ---
 
@@ -252,7 +252,7 @@ The core workflow. An analyst triggers analysis on an uploaded PDF and receives 
 | Requirement | Specification |
 |------------|---------------|
 | Trigger | Analyst clicks "Analyze" or API call with report ID |
-| Execution | Background task, non-blocking â€” analyst can close the tab and come back |
+| Execution | Background task, non-blocking — analyst can close the tab and come back |
 | Status | Polled automatically until complete |
 | Optional inputs | Company name, report year, preferred AI provider, custom API key |
 
@@ -260,9 +260,9 @@ The core workflow. An analyst triggers analysis on an uploaded PDF and receives 
 
 The PDF is parsed into text with page markers preserved. The system estimates token count and truncates intelligently if needed (keeping the beginning and end of the document where commitments and disclaimers tend to live). An adversarial prompt frames the AI as a skeptical auditor. The fast model scans first; if risk indicators trip the escalation threshold, the reasoning model takes a second, deeper pass. The AI's output is then validated, corrected if needed, deduplicated, and stored.
 
-After successful analysis, the source PDF is deleted from the server. The analyst still has their original file â€” the server doesn't need to keep it.
+After successful analysis, the source PDF is deleted from the server. The analyst still has their original file — the server doesn't need to keep it.
 
-**What this means for analysts:** Upload a report, click analyze, get results in under 5 minutes. The findings include exact page numbers and quotes you can cite directly in a meeting. If the system detects something concerning, it automatically runs a deeper analysis â€” you don't have to decide which model to use.
+**What this means for analysts:** Upload a report, click analyze, get results in under 5 minutes. The findings include exact page numbers and quotes you can cite directly in a meeting. If the system detects something concerning, it automatically runs a deeper analysis — you don't have to decide which model to use.
 
 **Acceptance Criteria:**
 - Completes within 5 minutes for a 200-page document
@@ -274,7 +274,7 @@ After successful analysis, the source PDF is deleted from the server. The analys
 
 ### F3: Multi-File Merge Analysis
 
-Companies sometimes split their sustainability disclosures across multiple documents â€” a main report, a data appendix, an ESG supplement. The most interesting contradictions often live between these documents. This feature lets analysts upload them all and get a single unified analysis.
+Companies sometimes split their sustainability disclosures across multiple documents — a main report, a data appendix, an ESG supplement. The most interesting contradictions often live between these documents. This feature lets analysts upload them all and get a single unified analysis.
 
 | Requirement | Specification |
 |------------|---------------|
@@ -283,7 +283,7 @@ Companies sometimes split their sustainability disclosures across multiple docum
 | Output | One analysis result covering all documents |
 | Finding attribution | Each finding identifies which source document it came from |
 
-**What this means for analysts:** If a company publishes its sustainability report in three parts, you don't have to analyze each one separately and mentally piece together the contradictions. Upload all three, and CAE connects the dots â€” like noticing that page 7 of the main report says "100% cage-free globally" while the data appendix on page 3 quietly limits the scope to "company-owned operations in North America."
+**What this means for analysts:** If a company publishes its sustainability report in three parts, you don't have to analyze each one separately and mentally piece together the contradictions. Upload all three, and CAE connects the dots — like noticing that page 7 of the main report says "100% cage-free globally" while the data appendix on page 3 quietly limits the scope to "company-owned operations in North America."
 
 **Partial failure handling:** If one PDF in a batch can't be processed (corrupt file, image-only, parsing error), the others are still analyzed. The result clearly shows which documents were included and which weren't, so you know exactly what your analysis covers before citing it.
 
@@ -297,16 +297,16 @@ Companies sometimes split their sustainability disclosures across multiple docum
 
 ### F4: Two-Stage AI Routing
 
-Not every report needs the most expensive analysis. A company with a genuine, well-documented commitment doesn't need three minutes of deep reasoning â€” the fast model catches it in 30 seconds and moves on.
+Not every report needs the most expensive analysis. A company with a genuine, well-documented commitment doesn't need three minutes of deep reasoning — the fast model catches it in 30 seconds and moves on.
 
-The system runs every report through the fast model first. If the initial scan triggers concern â€” high risk score, Indonesia not mentioned, or strategic silence detected â€” it automatically escalates to the reasoning model for a second, deeper pass.
+The system runs every report through the fast model first. If the initial scan triggers concern — high risk score, Indonesia not mentioned, or strategic silence detected — it automatically escalates to the reasoning model for a second, deeper pass.
 
 | Stage | When | What It Does |
 |-------|------|-------------|
 | **Fast scan** | Always | Parses the full document, identifies patterns, produces an initial score |
-| **Deep analysis** | Only if risk score â‰¥ 56, Indonesia absent, or silence detected | Re-analyzes with a reasoning model that's better at connecting evidence across sections |
+| **Deep analysis** | Only if risk score ≥ 56, Indonesia absent, or silence detected | Re-analyzes with a reasoning model that's better at connecting evidence across sections |
 
-**What this means for the organization:** About 70% of reports resolve at the fast stage, keeping costs at zero. The 30% that actually matter â€” the high-risk reports where companies are most likely evading â€” get the deeper treatment. This means the platform can afford to give every report a thorough analysis without burning through API credits on routine low-risk documents.
+**What this means for the organization:** About 70% of reports resolve at the fast stage, keeping costs at zero. The 30% that actually matter — the high-risk reports where companies are most likely evading — get the deeper treatment. This means the platform can afford to give every report a thorough analysis without burning through API credits on routine low-risk documents.
 
 If the deep model fails (API issues, timeouts), the fast result is kept and tagged so the analyst knows it wasn't double-checked.
 
@@ -321,23 +321,23 @@ This layer exists because of a specific failure during early testing: the AI ass
 **What this means for campaign teams:** When you present a "Critical" risk score in a stakeholder meeting, you can be certain the system hasn't mislabeled it. The risk level is calculated by fixed rules, not influenced by how persuasive the company's language sounds. This is what makes CAE findings defensible under scrutiny.
 
 The validation layer enforces:
-- Score clamped to 0â€“100
-- Level strictly derived from score (â‰¤30 low, 31â€“55 medium, 56â€“79 high, 80â€“100 critical)
+- Score clamped to 0–100
+- Level strictly derived from score (≤30 low, 31–55 medium, 56–79 high, 80–100 critical)
 - Finding types must match the defined taxonomy
 - Severities must be valid enum values
 - Indonesia status must be one of: compliant, excluded, silent, partial, deferred
 - Duplicate findings are merged (same type + similar titles consolidated)
 - If the AI contradicts any rule, Python overrides and logs the discrepancy
 
-The AI is good at finding evidence. It's unreliable at consistent scoring. This separation of concerns â€” generation vs. validation â€” is the architecture's most important design decision.
+The AI is good at finding evidence. It's unreliable at consistent scoring. This separation of concerns — generation vs. validation — is the architecture's most important design decision.
 
 ---
 
 ### F6: Findings Export
 
-Analysts need findings outside of CAE â€” in briefing documents, presentations, spreadsheets shared with campaign leads. The export produces a CSV with every finding's type, severity, title, description, exact quote, page number, section, and affected country.
+Analysts need findings outside of CAE — in briefing documents, presentations, spreadsheets shared with campaign leads. The export produces a CSV with every finding's type, severity, title, description, exact quote, page number, section, and affected country.
 
-**What this means for analysts:** One click, and you have a spreadsheet you can paste into a meeting brief or share with your campaign lead. The metadata header includes the company name, report year, overall risk level, and total finding count â€” ready to use without reformatting.
+**What this means for analysts:** One click, and you have a spreadsheet you can paste into a meeting brief or share with your campaign lead. The metadata header includes the company name, report year, overall risk level, and total finding count — ready to use without reformatting.
 
 ---
 
@@ -352,9 +352,9 @@ The system supports four LLM providers behind a unified interface. Switching hap
 | Mistral | 32K tokens | Yes | Solid backup, good multilingual |
 | OpenAI | 128K tokens | No | Highest overall quality if budget allows |
 
-**What this means for sustainability:** If one AI provider changes pricing or goes down, the platform doesn't stop working. Switching to an alternative takes one configuration change, not a rewrite. For an NGO tool that needs to stay operational across grant cycles, this resilience isn't a nice-to-have â€” it's survival.
+**What this means for sustainability:** If one AI provider changes pricing or goes down, the platform doesn't stop working. Switching to an alternative takes one configuration change, not a rewrite. For an NGO tool that needs to stay operational across grant cycles, this resilience isn't a nice-to-have — it's survival.
 
-For documents that exceed a provider's context window, the system truncates intelligently â€” keeping the first half (executive summary, commitment language) and the last half (appendices, SASB disclosures, disclaimers) where evasion patterns concentrate.
+For documents that exceed a provider's context window, the system truncates intelligently — keeping the first half (executive summary, commitment language) and the last half (appendices, SASB disclosures, disclaimers) where evasion patterns concentrate.
 
 ---
 
@@ -365,16 +365,16 @@ Power users and partner organizations can provide their own LLM API key to run a
 **What this means for partner organizations:** An Open Wing Alliance member in Thailand can plug in their own Gemini key, run 50 analyses a month on their own budget, and never worry about whether another team's usage is eating into shared quota. They stay independent while using the same tool.
 
 The security model is deliberately stateless:
-- The frontend stores the key in the browser's local storage â€” never in any backend database
+- The frontend stores the key in the browser's local storage — never in any backend database
 - Each analysis request includes the key over HTTPS for that single call
-- The backend uses it, then it's gone â€” garbage-collected with the request
+- The backend uses it, then it's gone — garbage-collected with the request
 - Keys are explicitly stripped from all logs, error reports, and stored records
 - If no custom key is provided, the server's default key handles the request
 
 This means CAE has zero liability for user credentials. There's nothing to breach because there's nothing stored.
 
 **Acceptance Criteria:**
-- User can enter and save a key in the frontend Settings â€” it persists across browser sessions
+- User can enter and save a key in the frontend Settings — it persists across browser sessions
 - Analysis with a custom key uses that key for the AI call
 - Invalid keys return a clear error message, not a generic system error
 - No trace of user keys in server logs, database, or filesystem
@@ -389,9 +389,9 @@ Running on free-tier infrastructure means disk space is limited. Without active 
 **What this means for platform reliability:** Analysts don't need to worry about the system running out of space or slowing down over time. The cleanup happens automatically in the background. And for organizations concerned about document retention, there's a clear policy: source files are only kept as long as necessary, and results are available for a full quarterly cycle before expiring.
 
 The retention policy:
-- **Source PDFs** are deleted immediately after analysis completes. The text has been extracted â€” the file is no longer needed, and the analyst has their original copy.
+- **Source PDFs** are deleted immediately after analysis completes. The text has been extracted — the file is no longer needed, and the analyst has their original copy.
 - **Analysis result files** are kept for 90 days, covering a full quarterly reporting cycle. After that, they're cleaned up automatically.
-- **Debug artifacts** from failed parses are kept for 7 days â€” enough time to diagnose issues, not enough to accumulate.
+- **Debug artifacts** from failed parses are kept for 7 days — enough time to diagnose issues, not enough to accumulate.
 - **BYOK keys** are never stored anywhere, so there's nothing to retain or clean up.
 
 A daily background task handles cleanup, logging what was removed for auditability. It never touches in-progress analyses.
@@ -487,7 +487,7 @@ When a file in a batch can't be processed.
 {
   "file_name": "appendix_c_scanned.pdf",
   "report_id": "uuid-3",
-  "error": "Image-based PDF â€” no extractable text detected",
+  "error": "Image-based PDF — no extractable text detected",
   "suggestion": "Upload a text-based export of this document"
 }
 ```
@@ -496,17 +496,17 @@ When a file in a batch can't be processed.
 
 ## 9. Non-Functional Requirements
 
-These constraints define how the system behaves under real conditions. For the current user base â€” a team of 3â€“5 analysts processing reports sequentially â€” these limits are invisible in daily use. They only become relevant if usage scales significantly, which is addressed in the roadmap.
+These constraints define how the system behaves under real conditions. For the current user base — a team of 3–5 analysts processing reports sequentially — these limits are invisible in daily use. They only become relevant if usage scales significantly, which is addressed in the roadmap.
 
 ### Performance
 
 | What | Target | Where We Are |
 |------|--------|-------------|
-| Upload response | Under 2 seconds | âœ… Under 1 second |
-| Single-file analysis (fast scan only) | Under 90 seconds | âœ… ~60 seconds |
-| Single-file analysis (with deep pass) | Under 5 minutes | âœ… ~3â€“4 minutes |
-| Multi-file merge (5 documents) | Under 10 minutes | âœ… ~7 minutes |
-| Cached result retrieval | Under 500ms | âœ… Under 100ms |
+| Upload response | Under 2 seconds | ✅ Under 1 second |
+| Single-file analysis (fast scan only) | Under 90 seconds | ✅ ~60 seconds |
+| Single-file analysis (with deep pass) | Under 5 minutes | ✅ ~3–4 minutes |
+| Multi-file merge (5 documents) | Under 10 minutes | ✅ ~7 minutes |
+| Cached result retrieval | Under 500ms | ✅ Under 100ms |
 
 ### Reliability
 
@@ -533,7 +533,7 @@ These are the practical boundaries of the free-tier architecture. For a small te
 
 | Constraint | Limit | What Governs It |
 |-----------|-------|----------------|
-| Concurrent analyses | 3â€“5 simultaneous | Gemini free tier rate limit (15 req/min) |
+| Concurrent analyses | 3–5 simultaneous | Gemini free tier rate limit (15 req/min) |
 | Disk usage | ~500MB usable | Render free tier, managed by retention policy |
 | Memory | ~2GB typical | In-memory store clears on restart |
 
@@ -541,24 +541,24 @@ These are the practical boundaries of the free-tier architecture. For a small te
 
 ## 10. Scoring & Validation System
 
-The risk score is what gives CAE's findings their weight in a corporate meeting. When an analyst says "this company scored 100 out of 100 â€” Critical risk," that number needs to be defensible. Not subjective, not influenced by how polished the company's language is, and not something the AI decided on a whim. This section explains how the scoring works and why it's trustworthy.
+The risk score is what gives CAE's findings their weight in a corporate meeting. When an analyst says "this company scored 100 out of 100 — Critical risk," that number needs to be defensible. Not subjective, not influenced by how polished the company's language is, and not something the AI decided on a whim. This section explains how the scoring works and why it's trustworthy.
 
 ### How Scores Work
 
-The AI evaluates the document and produces a risk score from 0 to 100 based on the evasion patterns it detects. The scoring breakdown is always included â€” showing exactly how many points each pattern contributed. There's no hidden formula. An analyst can walk a corporate counterpart through the math: "Strategic Silence: +35, Franchise Firewall: +15, Commitment Downgrade: +15 â€” that's how we got to 100."
+The AI evaluates the document and produces a risk score from 0 to 100 based on the evasion patterns it detects. The scoring breakdown is always included — showing exactly how many points each pattern contributed. There's no hidden formula. An analyst can walk a corporate counterpart through the math: "Strategic Silence: +35, Franchise Firewall: +15, Commitment Downgrade: +15 — that's how we got to 100."
 
 ### The Rule That Cannot Be Broken
 
 The mapping from score to risk level is enforced by Python code, not by the AI:
 
 ```
-0â€“30   â†’ Low      (Commitment appears genuine and specific)
-31â€“55  â†’ Medium   (Hedging or gaps detected, warrants follow-up)
-56â€“79  â†’ High     (Significant evasion patterns present)
-80â€“100 â†’ Critical (Systemic greenwashing, multiple severe patterns)
+0–30   → Low      (Commitment appears genuine and specific)
+31–55  → Medium   (Hedging or gaps detected, warrants follow-up)
+56–79  → High     (Significant evasion patterns present)
+80–100 → Critical (Systemic greenwashing, multiple severe patterns)
 ```
 
-If the AI outputs a score of 75 and labels it "Medium," Python overrides the label to "High" and logs the correction. The AI never gets the final say on risk classification. This is what makes it safe to cite the score in a meeting â€” it's not an opinion, it's a calculation.
+If the AI outputs a score of 75 and labels it "Medium," Python overrides the label to "High" and logs the correction. The AI never gets the final say on risk classification. This is what makes it safe to cite the score in a meeting — it's not an opinion, it's a calculation.
 
 ### Indonesia Status
 
@@ -568,7 +568,7 @@ Because Indonesia is CAE's primary focus market, every analysis includes a speci
 |--------|--------------|
 | **Compliant** | Indonesia explicitly included in cage-free commitment with binding language and timeline |
 | **Excluded** | Indonesia explicitly named as an exception or outside scope |
-| **Silent** | Indonesia not mentioned at all in the cage-free context â€” the most common tactic |
+| **Silent** | Indonesia not mentioned at all in the cage-free context — the most common tactic |
 | **Partial** | Some mention of Indonesia, but hedged with conditions or qualifiers |
 | **Deferred** | Indonesia mentioned, but with timelines pushed significantly beyond other markets |
 
@@ -593,19 +593,19 @@ The AI sometimes surfaces the same pattern multiple times with slightly differen
 | **Settings** | BYOK key management (key input, provider selection, test button, clear button) with clear security messaging |
 | **About** | Methodology explanation, evasion pattern descriptions, scoring logic, organizational context |
 
-### Upload â€” Handling the Most Common Mistake
+### Upload — Handling the Most Common Mistake
 
 Most analysts won't think about whether their PDF is text-based or scanned. The upload screen needs to handle this gracefully:
 
-**Visible guidance:** "Upload a sustainability report in PDF format (max 50MB). The PDF needs to contain selectable text â€” scanned documents aren't supported yet."
+**Visible guidance:** "Upload a sustainability report in PDF format (max 50MB). The PDF needs to contain selectable text — scanned documents aren't supported yet."
 
 **If the backend rejects a file:** A clear error explaining what went wrong and what to do: "This PDF appears to be a scan. CAE needs text-based PDFs to read the content. Try downloading the report directly from the company's website rather than scanning a printed copy."
 
-### Multi-File â€” When Something Goes Wrong
+### Multi-File — When Something Goes Wrong
 
 When a multi-file analysis comes back with incomplete coverage (some documents failed), the results screen needs to make this obvious without burying it:
 
-**A yellow "Partial" badge** â€” visually distinct from green "Complete" and red "Failed"
+**A yellow "Partial" badge** — visually distinct from green "Complete" and red "Failed"
 
 **An alert banner** listing exactly which files couldn't be processed and why, with suggestions for each
 
@@ -613,7 +613,7 @@ When a multi-file analysis comes back with incomplete coverage (some documents f
 
 This prevents an analyst from walking into a meeting citing a risk score that's based on an incomplete document set.
 
-### Settings â€” API Key Management
+### Settings — API Key Management
 
 The Settings screen handles BYOK with two clear priorities: make it easy to use, and make the security posture obvious.
 
@@ -654,16 +654,16 @@ The Settings screen handles BYOK with two clear priorities: make it easy to use,
 The backend requires one environment variable to run: a Gemini API key. Everything else has sensible defaults.
 
 **Required:**
-- `GEMINI_API_KEY` â€” API key from Google AI Studio
+- `GEMINI_API_KEY` — API key from Google AI Studio
 
 **Optional (with defaults):**
-- `LLM_PROVIDER` â€” default `gemini`
-- `GEMINI_FLASH_MODEL` â€” default `gemini-3.0-flash`
-- `GEMINI_PRO_MODEL` â€” default `gemini-3.1-pro`
-- `PORT` â€” default `8000`
-- `FRONTEND_URL` â€” for CORS allowlisting
-- `DATA_RETENTION_RESULTS_DAYS` â€” default `90`
-- `DATA_RETENTION_DEBUG_DAYS` â€” default `7`
+- `LLM_PROVIDER` — default `gemini`
+- `GEMINI_FLASH_MODEL` — default `gemini-3.0-flash`
+- `GEMINI_PRO_MODEL` — default `gemini-3.1-pro`
+- `PORT` — default `8000`
+- `FRONTEND_URL` — for CORS allowlisting
+- `DATA_RETENTION_RESULTS_DAYS` — default `90`
+- `DATA_RETENTION_DEBUG_DAYS` — default `7`
 - Provider keys for fallback: `GROQ_API_KEY`, `MISTRAL_API_KEY`, `OPENAI_API_KEY`
 - Supabase: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
 
@@ -697,14 +697,14 @@ Both support HEAD requests for zero-bandwidth monitoring.
 | **Analysis time** | System speed from upload to result | <5 min for 200 pages |
 | **Onboarding completion** | Whether a new analyst can figure out the tool without help | >80% complete first analysis |
 
-Time-to-Value is the most important UX metric. It captures the full experience: reading the landing page, uploading, waiting, reviewing results, and exporting. If this number is high, the problem might be confusing UI rather than slow AI â€” and that's a different fix.
+Time-to-Value is the most important UX metric. It captures the full experience: reading the landing page, uploading, waiting, reviewing results, and exporting. If this number is high, the problem might be confusing UI rather than slow AI — and that's a different fix.
 
 ### Is it healthy? (System)
 
 | Metric | What It Tells Us | Target |
 |--------|-----------------|--------|
 | Cost per analysis | Whether the free-tier architecture holds | $0.00 |
-| Escalation rate | How often the deep model is needed | 30â€“50% |
+| Escalation rate | How often the deep model is needed | 30–50% |
 | Fallback rate | How often the deep model fails and fast model takes over | <10% |
 | Score override rate | How well-calibrated the AI's scoring is | <15% |
 | Parse failure rate | LLM output quality | <5% |
@@ -718,7 +718,7 @@ Time-to-Value is the most important UX metric. It captures the full experience: 
 
 ## 14. Roadmap
 
-### Current Release âœ…
+### Current Release ✅
 
 - [x] Hybrid two-stage AI routing (fast scan + conditional deep analysis)
 - [x] Multi-file merge analysis (up to 10 PDFs)
@@ -749,14 +749,14 @@ Time-to-Value is the most important UX metric. It captures the full experience: 
 - [ ] Admin dashboard (metrics, usage, error monitoring)
 - [ ] API authentication and rate limiting
 
-### Vision (Q4 2026â€“2027)
+### Vision (Q4 2026–2027)
 
 - [ ] Public accountability dashboard with company search
 - [ ] Cross-company comparison and ranking
 - [ ] Automated monitoring of new report publications
 - [ ] Partner API for allied organizations
 - [ ] Embeddable risk score widget
-- [ ] Broiler welfare commitment analysis (BCC/ECC) â€” second domain
+- [ ] Broiler welfare commitment analysis (BCC/ECC) — second domain
 
 ---
 
@@ -781,50 +781,50 @@ Time-to-Value is the most important UX metric. It captures the full experience: 
 ### A. Technical Spec: System Architecture
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                      WEB FRONTEND                            â”‚
-â”‚              (Lovable / React â€” cae-animals.com)             â”‚
-â”‚                                                              â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
-â”‚  â”‚ BYOK Key Manager (Browser-Only)                      â”‚    â”‚
-â”‚  â”‚ â€¢ localStorage storage, per-request transmission     â”‚    â”‚
-â”‚  â”‚ â€¢ Never touches backend storage or logs              â”‚    â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-                             â”‚ HTTPS + CORS
-                             â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                    FASTAPI BACKEND                            â”‚
-â”‚                                                               â”‚
-â”‚  Endpoints â†’ PDF Parser â†’ Hybrid Router â†’ Validator â†’ Store  â”‚
-â”‚                                                               â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
-â”‚  â”‚ HYBRID ROUTING ENGINE                                 â”‚    â”‚
-â”‚  â”‚  Stage 1: gemini-3.0-flash (always)                   â”‚    â”‚
-â”‚  â”‚  Stage 2: gemini-3.1-pro (if score â‰¥56 or silence)   â”‚    â”‚
-â”‚  â”‚  Fallback: keep Flash result if Pro fails             â”‚    â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
-â”‚                                                               â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
-â”‚  â”‚ HARD VALIDATION (Python-enforced)                     â”‚    â”‚
-â”‚  â”‚  Score clamping, level enforcement, type validation,  â”‚    â”‚
-â”‚  â”‚  deduplication, Indonesia status check                â”‚    â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
-â”‚                                                               â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
-â”‚  â”‚ DATA LIFECYCLE                                        â”‚    â”‚
-â”‚  â”‚  PDFs: deleted post-analysis                          â”‚    â”‚
-â”‚  â”‚  Results: 90-day TTL                                  â”‚    â”‚
-â”‚  â”‚  Debug: 7-day TTL                                     â”‚    â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-                             â”‚
-              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-              â–¼              â–¼              â–¼
-        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-        â”‚ Gemini   â”‚  â”‚ Groq     â”‚  â”‚ Mistral  â”‚
-        â”‚ (Free)   â”‚  â”‚ (Free)   â”‚  â”‚ (Free)   â”‚
-        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+┌─────────────────────────────────────────────────────────────┐
+│                      WEB FRONTEND                            │
+│              (Lovable / React — cae-animals.com)             │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ BYOK Key Manager (Browser-Only)                      │    │
+│  │ • localStorage storage, per-request transmission     │    │
+│  │ • Never touches backend storage or logs              │    │
+│  └──────────────────────────────────────────────────────┘    │
+└────────────────────────────┬────────────────────────────────┘
+                             │ HTTPS + CORS
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    FASTAPI BACKEND                            │
+│                                                               │
+│  Endpoints → PDF Parser → Hybrid Router → Validator → Store  │
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ HYBRID ROUTING ENGINE                                 │    │
+│  │  Stage 1: gemini-3.0-flash (always)                   │    │
+│  │  Stage 2: gemini-3.1-pro (if score ≥56 or silence)   │    │
+│  │  Fallback: keep Flash result if Pro fails             │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ HARD VALIDATION (Python-enforced)                     │    │
+│  │  Score clamping, level enforcement, type validation,  │    │
+│  │  deduplication, Indonesia status check                │    │
+│  └──────────────────────────────────────────────────────┘    │
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐    │
+│  │ DATA LIFECYCLE                                        │    │
+│  │  PDFs: deleted post-analysis                          │    │
+│  │  Results: 90-day TTL                                  │    │
+│  │  Debug: 7-day TTL                                     │    │
+│  └──────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              ▼              ▼              ▼
+        ┌──────────┐  ┌──────────┐  ┌──────────┐
+        │ Gemini   │  │ Groq     │  │ Mistral  │
+        │ (Free)   │  │ (Free)   │  │ (Free)   │
+        └──────────┘  └──────────┘  └──────────┘
 ```
 
 **Technology Stack:**
@@ -894,7 +894,7 @@ POST `/analyze-multi`:
     {
       "file_name": "appendix_c_scanned.pdf",
       "report_id": "uuid-3",
-      "error": "Image-based PDF â€” no extractable text",
+      "error": "Image-based PDF — no extractable text",
       "suggestion": "Upload a text-based version of this document"
     }
   ],
@@ -985,7 +985,7 @@ class LLMResponse:
 | 1st retry | 15 seconds | HTTP 429, 500, 502, 503, 504 |
 | 2nd retry | 30 seconds | Same |
 | 3rd retry | 60 seconds | Same |
-| After 3 failures | Give up, use fallback | â€” |
+| After 3 failures | Give up, use fallback | — |
 
 Errors that won't be helped by retrying (400, 401, 403) fail immediately.
 
@@ -1002,9 +1002,9 @@ Errors that won't be helped by retrying (400, 401, 403) fail immediately.
 
 ```
 gemini-3.1-pro
-    â†“ fails after 3 retries
+    ↓ fails after 3 retries
 gemini-3.0-flash (result already in memory from Stage 1)
-    â†“ tagged as "Pro fallback"
+    ↓ tagged as "Pro fallback"
 Analysis completes with Flash result
 ```
 
@@ -1018,26 +1018,26 @@ CAE detects 9 evasion patterns plus 1 positive pattern:
 
 | # | Pattern | What It Looks Like | Typical Severity |
 |---|---------|-------------------|-----------------|
-| 1 | **Hedging Language** | "We aspire to," "where feasible," "subject to availability" â€” sounds like commitment, carries zero obligation | Mediumâ€“High |
-| 2 | **Geographic Exclusion** | Commitments explicitly scoped to certain regions, SEA left out | Highâ€“Critical |
-| 3 | **Strategic Silence** | Indonesia never mentioned in the cage-free context â€” deliberate absence as plausible deniability | Critical |
-| 4 | **Franchise Firewall** | "Company-owned operations only" â€” quietly excluding the vast majority of locations | High |
-| 5 | **Availability Clause** | "Where supply is readily available" â€” an open-ended escape hatch | High |
-| 6 | **Timeline Deferral** | Deadlines pushed from 2025 to 2030 to "ongoing" â€” the commitment that never arrives | Mediumâ€“High |
+| 1 | **Hedging Language** | "We aspire to," "where feasible," "subject to availability" — sounds like commitment, carries zero obligation | Medium–High |
+| 2 | **Geographic Exclusion** | Commitments explicitly scoped to certain regions, SEA left out | High–Critical |
+| 3 | **Strategic Silence** | Indonesia never mentioned in the cage-free context — deliberate absence as plausible deniability | Critical |
+| 4 | **Franchise Firewall** | "Company-owned operations only" — quietly excluding the vast majority of locations | High |
+| 5 | **Availability Clause** | "Where supply is readily available" — an open-ended escape hatch | High |
+| 6 | **Timeline Deferral** | Deadlines pushed from 2025 to 2030 to "ongoing" — the commitment that never arrives | Medium–High |
 | 7 | **Silent Delisting** | Countries or products previously included quietly removed from latest report | Critical |
 | 8 | **Corporate Ghosting** | Company previously engaged with advocates, now completely unresponsive | High |
-| 9 | **Commitment Downgrade** | Language weakened year-over-year: "will source" becomes "aims to support" | Highâ€“Critical |
-| âœ… | **Binding Commitment** | Genuine commitment with specific dates, markets, and accountability | Info (positive) |
+| 9 | **Commitment Downgrade** | Language weakened year-over-year: "will source" becomes "aims to support" | High–Critical |
+| ✅ | **Binding Commitment** | Genuine commitment with specific dates, markets, and accountability | Info (positive) |
 
 **Severity Scale:**
 
 | Level | Score Impact | Meaning |
 |-------|-------------|---------|
-| Critical | +20â€“30 points | Direct evidence of deliberate evasion |
-| High | +10â€“20 points | Strong indicator of non-compliance |
-| Medium | +5â€“10 points | Concerning, warrants follow-up |
-| Low | +1â€“5 points | Minor or unconfirmed |
-| Info | 0 points | Positive finding â€” doesn't increase risk score |
+| Critical | +20–30 points | Direct evidence of deliberate evasion |
+| High | +10–20 points | Strong indicator of non-compliance |
+| Medium | +5–10 points | Concerning, warrants follow-up |
+| Low | +1–5 points | Minor or unconfirmed |
+| Info | 0 points | Positive finding — doesn't increase risk score |
 
 ---
 
@@ -1062,12 +1062,12 @@ CAE detects 9 evasion patterns plus 1 positive pattern:
 | **AFFA** | Act For Farmed Animals |
 | **SEA** | Southeast Asia |
 | **OWA** | Open Wing Alliance |
-| **BYOK** | Bring Your Own Key â€” users provide their own LLM API credentials |
+| **BYOK** | Bring Your Own Key — users provide their own LLM API credentials |
 | **Hybrid Routing** | Two-stage analysis: fast model screens, reasoning model goes deep when triggered |
 | **Hard Validation** | Python-enforced rules that override AI output when it's inconsistent |
 | **Evasion Pattern** | A specific tactic companies use to avoid accountability in sustainability reports |
-| **Flash** | Gemini 3.0 Flash â€” fast, cost-efficient model for initial screening |
-| **Pro** | Gemini 3.1 Pro â€” reasoning model for deep analysis on flagged reports |
+| **Flash** | Gemini 3.0 Flash — fast, cost-efficient model for initial screening |
+| **Pro** | Gemini 3.1 Pro — reasoning model for deep analysis on flagged reports |
 | **Finding** | A specific, citable instance of a detected evasion pattern |
 | **Time-to-Value** | Duration from a new user's first interaction to their first exported CSV |
 | **Partial Success** | A multi-file analysis where some documents were processed and others failed |
@@ -1092,17 +1092,17 @@ ${FRONTEND_URL}
 
 ```
 cae-backend/
-â”œâ”€â”€ main.py                 # FastAPI app, endpoints, routing, validation
-â”œâ”€â”€ llm_providers.py        # Provider abstraction, retry logic, BYOK handling
-â”œâ”€â”€ pdf_parser.py           # PDF extraction, page markers, text validation
-â”œâ”€â”€ system_prompt.py        # Adversarial prompt construction
-â”œâ”€â”€ data_retention.py       # Cleanup scheduler, TTL enforcement
-â”œâ”€â”€ uploads/                # Source PDFs (deleted after analysis)
-â”œâ”€â”€ results/                # Analysis JSON files (90-day TTL)
-â”‚   â””â”€â”€ debug/              # Failed parse dumps (7-day TTL)
-â”œâ”€â”€ requirements.txt        # Python dependencies
-â”œâ”€â”€ render.yaml             # Deployment configuration
-â””â”€â”€ README.md               # Setup guide
+├── main.py                 # FastAPI app, endpoints, routing, validation
+├── llm_providers.py        # Provider abstraction, retry logic, BYOK handling
+├── pdf_parser.py           # PDF extraction, page markers, text validation
+├── system_prompt.py        # Adversarial prompt construction
+├── data_retention.py       # Cleanup scheduler, TTL enforcement
+├── uploads/                # Source PDFs (deleted after analysis)
+├── results/                # Analysis JSON files (90-day TTL)
+│   └── debug/              # Failed parse dumps (7-day TTL)
+├── requirements.txt        # Python dependencies
+├── render.yaml             # Deployment configuration
+└── README.md               # Setup guide
 ```
 
 ---
@@ -1111,17 +1111,17 @@ cae-backend/
 
 | Variable | Required | Default | Purpose |
 |----------|----------|---------|---------|
-| `GEMINI_API_KEY` | Yes | â€” | Server's default Gemini API key |
+| `GEMINI_API_KEY` | Yes | — | Server's default Gemini API key |
 | `LLM_PROVIDER` | No | `gemini` | Default provider |
 | `GEMINI_FLASH_MODEL` | No | `gemini-3.0-flash` | Fast scan model |
 | `GEMINI_PRO_MODEL` | No | `gemini-3.1-pro` | Deep analysis model |
-| `GROQ_API_KEY` | No | â€” | Groq fallback key |
-| `MISTRAL_API_KEY` | No | â€” | Mistral fallback key |
-| `OPENAI_API_KEY` | No | â€” | OpenAI key (if funded) |
+| `GROQ_API_KEY` | No | — | Groq fallback key |
+| `MISTRAL_API_KEY` | No | — | Mistral fallback key |
+| `OPENAI_API_KEY` | No | — | OpenAI key (if funded) |
 | `PORT` | No | `8000` | Server port |
-| `FRONTEND_URL` | No | â€” | Additional CORS origin |
-| `SUPABASE_URL` | No | â€” | Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | No | â€” | Supabase service role key |
+| `FRONTEND_URL` | No | — | Additional CORS origin |
+| `SUPABASE_URL` | No | — | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | No | — | Supabase service role key |
 | `DATA_RETENTION_RESULTS_DAYS` | No | `90` | Result JSON retention period |
 | `DATA_RETENTION_DEBUG_DAYS` | No | `7` | Debug file retention period |
 
@@ -1129,4 +1129,4 @@ cae-backend/
 
 *This PRD is the single source of truth for what CAE does and why. Technical implementation details live in the appendices. All product decisions should trace back to a requirement in this document.*
 
-*Last reviewed: March 5, 2026 â€” Kendrick*
+*Last reviewed: March 5, 2026 — Kendrick*
