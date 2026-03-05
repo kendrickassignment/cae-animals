@@ -99,6 +99,12 @@ const steps = [
     title: "GET PROOF",
     desc: "In minutes, you get a clear report with page numbers to use in your campaigns.",
   },
+  {
+    icon: Shield,
+    step: "05",
+    title: "OPTIONAL: CUSTOM AI ENGINE",
+    desc: "For Power Users & NGOs — Have dozens of ESG reports to audit? Bypass public server limits and queues by using your organization's own Google Gemini API Key (recommended for very large documents). Your privacy is guaranteed: API keys are used statelessly per-request and are NEVER stored in our database. Configure this in the Settings menu.",
+  },
 ];
 
 export default function About() {
