@@ -1,6 +1,18 @@
 import { useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Upload, FileText, Building2, AlertTriangle, BarChart3, CheckCircle2, XCircle, ShieldCheck, Files } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Upload,
+  FileText,
+  Building2,
+  AlertTriangle,
+  BarChart3,
+  CheckCircle2,
+  XCircle,
+  ShieldCheck,
+  Files,
+} from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,16 +105,21 @@ export default function Dashboard() {
   // Stats and charts use ONLY real analyses (user_id IS NOT NULL)
   const stats = useMemo(() => {
     const totalReports = realAnalyses.length;
-    const companyNames = new Set(realAnalyses.map(a => a.company_name.toLowerCase()));
+    const companyNames = new Set(realAnalyses.map((a) => a.company_name.toLowerCase()));
     const totalCompanies = companyNames.size;
-    const highRisk = realAnalyses.filter(a => a.overall_risk_level === "critical" || a.overall_risk_level === "high").length;
-    const avgScore = totalReports > 0 ? Math.round(realAnalyses.reduce((s, a) => s + a.overall_risk_score, 0) / totalReports) : 0;
+    const highRisk = realAnalyses.filter(
+      (a) => a.overall_risk_level === "critical" || a.overall_risk_level === "high",
+    ).length;
+    const avgScore =
+      totalReports > 0 ? Math.round(realAnalyses.reduce((s, a) => s + a.overall_risk_score, 0) / totalReports) : 0;
     return { totalReports, totalCompanies, highRisk, avgScore };
   }, [realAnalyses]);
 
   const riskDistribution = useMemo(() => {
     const counts: Record<string, number> = { critical: 0, high: 0, medium: 0, low: 0 };
-    realAnalyses.forEach(a => { counts[a.overall_risk_level] = (counts[a.overall_risk_level] || 0) + 1; });
+    realAnalyses.forEach((a) => {
+      counts[a.overall_risk_level] = (counts[a.overall_risk_level] || 0) + 1;
+    });
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
   }, [realAnalyses]);
 
@@ -123,7 +140,11 @@ export default function Dashboard() {
           { label: "High Risk Findings", value: stats.highRisk, icon: AlertTriangle, color: "text-destructive" },
           { label: "Avg Risk Score", value: stats.avgScore, icon: BarChart3, color: "text-risk-high" },
         ].map((stat, i) => (
-          <div key={stat.label} className="bg-card rounded-lg p-5 border border-border shadow-sm border-t-[3px] border-t-primary animate-float-in" style={{ animationDelay: `${i * 80}ms` }}>
+          <div
+            key={stat.label}
+            className="bg-card rounded-lg p-5 border border-border shadow-sm border-t-[3px] border-t-primary animate-float-in"
+            style={{ animationDelay: `${i * 80}ms` }}
+          >
             <div className="flex items-center justify-between mb-2">
               <span className="font-body text-xs text-muted-foreground uppercase tracking-wide">{stat.label}</span>
               <stat.icon className="h-4 w-4 text-muted-foreground" />
@@ -136,11 +157,18 @@ export default function Dashboard() {
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {/* Upload */}
-          <div {...getRootProps()} className={`bg-card rounded-lg border-2 border-dashed p-8 text-center cursor-pointer transition-all hover:border-primary ${isDragActive ? "border-primary bg-primary/5" : "border-border"}`}>
+          <div
+            {...getRootProps()}
+            className={`bg-card rounded-lg border-2 border-dashed p-8 text-center cursor-pointer transition-all hover:border-primary ${isDragActive ? "border-primary bg-primary/5" : "border-border"}`}
+          >
             <input {...getInputProps()} />
             <Upload className="h-10 w-10 text-primary mx-auto mb-3" />
-            <p className="font-body text-foreground font-bold mb-1">{isDragActive ? "Drop PDF reports here..." : "Drag and drop your PDFs here, or click to browse"}</p>
-            <p className="font-body text-sm text-muted-foreground">PDF files only • Max 50MB per file • Up to 10 files</p>
+            <p className="font-body text-foreground font-bold mb-1">
+              {isDragActive ? "Drop PDF reports here..." : "Drag and drop your PDFs here, or click to browse"}
+            </p>
+            <p className="font-body text-sm text-muted-foreground">
+              PDF files only • Max 25MB per file • Up to 3 files per analysis
+            </p>
           </div>
 
           {/* Progress */}
@@ -157,11 +185,16 @@ export default function Dashboard() {
               {uploadFiles.map((uf, i) => {
                 const mergeCount = getMergeCount(uf.companyName, uf.reportYear);
                 return (
-                  <div key={i} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center p-3 bg-muted rounded-md">
+                  <div
+                    key={i}
+                    className="flex flex-col sm:flex-row gap-3 items-start sm:items-center p-3 bg-muted rounded-md"
+                  >
                     <div className="flex-1 min-w-0">
                       <p className="font-body text-sm font-bold truncate">{uf.file.name}</p>
                       <div className="flex items-center gap-2">
-                        <p className="font-body text-xs text-muted-foreground">{(uf.file.size / 1024 / 1024).toFixed(1)} MB</p>
+                        <p className="font-body text-xs text-muted-foreground">
+                          {(uf.file.size / 1024 / 1024).toFixed(1)} MB
+                        </p>
                         {mergeCount > 1 && (
                           <span className="flex items-center gap-0.5 text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
                             <Files className="h-3 w-3" />
@@ -170,20 +203,54 @@ export default function Dashboard() {
                         )}
                       </div>
                     </div>
-                    <Input placeholder="Company Name" value={uf.companyName} onChange={(e) => { const copy = [...uploadFiles]; copy[i].companyName = e.target.value; setUploadFiles(copy); }} className="w-full sm:w-40 text-sm font-body" />
-                    <Select value={uf.reportYear} onValueChange={(v) => { const copy = [...uploadFiles]; copy[i].reportYear = v; setUploadFiles(copy); }}>
-                      <SelectTrigger className="w-full sm:w-24 text-sm font-body"><SelectValue /></SelectTrigger>
-                      <SelectContent>{[2026, 2025, 2024, 2023, 2022, 2021, 2020].map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
+                    <Input
+                      placeholder="Company Name"
+                      value={uf.companyName}
+                      onChange={(e) => {
+                        const copy = [...uploadFiles];
+                        copy[i].companyName = e.target.value;
+                        setUploadFiles(copy);
+                      }}
+                      className="w-full sm:w-40 text-sm font-body"
+                    />
+                    <Select
+                      value={uf.reportYear}
+                      onValueChange={(v) => {
+                        const copy = [...uploadFiles];
+                        copy[i].reportYear = v;
+                        setUploadFiles(copy);
+                      }}
+                    >
+                      <SelectTrigger className="w-full sm:w-24 text-sm font-body">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[2026, 2025, 2024, 2023, 2022, 2021, 2020].map((y) => (
+                          <SelectItem key={y} value={String(y)}>
+                            {y}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
                     </Select>
                   </div>
                 );
               })}
               <div className="flex items-center justify-between text-xs font-body text-muted-foreground px-1">
-                <span>{uploadFiles.length} file{uploadFiles.length !== 1 ? "s" : ""} selected</span>
+                <span>
+                  {uploadFiles.length} file{uploadFiles.length !== 1 ? "s" : ""} selected
+                </span>
                 <span>Total: {(uploadFiles.reduce((s, f) => s + f.file.size, 0) / 1024 / 1024).toFixed(1)} MB</span>
               </div>
-              <Button className="w-full font-body font-bold" disabled={uploadFiles.some(f => !f.companyName) || isProcessing} onClick={handleAnalyze}>
-                {isProcessing ? "ANALYZING..." : uploadFiles.length > 1 ? `ANALYZE ${uploadFiles.length} REPORTS (MERGED)` : "ANALYZE REPORT"}
+              <Button
+                className="w-full font-body font-bold"
+                disabled={uploadFiles.some((f) => !f.companyName) || isProcessing}
+                onClick={handleAnalyze}
+              >
+                {isProcessing
+                  ? "ANALYZING..."
+                  : uploadFiles.length > 1
+                    ? `ANALYZE ${uploadFiles.length} REPORTS (MERGED)`
+                    : "ANALYZE REPORT"}
               </Button>
             </div>
           )}
@@ -212,13 +279,25 @@ export default function Dashboard() {
                       const start = (safePage - 1) * PAGE_SIZE;
                       const pageItems = allAnalyses.slice(start, start + PAGE_SIZE);
                       return pageItems.map((analysis, i) => (
-                        <tr key={analysis.id} className={`border-t border-border hover:bg-muted/50 cursor-pointer transition-colors ${i % 2 === 1 ? "bg-muted/30" : ""}`} onClick={() => navigate(`/analysis/${analysis.id}`)}>
+                        <tr
+                          key={analysis.id}
+                          className={`border-t border-border hover:bg-muted/50 cursor-pointer transition-colors ${i % 2 === 1 ? "bg-muted/30" : ""}`}
+                          onClick={() => navigate(`/analysis/${analysis.id}`)}
+                        >
                           <td className="p-3 font-body text-sm font-bold">{analysis.company_name}</td>
-                          <td className="p-3 font-body text-sm text-muted-foreground hidden sm:table-cell">{analysis.report_year}</td>
-                          <td className="p-3">
-                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskBgColor(analysis.overall_risk_level)}`}>{analysis.overall_risk_level}</span>
+                          <td className="p-3 font-body text-sm text-muted-foreground hidden sm:table-cell">
+                            {analysis.report_year}
                           </td>
-                          <td className="p-3 font-display text-lg hidden md:table-cell">{analysis.overall_risk_score}</td>
+                          <td className="p-3">
+                            <span
+                              className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${getRiskBgColor(analysis.overall_risk_level)}`}
+                            >
+                              {analysis.overall_risk_level}
+                            </span>
+                          </td>
+                          <td className="p-3 font-display text-lg hidden md:table-cell">
+                            {analysis.overall_risk_score}
+                          </td>
                           <td className="p-3 hidden md:table-cell">
                             {(analysis as any).verified ? (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-risk-low-bg text-risk-low">
@@ -236,7 +315,13 @@ export default function Dashboard() {
                             </span>
                           </td>
                           <td className="p-3">
-                            <Button variant="ghost" size="sm" className="font-nav text-[11px] tracking-wider text-secondary">VIEW</Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="font-nav text-[11px] tracking-wider text-secondary"
+                            >
+                              VIEW
+                            </Button>
                           </td>
                         </tr>
                       ));
@@ -245,40 +330,47 @@ export default function Dashboard() {
                 </table>
               </div>
               {/* Pagination */}
-              {allAnalyses.length > PAGE_SIZE && (() => {
-                const totalPages = Math.max(1, Math.ceil(allAnalyses.length / PAGE_SIZE));
-                const safePage = Math.min(currentPage, totalPages);
-                return (
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
-                    <span className="font-body text-xs text-muted-foreground">
-                      {allAnalyses.length} total analyses
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={safePage <= 1}
-                        onClick={(e) => { e.stopPropagation(); setCurrentPage(p => Math.max(1, p - 1)); }}
-                        className="font-nav text-[11px] tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground border-none h-7 px-3"
-                      >
-                        <ChevronLeft className="h-3 w-3 mr-1" /> Previous
-                      </Button>
-                      <span className="font-body text-xs text-muted-foreground px-2">
-                        Page {safePage} of {totalPages}
+              {allAnalyses.length > PAGE_SIZE &&
+                (() => {
+                  const totalPages = Math.max(1, Math.ceil(allAnalyses.length / PAGE_SIZE));
+                  const safePage = Math.min(currentPage, totalPages);
+                  return (
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
+                      <span className="font-body text-xs text-muted-foreground">
+                        {allAnalyses.length} total analyses
                       </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={safePage >= totalPages}
-                        onClick={(e) => { e.stopPropagation(); setCurrentPage(p => Math.min(totalPages, p + 1)); }}
-                        className="font-nav text-[11px] tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground border-none h-7 px-3"
-                      >
-                        Next <ChevronRight className="h-3 w-3 ml-1" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={safePage <= 1}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCurrentPage((p) => Math.max(1, p - 1));
+                          }}
+                          className="font-nav text-[11px] tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground border-none h-7 px-3"
+                        >
+                          <ChevronLeft className="h-3 w-3 mr-1" /> Previous
+                        </Button>
+                        <span className="font-body text-xs text-muted-foreground px-2">
+                          Page {safePage} of {totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={safePage >= totalPages}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCurrentPage((p) => Math.min(totalPages, p + 1));
+                          }}
+                          className="font-nav text-[11px] tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground border-none h-7 px-3"
+                        >
+                          Next <ChevronRight className="h-3 w-3 ml-1" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                );
-              })()}
+                  );
+                })()}
             </div>
           </div>
         </div>
@@ -289,25 +381,46 @@ export default function Dashboard() {
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={riskDistribution} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} strokeWidth={2}>
-                  {riskDistribution.map((entry) => (<Cell key={entry.name} fill={RISK_COLORS[entry.name] || "#6B7280"} />))}
+                <Pie
+                  data={riskDistribution}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  strokeWidth={2}
+                >
+                  {riskDistribution.map((entry) => (
+                    <Cell key={entry.name} fill={RISK_COLORS[entry.name] || "#6B7280"} />
+                  ))}
                 </Pie>
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
           </div>
           <div className="flex flex-wrap gap-3 mt-4 justify-center">
-            {riskDistribution.map(entry => (
+            {riskDistribution.map((entry) => (
               <div key={entry.name} className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: RISK_COLORS[entry.name] || "#6B7280" }} />
-                <span className="font-body text-xs capitalize text-muted-foreground">{entry.name} ({entry.value})</span>
+                <div
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ backgroundColor: RISK_COLORS[entry.name] || "#6B7280" }}
+                />
+                <span className="font-body text-xs capitalize text-muted-foreground">
+                  {entry.name} ({entry.value})
+                </span>
               </div>
             ))}
           </div>
           <RiskScoreLegend className="mt-5 pt-4 border-t border-border" />
         </div>
       </div>
-      <Dialog open={!!duplicateDialog} onOpenChange={(open) => { if (!open) onDuplicateAction(false); }}>
+      <Dialog
+        open={!!duplicateDialog}
+        onOpenChange={(open) => {
+          if (!open) onDuplicateAction(false);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-display text-foreground">
@@ -320,13 +433,18 @@ export default function Dashboard() {
                   <strong>{duplicateDialog.date}</strong>.
                   <br />
                   Company: <strong>{duplicateDialog.companyName}</strong>
-                  {duplicateDialog.score !== null && <>, Score: <strong>{duplicateDialog.score}</strong></>}.
+                  {duplicateDialog.score !== null && (
+                    <>
+                      , Score: <strong>{duplicateDialog.score}</strong>
+                    </>
+                  )}
+                  .
                 </>
               ) : (
                 <>
-                  An analysis for <strong>{duplicateDialog?.companyName}</strong> ({duplicateDialog?.reportYear}) already exists,
-                  uploaded by <strong>{duplicateDialog?.uploaderEmail}</strong> on <strong>{duplicateDialog?.date}</strong>.
-                  Would you like to view it?
+                  An analysis for <strong>{duplicateDialog?.companyName}</strong> ({duplicateDialog?.reportYear})
+                  already exists, uploaded by <strong>{duplicateDialog?.uploaderEmail}</strong> on{" "}
+                  <strong>{duplicateDialog?.date}</strong>. Would you like to view it?
                 </>
               )}
             </DialogDescription>
@@ -335,9 +453,7 @@ export default function Dashboard() {
             <Button variant="outline" onClick={() => onDuplicateAction(false)}>
               View Existing Analysis
             </Button>
-            <Button onClick={() => onDuplicateAction(true)}>
-              Upload Anyway
-            </Button>
+            <Button onClick={() => onDuplicateAction(true)}>Upload Anyway</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
