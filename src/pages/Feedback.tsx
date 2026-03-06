@@ -40,11 +40,23 @@ export default function FeedbackPage() {
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
+    onDropRejected: (rejections) => {
+      const hasTooManyFiles = rejections.some((r) =>
+        r.errors.some((e) => e.code === "too-many-files")
+      );
+      const hasTooLargeFile = rejections.some((r) =>
+        r.errors.some((e) => e.code === "file-too-large")
+      );
+
+      if (hasTooManyFiles) toast.error("Maximum 5 attachments allowed.");
+      if (hasTooLargeFile) toast.error("Each file must be under 5MB.");
+    },
     accept: {
       "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
       "application/pdf": [".pdf"],
     },
     maxFiles: 5,
+    maxSize: 5 * 1024 * 1024,
     noClick: true,
     noKeyboard: true,
   });
