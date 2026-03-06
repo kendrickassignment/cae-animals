@@ -96,7 +96,7 @@ serve(async (req) => {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
         body: JSON.stringify({
-          from: "CAE Alerts <onboarding@resend.dev>",
+          from: "CAE Alerts <onboarding@cae-animals.com>",
           to: [uploaderEmail],
           subject,
           html,

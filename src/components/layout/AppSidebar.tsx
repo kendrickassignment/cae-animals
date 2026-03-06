@@ -1,4 +1,4 @@
-import { Home, LayoutDashboard, Upload, Building2, Settings, Info, LogOut, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, LayoutDashboard, Upload, Building2, Settings, Info, LogOut, X, ChevronLeft, ChevronRight, MessageSquareHeart } from "lucide-react";
 import { NavLink, useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ const navItems = [
   { title: "DASHBOARD", path: "/dashboard", icon: LayoutDashboard },
   { title: "NEW ANALYSIS", path: "/upload", icon: Upload },
   { title: "COMPANIES", path: "/companies", icon: Building2 },
+  { title: "FEEDBACK", path: "/feedback", icon: MessageSquareHeart },
   { title: "SETTINGS", path: "/settings", icon: Settings },
   { title: "ABOUT", path: "/about", icon: Info },
 ];
