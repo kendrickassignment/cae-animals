@@ -3,11 +3,23 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = [
   "https://cae-animals.com",
+  "https://cae-animals.lovable.app",
 ];
+
+function isOriginAllowedValue(origin: string): boolean {
+  if (!origin) return true;
+
+  return (
+    ALLOWED_ORIGINS.includes(origin) ||
+    origin.endsWith(".lovableproject.com") ||
+    origin.endsWith(".lovable.app") ||
+    origin.startsWith("http://localhost:")
+  );
+}
 
 function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("origin") || "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allowedOrigin = isOriginAllowedValue(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -17,7 +29,7 @@ function getCorsHeaders(req: Request): Record<string, string> {
 
 function isOriginAllowed(req: Request): boolean {
   const origin = req.headers.get("origin") || "";
-  return ALLOWED_ORIGINS.includes(origin);
+  return isOriginAllowedValue(origin);
 }
 
 function escapeHtml(text: string): string {
@@ -128,7 +140,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "CAE Contact <onboarding@cae-animals.com>",
+        from: "CAE <onboarding@cae-animals.com>",
         to: ["kendrickfilbert@gmail.com"],
         subject: `CAE Contact: ${safeName}`,
         html: `<h2>New Contact Message</h2>

@@ -1,11 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const ALLOWED_ORIGINS = ["https://cae-animals.com"];
+const ALLOWED_ORIGINS = ["https://cae-animals.com", "https://cae-animals.lovable.app"];
+
+function isOriginAllowedValue(origin: string): boolean {
+  if (!origin) return true;
+
+  return (
+    ALLOWED_ORIGINS.includes(origin) ||
+    origin.endsWith(".lovableproject.com") ||
+    origin.endsWith(".lovable.app") ||
+    origin.startsWith("http://localhost:")
+  );
+}
 
 function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("origin") || "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allowedOrigin = isOriginAllowedValue(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
@@ -14,7 +25,7 @@ function getCorsHeaders(req: Request): Record<string, string> {
 
 function isOriginAllowed(req: Request): boolean {
   const origin = req.headers.get("origin") || "";
-  return ALLOWED_ORIGINS.includes(origin);
+  return isOriginAllowedValue(origin);
 }
 
 function escapeHtml(text: string): string {
@@ -54,7 +65,11 @@ serve(async (req) => {
       });
     }
 
-    const { category, message, attachment_urls } = await req.json();
+    const { category, message, attachment_urls } = await req.json() as {
+      category?: string;
+      message?: string;
+      attachment_urls?: unknown;
+    };
 
     if (!message || typeof message !== "string" || message.trim().length === 0) {
       return new Response(JSON.stringify({ error: "Message is required" }), {
@@ -67,6 +82,20 @@ serve(async (req) => {
         status: 400, headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
+
+    if (attachment_urls !== undefined) {
+      if (
+        !Array.isArray(attachment_urls) ||
+        attachment_urls.length > 5 ||
+        attachment_urls.some((url) => typeof url !== "string")
+      ) {
+        return new Response(JSON.stringify({ error: "Attachments must be up to 5 files" }), {
+          status: 400, headers: { ...CORS, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    const attachmentUrls = (attachment_urls ?? []) as string[];
 
     // Get user profile
     const { data: profile } = await supabase
@@ -83,9 +112,9 @@ serve(async (req) => {
 
     // Build attachment section
     let attachmentHtml = "";
-    if (attachment_urls && Array.isArray(attachment_urls) && attachment_urls.length > 0) {
-      attachmentHtml = `<p><strong>Attachments:</strong> ${attachment_urls.length} file(s)</p><ul>`;
-      for (const url of attachment_urls) {
+    if (attachmentUrls.length > 0) {
+      attachmentHtml = `<p><strong>Attachments:</strong> ${attachmentUrls.length} file(s)</p><ul>`;
+      for (const url of attachmentUrls) {
         attachmentHtml += `<li><a href="${escapeHtml(url)}">${escapeHtml(url.split("/").pop() || "file")}</a></li>`;
       }
       attachmentHtml += "</ul>";
@@ -106,8 +135,8 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "CAE Feedback <onboarding@cae-animals.com>",
-        to: ["kendrickfilbert@gmail.com", "nayasya579@gmail.com"],
+        from: "CAE <onboarding@cae-animals.com>",
+        to: ["kendrickfilbert@gmail.com"],
         subject: `CAE Feedback: ${safeCategory} — from ${safeName}`,
         html: `<h2>User Feedback</h2>
 <p><strong>Category:</strong> ${safeCategory}</p>
