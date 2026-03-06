@@ -48,7 +48,7 @@ CAE detects **9 specific evasion patterns** used by corporations to weaken their
 
 Corporations often hide commitments in separate Appendices or ESG Data Books. CAE now supports **Multi-File Analysis**:
 
-* Upload up to **10 PDF files** simultaneously.
+* Upload up to **3 PDF files** simultaneously, each file max 25 MB.
 * AI merges all documents into a single context window (1M+ tokens).
 * Detects contradictions between the "Main Report" and the "Fine Print" in the Annex.
 
