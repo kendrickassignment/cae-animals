@@ -14,6 +14,7 @@ import AnalysisDetail from "./pages/AnalysisDetail";
 import Companies from "./pages/Companies";
 import SettingsPage from "./pages/Settings";
 import UploadPage from "./pages/UploadPage";
+import FeedbackPage from "./pages/Feedback";
 import AppLayout from "./components/layout/AppLayout";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,7 @@ const App = () => (
               <Route path="/companies" element={<Companies />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/upload" element={<UploadPage />} />
+              <Route path="/feedback" element={<FeedbackPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

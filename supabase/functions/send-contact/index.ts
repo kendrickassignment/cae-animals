@@ -128,7 +128,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "CAE Contact <onboarding@resend.dev>",
+        from: "CAE Contact <onboarding@cae-animals.com>",
         to: ["kendrickfilbert@gmail.com"],
         subject: `CAE Contact: ${safeName}`,
         html: `<h2>New Contact Message</h2>

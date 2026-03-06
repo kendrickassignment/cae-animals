@@ -31,8 +31,15 @@ export default function UploadPage() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "application/pdf": [".pdf"] },
-    maxFiles: 10,
-    onDropRejected: () => toast.error("Maximum 10 files allowed per analysis."),
+    maxFiles: 3,
+    maxSize: 25 * 1024 * 1024,
+    onDropRejected: (rejections) => {
+      const tooMany = rejections.some(r => r.errors.some(e => e.code === "too-many-files"));
+      const tooLarge = rejections.some(r => r.errors.some(e => e.code === "file-too-large"));
+      if (tooMany) toast.error("Maximum 3 files allowed per analysis.");
+      else if (tooLarge) toast.error("Maximum file size is 25MB per file.");
+      else toast.error("Invalid file. Please upload PDF files only.");
+    },
   });
 
   // Compute merged group info for visual indicator
@@ -75,7 +82,7 @@ export default function UploadPage() {
         <input {...getInputProps()} />
         <Upload className="h-12 w-12 text-primary mx-auto mb-4" />
         <p className="font-body text-foreground font-bold text-lg mb-1">Drag and drop your PDFs here, or click to browse</p>
-        <p className="font-body text-sm text-muted-foreground">PDF files only • Max 50MB per file • Up to 10 files</p>
+        <p className="font-body text-sm text-muted-foreground">PDF files only • Max 25MB per file • Up to 3 files</p>
       </div>
 
       {/* Progress indicators from global queue */}
