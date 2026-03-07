@@ -105,6 +105,7 @@ export async function healthCheck() {
 }
 
 const ALLOWED_BACKENDS = [
+  "https://cae-backend-340454867661.asia-southeast3.run.app",
   "https://cae-backend-7g72.onrender.com",
   "http://localhost:8000",
 ];
