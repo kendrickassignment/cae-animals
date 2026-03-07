@@ -36,9 +36,9 @@ export default function UploadPage() {
     onDropRejected: (rejections) => {
       const tooMany = rejections.some(r => r.errors.some(e => e.code === "too-many-files"));
       const tooLarge = rejections.some(r => r.errors.some(e => e.code === "file-too-large"));
-      if (tooMany) toast.error("Maximum 3 files allowed per analysis.");
-      else if (tooLarge) toast.error("Maximum file size is 25MB per file.");
-      else toast.error("Invalid file. Please upload PDF files only.");
+      if (tooMany) toast.error("You can upload up to 3 files per analysis. Please remove some files and try again.");
+      else if (tooLarge) toast.error("Each file must be under 25 MB. Try compressing your PDF with a tool like iLovePDF or SmallPDF before uploading.");
+      else toast.error("Invalid file format. Please upload PDF files only.");
     },
   });
 

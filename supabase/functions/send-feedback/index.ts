@@ -5,7 +5,6 @@ const ALLOWED_ORIGINS = ["https://cae-animals.com", "https://cae-animals.lovable
 
 function isOriginAllowedValue(origin: string): boolean {
   if (!origin) return true;
-
   return (
     ALLOWED_ORIGINS.includes(origin) ||
     origin.endsWith(".lovableproject.com") ||
@@ -48,7 +47,6 @@ serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Validate auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -95,7 +93,7 @@ serve(async (req) => {
       }
     }
 
-    const attachmentUrls = (attachment_urls ?? []) as string[];
+    const attachmentPaths = (attachment_urls ?? []) as string[];
 
     // Get user profile
     const { data: profile } = await supabase
@@ -110,14 +108,50 @@ serve(async (req) => {
     const safeEmail = escapeHtml(user.email || "");
     const safeMessage = escapeHtml(message.trim());
 
-    // Build attachment section
-    let attachmentHtml = "";
-    if (attachmentUrls.length > 0) {
-      attachmentHtml = `<p><strong>Attachments:</strong> ${attachmentUrls.length} file(s)</p><ul>`;
-      for (const url of attachmentUrls) {
-        attachmentHtml += `<li><a href="${escapeHtml(url)}">${escapeHtml(url.split("/").pop() || "file")}</a></li>`;
+    // Download attachments and convert to Resend attachment format (base64)
+    const resendAttachments: Array<{ filename: string; content: string }> = [];
+    for (const storagePath of attachmentPaths) {
+      try {
+        // Extract the path from the public URL — take everything after /object/public/reports/
+        let filePath = storagePath;
+        const marker = "/object/public/reports/";
+        const idx = storagePath.indexOf(marker);
+        if (idx !== -1) {
+          filePath = storagePath.substring(idx + marker.length);
+        }
+
+        const { data: fileData, error: dlError } = await supabase.storage
+          .from("reports")
+          .download(filePath);
+
+        if (dlError || !fileData) {
+          console.error("Failed to download attachment:", filePath, dlError);
+          continue;
+        }
+
+        const arrayBuffer = await fileData.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        // Base64 encode
+        let binary = "";
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64 = btoa(binary);
+
+        const filename = filePath.split("/").pop() || "attachment";
+        // Remove timestamp prefix if present (e.g., "1234567890_file.png" -> "file.png")
+        const cleanFilename = filename.replace(/^\d+_/, "");
+
+        resendAttachments.push({ filename: cleanFilename, content: base64 });
+      } catch (e) {
+        console.error("Error processing attachment:", e);
       }
-      attachmentHtml += "</ul>";
+    }
+
+    // Build attachment links section for email body
+    let attachmentHtml = "";
+    if (resendAttachments.length > 0) {
+      attachmentHtml = `<p><strong>Attachments:</strong> ${resendAttachments.length} file(s) attached to this email</p>`;
     }
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -128,24 +162,30 @@ serve(async (req) => {
       });
     }
 
+    const emailBody: Record<string, unknown> = {
+      from: "CAE <onboarding@cae-animals.com>",
+      to: ["kendrickfilbert@gmail.com"],
+      subject: `CAE Feedback: ${safeCategory} — from ${safeName}`,
+      html: `<h2>User Feedback</h2>
+<p><strong>Category:</strong> ${safeCategory}</p>
+<p><strong>From:</strong> ${safeName} (${safeEmail})</p>
+<p><strong>Message:</strong></p>
+<p>${safeMessage.replace(/\n/g, "<br>")}</p>
+${attachmentHtml}`,
+      reply_to: user.email || undefined,
+    };
+
+    if (resendAttachments.length > 0) {
+      emailBody.attachments = resendAttachments;
+    }
+
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
-      body: JSON.stringify({
-        from: "CAE <onboarding@cae-animals.com>",
-        to: ["kendrickfilbert@gmail.com"],
-        subject: `CAE Feedback: ${safeCategory} — from ${safeName}`,
-        html: `<h2>User Feedback</h2>
-<p><strong>Category:</strong> ${safeCategory}</p>
-<p><strong>From:</strong> ${safeName} (${safeEmail})</p>
-<p><strong>Message:</strong></p>
-<p>${safeMessage.replace(/\n/g, "<br>")}</p>
-${attachmentHtml}`,
-        reply_to: user.email || undefined,
-      }),
+      body: JSON.stringify(emailBody),
     });
 
     if (!res.ok) {

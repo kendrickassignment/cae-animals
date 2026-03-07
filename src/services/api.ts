@@ -1,5 +1,5 @@
 const getBackendUrl = (): string => {
-  return localStorage.getItem("cae_backend_url") || import.meta.env.VITE_BACKEND_URL || "https://cae-backend-7g72.onrender.com";
+  return localStorage.getItem("cae_backend_url") || import.meta.env.VITE_BACKEND_URL || "https://cae-backend-340454867661.asia-southeast3.run.app";
 };
 
 export function sanitizeErrorMessage(message: string): string {
@@ -105,6 +105,7 @@ export async function healthCheck() {
 }
 
 const ALLOWED_BACKENDS = [
+  "https://cae-backend-340454867661.asia-southeast3.run.app",
   "https://cae-backend-7g72.onrender.com",
   "http://localhost:8000",
 ];
@@ -133,5 +134,5 @@ export function isAllowlistedBackend(url: string): boolean {
 }
 export function saveProviderConfig(provider: string, apiKey: string) { localStorage.setItem("cae_llm_provider", provider); localStorage.setItem("cae_api_key", apiKey); }
 export function clearSensitiveStorage() { localStorage.removeItem("cae_backend_url"); localStorage.removeItem("cae_api_key"); localStorage.removeItem("cae_llm_provider"); }
-export function getStoredBackendUrl(): string { return localStorage.getItem("cae_backend_url") || "https://cae-backend-7g72.onrender.com"; }
+export function getStoredBackendUrl(): string { return localStorage.getItem("cae_backend_url") || "https://cae-backend-340454867661.asia-southeast3.run.app"; }
 export function getStoredProvider(): string { return localStorage.getItem("cae_llm_provider") || "gemini"; }
