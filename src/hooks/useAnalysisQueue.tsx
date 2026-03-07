@@ -60,7 +60,7 @@ interface PersistedQueueJob {
   userId: string;
 }
 
-const AnalysisQueueContext = createContext<AnalysisQueueContextType | null>(null);
+export const AnalysisQueueContext = createContext<AnalysisQueueContextType | null>(null);
 
 /* ------------------------------------------------------------------ */
 /*  Adaptive polling helper                                            */
