@@ -1,5 +1,5 @@
 const getBackendUrl = (): string => {
-  return localStorage.getItem("cae_backend_url") || import.meta.env.VITE_BACKEND_URL || "https://cae-backend-7g72.onrender.com";
+  return localStorage.getItem("cae_backend_url") || import.meta.env.VITE_BACKEND_URL || "https://cae-backend-340454867661.asia-southeast3.run.app";
 };
 
 export function sanitizeErrorMessage(message: string): string {
