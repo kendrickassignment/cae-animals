@@ -245,17 +245,25 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
     let inFlight = false;
     let abortController: AbortController | null = null;
     let timeoutId: ReturnType<typeof setTimeout>;
+    let consecutive404Count = 0;
+    let generalErrorCount = 0;
+    const MAX_CONSECUTIVE_404 = 3;
+    const MAX_GENERAL_ERRORS = 5;
+
+    const stopPolling = (stage: string, message: string, notifType: "error" | "warning" = "error") => {
+      pollCleanupMapRef.current.delete(key);
+      removePersistedQueueJob(key);
+      activeGroupKeysRef.current.delete(groupKey);
+      updateJob(key, { stage });
+      toast.error(message);
+      addNotification(message, notifType);
+    };
 
     const poll = async () => {
       const elapsed = Date.now() - startTime;
 
       if (elapsed > POLLING_TIMEOUT) {
-        pollCleanupMapRef.current.delete(key);
-        removePersistedQueueJob(key);
-        activeGroupKeysRef.current.delete(groupKey);
-        updateJob(key, { stage: "failed" });
-        toast.error(`Analysis timed out for ${companyName}`);
-        addNotification(`Analysis timed out: ${companyName}`, "error");
+        stopPolling("failed", "Analysis timed out. The document may be too large or the server is busy. Please try again.");
         return;
       }
 
@@ -269,6 +277,10 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
 
       try {
         const status = await getReportStatus(reportId, abortController.signal);
+
+        // Non-404 success resets the 404 counter
+        consecutive404Count = 0;
+        generalErrorCount = 0;
 
         if (status.status === "completed" && status.analysis_id) {
           updateJob(key, { stage: "saving" });
@@ -326,8 +338,27 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
           pollCleanupMapRef.current.delete(key);
           return;
         }
-      } catch {
-        // keep polling on transient errors
+      } catch (err: any) {
+        // Check if this is a 404 (report not found)
+        const is404 = err?.message?.includes("Report not found") || err?.message?.includes("404");
+        if (is404) {
+          consecutive404Count++;
+          if (consecutive404Count >= MAX_CONSECUTIVE_404) {
+            stopPolling("failed", "Report not found. It may have expired due to a server restart. Please re-upload your document.");
+            inFlight = false;
+            abortController = null;
+            return;
+          }
+        } else {
+          consecutive404Count = 0;
+          generalErrorCount++;
+          if (generalErrorCount >= MAX_GENERAL_ERRORS) {
+            stopPolling("failed", "Something went wrong while checking the analysis status. Please try again later.");
+            inFlight = false;
+            abortController = null;
+            return;
+          }
+        }
       } finally {
         inFlight = false;
         abortController = null;
