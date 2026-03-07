@@ -1,4 +1,5 @@
-import { useAnalysisQueue, AnalysisJob } from "@/hooks/useAnalysisQueue";
+import { useContext } from "react";
+import { AnalysisQueueContext, AnalysisJob } from "@/hooks/useAnalysisQueue";
 import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, CheckCircle, XCircle, Files } from "lucide-react";
