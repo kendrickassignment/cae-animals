@@ -66,7 +66,9 @@ function JobCard({ job }: { job: AnalysisJob }) {
 }
 
 export default function FloatingAnalysisProgress() {
-  const { jobs } = useAnalysisQueue();
+  const ctx = useContext(AnalysisQueueContext);
+  if (!ctx) return null;
+  const { jobs } = ctx;
 
   const activeJobs = jobs.filter((j) => j.stage !== "completed" && j.stage !== "failed");
 
