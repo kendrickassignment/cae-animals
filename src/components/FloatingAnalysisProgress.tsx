@@ -2,7 +2,8 @@ import { useContext } from "react";
 import { AnalysisQueueContext, AnalysisJob } from "@/hooks/useAnalysisQueue";
 import { useNavigate } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, CheckCircle, XCircle, Files } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, CheckCircle, XCircle, Files, RotateCcw, Upload } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const STAGE_PROGRESS: Record<string, number> = {
@@ -33,9 +34,9 @@ function JobCard({ job }: { job: AnalysisJob }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className={`bg-card border border-border rounded-lg p-3 shadow-lg cursor-pointer hover:border-primary/50 transition-colors ${
-        isTerminal ? "" : ""
-      }`}
+      className={`bg-card border border-border rounded-lg p-3 shadow-lg ${
+        job.stage === "completed" ? "cursor-pointer hover:border-primary/50" : ""
+      } transition-colors`}
       onClick={() => {
         if (job.savedId) navigate(`/analysis/${job.savedId}`);
       }}
@@ -61,6 +62,19 @@ function JobCard({ job }: { job: AnalysisJob }) {
         {job.fileCount > 1 && job.stage !== "completed" && job.stage !== "failed" ? ` (${job.fileCount} files merged)` : ""}
       </p>
       {!isTerminal && <Progress value={progress} className="h-1.5" />}
+      {job.stage === "failed" && (
+        <div className="flex gap-2 mt-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs gap-1"
+            onClick={(e) => { e.stopPropagation(); navigate("/upload"); }}
+          >
+            <Upload className="h-3 w-3" />
+            Re-upload
+          </Button>
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -70,14 +84,14 @@ export default function FloatingAnalysisProgress() {
   if (!ctx) return null;
   const { jobs } = ctx;
 
-  const activeJobs = jobs.filter((j) => j.stage !== "completed" && j.stage !== "failed");
+  const visibleJobs = jobs.filter((j) => j.stage !== "completed");
 
-  if (activeJobs.length === 0) return null;
+  if (visibleJobs.length === 0) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-72 space-y-2">
       <AnimatePresence>
-        {activeJobs.map(job => (
+        {visibleJobs.map(job => (
           <JobCard key={job.key} job={job} />
         ))}
       </AnimatePresence>
