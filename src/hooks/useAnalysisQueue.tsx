@@ -67,7 +67,7 @@ export const AnalysisQueueContext = createContext<AnalysisQueueContextType | nul
 /* ------------------------------------------------------------------ */
 
 const ACTIVE_QUEUE_JOBS_STORAGE_KEY = "cae_active_analysis_jobs_v2";
-const POLLING_TIMEOUT = 600_000; // 10 minutes
+const POLLING_TIMEOUT = 300_000; // 5 minutes
 
 function getPollingInterval(elapsedMs: number): number {
   if (elapsedMs < 30_000) return 5_000;
