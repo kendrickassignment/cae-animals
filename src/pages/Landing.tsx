@@ -252,13 +252,13 @@ export default function Landing() {
       {/* Hero */}
       <section className="py-20 md:py-32 px-6 text-center max-w-4xl mx-auto animate-fade-in">
         <h1 className="font-display text-5xl md:text-7xl text-foreground leading-tight mb-6">
-          EXPOSING CORPORATE
+          HOLD CORPORATIONS
           <br />
-          GREENWASHING WITH AI
+          ACCOUNTABLE FOR ANIMALS
         </h1>
         <p className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-          The Corporate Accountability Engine analyzes sustainability reports to detect hidden exclusions, hedging
-          language, and broken promises in cage-free egg commitments across Indonesia.
+          Companies promise to go cage-free — but are they keeping their word? CAE reads their reports so you don't have
+          to, uncovering hidden exclusions and broken promises in minutes.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to={user ? "/dashboard" : "/auth"}>
