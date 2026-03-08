@@ -85,19 +85,38 @@ export default function Dashboard() {
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    // Enforce max 3 files total
-    const remaining = 3 - uploadFiles.length;
-    if (remaining <= 0) {
-      toast.error("You can upload up to 3 files per analysis. Please remove some files first.");
+    // Reject ALL if total would exceed 3
+    const total = uploadFiles.length + acceptedFiles.length;
+    if (total > 3) {
+      toast.warning("⚠️ Upload limit exceeded", {
+        description: `You tried to add ${acceptedFiles.length} file${acceptedFiles.length !== 1 ? "s" : ""}, but only ${3 - uploadFiles.length} slot${3 - uploadFiles.length !== 1 ? "s" : ""} remaining. Maximum 3 files per analysis. Please remove existing files first.`,
+        duration: 6000,
+      });
       return;
     }
-    const filesToAdd = acceptedFiles.slice(0, remaining);
-    if (acceptedFiles.length > remaining) {
-      toast.error(`Only ${remaining} more file${remaining === 1 ? "" : "s"} allowed. Extra files were ignored.`);
+
+    // Reject ALL if any file exceeds 25MB
+    const oversized = acceptedFiles.filter(f => f.size > 25 * 1024 * 1024);
+    if (oversized.length > 0) {
+      toast.warning("⚠️ File too large", {
+        description: `"${oversized[0].name}" is ${(oversized[0].size / 1024 / 1024).toFixed(1)} MB. Each file must be under 25 MB. Try compressing with iLovePDF or SmallPDF.`,
+        duration: 6000,
+      });
+      return;
+    }
+
+    // Reject ALL if any file is not PDF
+    const nonPdf = acceptedFiles.filter(f => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+    if (nonPdf.length > 0) {
+      toast.warning("⚠️ Invalid file type", {
+        description: `"${nonPdf[0].name}" is not a PDF. Only PDF files are accepted.`,
+        duration: 6000,
+      });
+      return;
     }
 
     const filesWithHash = await Promise.all(
-      filesToAdd.map(async (file) => ({
+      acceptedFiles.map(async (file) => ({
         file,
         companyName: "",
         reportYear: "2024",
@@ -111,15 +130,21 @@ export default function Dashboard() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "application/pdf": [".pdf"] },
-    maxFiles: 3,
     maxSize: 25 * 1024 * 1024,
     onDropRejected: (rejections) => {
-      const tooMany = rejections.some(r => r.errors.some(e => e.code === "too-many-files"));
-      const tooLarge = rejections.some(r => r.errors.some(e => e.code === "file-too-large"));
       const wrongType = rejections.some(r => r.errors.some(e => e.code === "file-invalid-type"));
-      if (wrongType) toast.error("Only PDF files are accepted. Please upload .pdf files only.");
-      else if (tooMany) toast.error("You can upload up to 3 files per analysis. Please remove some files and try again.");
-      else if (tooLarge) toast.error("Each file must be under 25 MB. Try compressing your PDF with a tool like iLovePDF or SmallPDF before uploading.");
+      const tooLarge = rejections.some(r => r.errors.some(e => e.code === "file-too-large"));
+      if (wrongType) {
+        toast.warning("⚠️ Invalid file type", {
+          description: "Only PDF files are accepted. Please upload .pdf files only.",
+          duration: 6000,
+        });
+      } else if (tooLarge) {
+        toast.warning("⚠️ File too large", {
+          description: "Each file must be under 25 MB. Try compressing your PDF with iLovePDF or SmallPDF.",
+          duration: 6000,
+        });
+      }
     },
   });
 
