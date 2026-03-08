@@ -285,19 +285,19 @@ export default function Landing() {
                 icon: Upload,
                 step: "01",
                 title: "UPLOAD",
-                desc: "Upload corporate sustainability reports (PDF format)",
+                desc: "Drop a company's sustainability report (PDF) — it takes seconds",
               },
               {
                 icon: Search,
                 step: "02",
                 title: "ANALYZE",
-                desc: "AI scans for 9 types of greenwashing evasion patterns",
+                desc: "Our AI reads every page, scanning for 9 types of corporate evasion tricks",
               },
               {
                 icon: FileText,
                 step: "03",
-                title: "EXPOSE",
-                desc: "Get citation-backed evidence with exact page numbers",
+                title: "GET PROOF",
+                desc: "Receive a clear report with exact quotes and page numbers you can use in your advocacy",
               },
             ].map((item, i) => (
               <div
