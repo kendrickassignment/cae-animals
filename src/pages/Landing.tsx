@@ -342,15 +342,15 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-10 text-center">
           <div>
             <CountUp target="3-5" suffix=" min" />
-            <p className="font-body text-sm text-muted-foreground mt-2">Audit time (from 2 weeks)</p>
+            <p className="font-body text-sm text-muted-foreground mt-2">What used to take 2 weeks — done in minutes</p>
           </div>
           <div>
             <CountUp target="$0.15" />
-            <p className="font-body text-sm text-muted-foreground mt-2">Cost per 200-page report</p>
+            <p className="font-body text-sm text-muted-foreground mt-2">Average cost per 200-page report</p>
           </div>
           <div>
             <CountUp target={String(evasionPatterns.length)} />
-            <p className="font-body text-sm text-muted-foreground mt-2">Evasion patterns detected</p>
+            <p className="font-body text-sm text-muted-foreground mt-2">Corporate evasion tricks detected</p>
           </div>
         </div>
       </section>

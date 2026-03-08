@@ -74,6 +74,7 @@ export default function UploadPage() {
   return (
     <div className="space-y-6 max-w-2xl animate-fade-in">
       <h1 className="font-display text-4xl text-foreground">NEW ANALYSIS</h1>
+      <p className="font-body text-muted-foreground -mt-4">Upload a sustainability report and let CAE do the heavy reading for you.</p>
 
       <div
         {...getRootProps()}

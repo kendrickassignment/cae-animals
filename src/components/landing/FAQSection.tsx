@@ -30,8 +30,8 @@ const faqs = [
     a: "CAE analyzes corporate sustainability reports, CSR reports, ESG disclosures, public releases and annual reports in PDF format that contain animal welfare or cage-free egg commitments. (Max 10 reports per analysis)",
   },
   {
-    q: "Is it available to Southeast Asia?",
-    a: "Currently, CAE focuses on Indonesia as its primary market, where cage-free egg adoption is still in its early stages. However, the analysis engine works with any sustainability report in English, so it can be used for companies operating globally. Regional expansion across Southeast Asia is planned as we grow.",
+    q: "Is it available in Southeast Asia?",
+    a: "Yes! While CAE focuses on Indonesia as its primary market — where cage-free egg adoption is still in its early stages — the analysis engine works with any sustainability report in English. You can use it for companies operating anywhere in the world. Regional expansion across Southeast Asia is planned as we grow.",
   },
 ];
 

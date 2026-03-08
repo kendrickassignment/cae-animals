@@ -313,7 +313,7 @@ export default function About() {
             </Button>
           </Link>
           <p className="font-body text-xs text-muted-foreground uppercase tracking-widest">
-            Corporate Accountability Engine v2.2.0 — Truth. Extracted.
+            Corporate Accountability Engine — Truth. Extracted.
           </p>
         </div>
       </div>
