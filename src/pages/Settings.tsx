@@ -131,7 +131,7 @@ export default function SettingsPage() {
             <div>
               <div className="flex items-center justify-between">
                 <Label className="font-body text-sm">Backend API URL</Label>
-                <button type="button" onClick={() => setBackendUrl("https://cae-backend-7g72.onrender.com")} className="font-body text-xs text-primary hover:underline">Reset to Default</button>
+                <button type="button" onClick={() => setBackendUrl("https://cae-backend-340454867661.asia-southeast3.run.app")} className="font-body text-xs text-primary hover:underline">Reset to Default</button>
               </div>
               <Input value={backendUrl} onChange={e => setBackendUrl(e.target.value)} placeholder="https://cae-backend-7g72.onrender.com" className="font-body font-mono text-sm" />
               <p className="font-body text-xs text-amber-600 dark:text-amber-500 flex items-start gap-1.5 mt-1.5">
