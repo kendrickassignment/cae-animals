@@ -286,7 +286,7 @@ export default function Landing() {
                 icon: Upload,
                 step: "01",
                 title: "UPLOAD",
-                desc: "Drop a company's sustainability report (PDF) — it takes seconds",
+                desc: "Upload any corporate report — Sustainability, ESG, Annual Reports, etc. (PDF format)",
               },
               {
                 icon: Search,
