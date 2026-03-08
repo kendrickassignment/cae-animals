@@ -65,7 +65,7 @@ const evasionPatterns = [
   {
     icon: Ghost,
     title: "Corporate Ghosting",
-    desc: "Ignoring messages from advocates and hoping the pressure just stops.",
+    desc: "Completely ceasing to report on previously made promises, hoping no one notices the silence.",
   },
   {
     icon: TrendingDown,
