@@ -288,9 +288,9 @@ export default function About() {
             <div className="space-y-4 max-w-2xl">
               <h3 className="font-display text-2xl">Kendrick Filbert</h3>
               <p className="font-body text-sidebar-foreground/80 leading-relaxed italic">
-                "As a key players at Act For Farmed Animals, I and my teams spent weeks manually reading corporate
-                reports—hunting through hundreds of pages just to see if a company was keeping its promise. I built CAE
-                so what used to take me two weeks now takes you average 3-5 minutes. My goal: give every advocate the
+                "As part of the team at Act For Farmed Animals, we spent weeks manually reading corporate
+                reports — hunting through hundreds of pages just to see if a company was keeping its promise. I built CAE
+                so what used to take us two weeks now takes you around 3–5 minutes. My goal: give every advocate the
                 proof they need to win for animals."
               </p>
               <div className="flex gap-4 pt-4">
