@@ -174,12 +174,12 @@ export default function About() {
         <section className="bg-card rounded-xl border-l-4 border-primary p-8 shadow-sm">
           <h2 className="font-display text-2xl mb-4 flex items-center gap-2">OUR MISSION</h2>
           <p className="font-body text-muted-foreground leading-relaxed text-lg">
-            Multinationals food companies, hotels and retails often promise to go "cage-free" globally to look good in
-            the public eye. But if you read their reports (ESG, Sustainability, Annual Reports etc), they frequently
-            leave out countries like Indonesia. We built the{" "}
-            <strong className="text-foreground font-bold">Corporate Accountability Engine (CAE)</strong> to catch these
-            hidden tricks automatically. Our mission is to make it easy for any volunteer or advocate to hold big
-            corporations accountable.
+            Multinational food companies, hotels, and retailers often promise to go "cage-free" globally to look
+            good in the public eye. But when you read their reports (ESG, Sustainability, Annual Reports, etc.),
+            they frequently leave out countries like Indonesia. We built the{" "}
+            <strong className="text-foreground font-bold">Corporate Accountability Engine (CAE)</strong> to catch
+            these hidden tricks automatically — so any volunteer, advocate, or organization can hold big
+            corporations accountable without spending weeks reading fine print.
           </p>
         </section>
 
