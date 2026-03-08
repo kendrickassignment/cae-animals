@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     q: "Who is CAE for?",
-    a: "CAE is built for animal welfare NGOs, corporate accountability researchers, and advocacy organizations that monitor cage-free egg commitments across Indonesia.",
+    a: "CAE is built for anyone who cares about animals — whether you're an NGO researcher, a volunteer, an advocacy organization, or simply someone who wants to know if companies are keeping their cage-free promises.",
   },
   {
     q: "How long does an analysis take?",
