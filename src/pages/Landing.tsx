@@ -257,8 +257,9 @@ export default function Landing() {
           ACCOUNTABLE FOR ANIMALS
         </h1>
         <p className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-          Companies promise to go cage-free — but are they keeping their word? CAE reads their reports so you don't have
-          to, uncovering hidden exclusions and broken promises in minutes.
+          Multinational companies promise cage-free commitments globally — but are they actually keeping their word in
+          Indonesia and beyond? Stop drowning in endless ESG and annual reports. CAE reads them all in minutes, uncovering
+          hidden exclusions and broken promises you need to know.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to={user ? "/dashboard" : "/auth"}>
