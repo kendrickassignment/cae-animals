@@ -23,7 +23,7 @@ const faqs = [
   },
   {
     q: "Is CAE free to use?",
-    a: "CAE is currently free during our pilot phase. Sign up and start analyzing reports at cae-animals.com.",
+    a: "Yes! CAE is currently free during our pilot phase. Just sign up and start analyzing reports — no credit card needed.",
   },
   {
     q: "What types of reports can CAE analyze?",
