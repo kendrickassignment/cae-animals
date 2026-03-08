@@ -107,7 +107,7 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
     setShowSearchResults(results.length > 0);
   }, [searchQuery, realAnalyses]);
 
-  // Listen for realtime report status changes
+  // Listen for realtime report & analysis status changes
   useEffect(() => {
     if (!user) return;
     const channel = supabase
@@ -125,6 +125,20 @@ export default function AppHeader({ onToggleSidebar }: AppHeaderProps) {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports', filter: `user_id=eq.${user.id}` }, (payload) => {
         const report = payload.new as any;
         addNotification(`New report uploaded: ${report.company_name || report.file_name}`, "info");
+      })
+      // Listen for analysis_results changes (verification, new results, etc.)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'analysis_results', filter: `user_id=eq.${user.id}` }, (payload) => {
+        const analysis = payload.new as any;
+        const old = payload.old as any;
+        if (analysis.verified && !old.verified) {
+          addNotification(`✅ Your analysis for ${analysis.company_name || 'a report'} has been verified!`, "success");
+        } else if (!analysis.verified && old.verified) {
+          addNotification(`Analysis verification removed: ${analysis.company_name || 'a report'}`, "warning");
+        }
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'analysis_results', filter: `user_id=eq.${user.id}` }, (payload) => {
+        const analysis = payload.new as any;
+        addNotification(`New analysis saved: ${analysis.company_name || 'Unknown Company'}`, "success");
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
