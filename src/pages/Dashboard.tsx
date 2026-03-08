@@ -14,6 +14,7 @@ import {
   Files,
 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -84,8 +85,19 @@ export default function Dashboard() {
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    // Enforce max 3 files total
+    const remaining = 3 - uploadFiles.length;
+    if (remaining <= 0) {
+      toast.error("You can upload up to 3 files per analysis. Please remove some files first.");
+      return;
+    }
+    const filesToAdd = acceptedFiles.slice(0, remaining);
+    if (acceptedFiles.length > remaining) {
+      toast.error(`Only ${remaining} more file${remaining === 1 ? "" : "s"} allowed. Extra files were ignored.`);
+    }
+
     const filesWithHash = await Promise.all(
-      acceptedFiles.map(async (file) => ({
+      filesToAdd.map(async (file) => ({
         file,
         companyName: "",
         reportYear: "2024",
@@ -94,12 +106,21 @@ export default function Dashboard() {
     );
 
     setUploadFiles((prev) => [...prev, ...filesWithHash]);
-  }, []);
+  }, [uploadFiles.length]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "application/pdf": [".pdf"] },
-    maxFiles: 10,
+    maxFiles: 3,
+    maxSize: 25 * 1024 * 1024,
+    onDropRejected: (rejections) => {
+      const tooMany = rejections.some(r => r.errors.some(e => e.code === "too-many-files"));
+      const tooLarge = rejections.some(r => r.errors.some(e => e.code === "file-too-large"));
+      const wrongType = rejections.some(r => r.errors.some(e => e.code === "file-invalid-type"));
+      if (wrongType) toast.error("Only PDF files are accepted. Please upload .pdf files only.");
+      else if (tooMany) toast.error("You can upload up to 3 files per analysis. Please remove some files and try again.");
+      else if (tooLarge) toast.error("Each file must be under 25 MB. Try compressing your PDF with a tool like iLovePDF or SmallPDF before uploading.");
+    },
   });
 
   // Stats and charts use ONLY real analyses (user_id IS NOT NULL)
