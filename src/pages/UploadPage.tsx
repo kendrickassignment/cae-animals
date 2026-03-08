@@ -19,14 +19,23 @@ export default function UploadPage() {
   const [files, setFiles] = useState<UploadFile[]>([]);
 
   const onDrop = useCallback(async (accepted: File[]) => {
+    const remaining = 3 - files.length;
+    if (remaining <= 0) {
+      toast.error("You can upload up to 3 files per analysis. Please remove some files first.");
+      return;
+    }
+    const filesToAdd = accepted.slice(0, remaining);
+    if (accepted.length > remaining) {
+      toast.error(`Only ${remaining} more file${remaining === 1 ? "" : "s"} allowed. Extra files were ignored.`);
+    }
     const newFiles = await Promise.all(
-      accepted.map(async (f) => {
+      filesToAdd.map(async (f) => {
         const hash = await computeFileHash(f);
         return { file: f, companyName: "", reportYear: "2024", hash };
       })
     );
     setFiles((prev) => [...prev, ...newFiles]);
-  }, []);
+  }, [files.length]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
