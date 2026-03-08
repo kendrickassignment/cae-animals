@@ -176,15 +176,15 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>CAE — Cage-Free Egg Accountability | Sustainability Report Analysis</title>
+        <title>CAE — Hold Corporations Accountable for Animals | Cage-Free Report Analysis</title>
         <meta
           name="description"
-          content="Analyze corporate sustainability reports to expose hidden exclusions, greenwashing, and broken cage-free egg promises across Indonesia. Track animal welfare accountability now."
+          content="Companies promise cage-free eggs — but are they keeping their word? CAE uses AI to read their reports and uncover hidden exclusions, broken promises, and greenwashing."
         />
-        <meta property="og:title" content="CAE — Cage-Free Egg Accountability | Sustainability Report Analysis" />
+        <meta property="og:title" content="CAE — Hold Corporations Accountable for Animals" />
         <meta
           property="og:description"
-          content="Analyze corporate sustainability reports to expose hidden exclusions, greenwashing, and broken cage-free egg promises across Indonesia. Track animal welfare accountability now."
+          content="Companies promise cage-free eggs — but are they keeping their word? CAE uses AI to read their reports and uncover hidden exclusions, broken promises, and greenwashing."
         />
         <meta property="og:url" content="https://cae-animals.com/" />
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
@@ -252,13 +252,13 @@ export default function Landing() {
       {/* Hero */}
       <section className="py-20 md:py-32 px-6 text-center max-w-4xl mx-auto animate-fade-in">
         <h1 className="font-display text-5xl md:text-7xl text-foreground leading-tight mb-6">
-          EXPOSING CORPORATE
+          HOLD CORPORATIONS
           <br />
-          GREENWASHING WITH AI
+          ACCOUNTABLE FOR ANIMALS
         </h1>
         <p className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-          The Corporate Accountability Engine analyzes sustainability reports to detect hidden exclusions, hedging
-          language, and broken promises in cage-free egg commitments across Indonesia.
+          Companies promise to go cage-free — but are they keeping their word? CAE reads their reports so you don't have
+          to, uncovering hidden exclusions and broken promises in minutes.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to={user ? "/dashboard" : "/auth"}>
@@ -285,19 +285,19 @@ export default function Landing() {
                 icon: Upload,
                 step: "01",
                 title: "UPLOAD",
-                desc: "Upload corporate sustainability reports (PDF format)",
+                desc: "Drop a company's sustainability report (PDF) — it takes seconds",
               },
               {
                 icon: Search,
                 step: "02",
                 title: "ANALYZE",
-                desc: "AI scans for 9 types of greenwashing evasion patterns",
+                desc: "Our AI reads every page, scanning for 9 types of corporate evasion tricks",
               },
               {
                 icon: FileText,
                 step: "03",
-                title: "EXPOSE",
-                desc: "Get citation-backed evidence with exact page numbers",
+                title: "GET PROOF",
+                desc: "Receive a clear report with exact quotes and page numbers you can use in your advocacy",
               },
             ].map((item, i) => (
               <div
@@ -342,15 +342,15 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-10 text-center">
           <div>
             <CountUp target="3-5" suffix=" min" />
-            <p className="font-body text-sm text-muted-foreground mt-2">Audit time (from 2 weeks)</p>
+            <p className="font-body text-sm text-muted-foreground mt-2">What used to take 2 weeks — done in minutes</p>
           </div>
           <div>
             <CountUp target="$0.15" />
-            <p className="font-body text-sm text-muted-foreground mt-2">Cost per 200-page report</p>
+            <p className="font-body text-sm text-muted-foreground mt-2">Average cost per 200-page report</p>
           </div>
           <div>
             <CountUp target={String(evasionPatterns.length)} />
-            <p className="font-body text-sm text-muted-foreground mt-2">Evasion patterns detected</p>
+            <p className="font-body text-sm text-muted-foreground mt-2">Corporate evasion tricks detected</p>
           </div>
         </div>
       </section>

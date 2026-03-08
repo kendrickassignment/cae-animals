@@ -24,7 +24,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-6 pt-4 border-t border-sidebar-border">
-          <p className="font-body text-xs text-sidebar-foreground/40">Corporate Accountability Engine v1.0</p>
+          <p className="font-body text-xs text-sidebar-foreground/40">Corporate Accountability Engine — Truth. Extracted.</p>
         </div>
       </div>
     </footer>

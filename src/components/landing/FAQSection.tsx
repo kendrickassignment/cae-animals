@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     q: "Who is CAE for?",
-    a: "CAE is built for animal welfare NGOs, corporate accountability researchers, and advocacy organizations that monitor cage-free egg commitments across Indonesia.",
+    a: "CAE is built for anyone who cares about animals — whether you're an NGO researcher, a volunteer, an advocacy organization, or simply someone who wants to know if companies are keeping their cage-free promises.",
   },
   {
     q: "How long does an analysis take?",
@@ -23,15 +23,15 @@ const faqs = [
   },
   {
     q: "Is CAE free to use?",
-    a: "CAE is currently free during our pilot phase. Sign up and start analyzing reports at cae-animals.com.",
+    a: "Yes! CAE is currently free during our pilot phase. Just sign up and start analyzing reports — no credit card needed.",
   },
   {
     q: "What types of reports can CAE analyze?",
     a: "CAE analyzes corporate sustainability reports, CSR reports, ESG disclosures, public releases and annual reports in PDF format that contain animal welfare or cage-free egg commitments. (Max 10 reports per analysis)",
   },
   {
-    q: "Is it available to Southeast Asia?",
-    a: "Currently, CAE focuses on Indonesia as its primary market, where cage-free egg adoption is still in its early stages. However, the analysis engine works with any sustainability report in English, so it can be used for companies operating globally. Regional expansion across Southeast Asia is planned as we grow.",
+    q: "Is it available in Southeast Asia?",
+    a: "Yes! While CAE focuses on Indonesia as its primary market — where cage-free egg adoption is still in its early stages — the analysis engine works with any sustainability report in English. You can use it for companies operating anywhere in the world. Regional expansion across Southeast Asia is planned as we grow.",
   },
 ];
 

@@ -57,8 +57,8 @@ export default function Auth() {
           <p className="font-nav text-sm text-primary-foreground/70 tracking-widest mb-2">
             CORPORATE ACCOUNTABILITY ENGINE
           </p>
-          <p className="font-body text-primary-foreground/80 max-w-sm mx-auto">
-            Exposing corporate greenwashing with AI-powered analysis of sustainability reports.
+           <p className="font-body text-primary-foreground/80 max-w-sm mx-auto">
+            Join advocates worldwide using AI to verify if companies are truly keeping their cage-free promises.
           </p>
         </div>
       </div>

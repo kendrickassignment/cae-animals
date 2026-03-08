@@ -65,7 +65,7 @@ const evasionPatterns = [
   {
     icon: Ghost,
     title: "Corporate Ghosting",
-    desc: "Ignoring messages from advocates and hoping the pressure just stops.",
+    desc: "Completely ceasing to report on previously made promises, hoping no one notices the silence.",
   },
   {
     icon: TrendingDown,
@@ -174,12 +174,12 @@ export default function About() {
         <section className="bg-card rounded-xl border-l-4 border-primary p-8 shadow-sm">
           <h2 className="font-display text-2xl mb-4 flex items-center gap-2">OUR MISSION</h2>
           <p className="font-body text-muted-foreground leading-relaxed text-lg">
-            Multinationals food companies, hotels and retails often promise to go "cage-free" globally to look good in
-            the public eye. But if you read their reports (ESG, Sustainability, Annual Reports etc), they frequently
-            leave out countries like Indonesia. We built the{" "}
-            <strong className="text-foreground font-bold">Corporate Accountability Engine (CAE)</strong> to catch these
-            hidden tricks automatically. Our mission is to make it easy for any volunteer or advocate to hold big
-            corporations accountable.
+            Multinational food companies, hotels, and retailers often promise to go "cage-free" globally to look
+            good in the public eye. But when you read their reports (ESG, Sustainability, Annual Reports, etc.),
+            they frequently leave out countries like Indonesia. We built the{" "}
+            <strong className="text-foreground font-bold">Corporate Accountability Engine (CAE)</strong> to catch
+            these hidden tricks automatically — so any volunteer, advocate, or organization can hold big
+            corporations accountable without spending weeks reading fine print.
           </p>
         </section>
 
@@ -288,9 +288,9 @@ export default function About() {
             <div className="space-y-4 max-w-2xl">
               <h3 className="font-display text-2xl">Kendrick Filbert</h3>
               <p className="font-body text-sidebar-foreground/80 leading-relaxed italic">
-                "As a key players at Act For Farmed Animals, I and my teams spent weeks manually reading corporate
-                reports—hunting through hundreds of pages just to see if a company was keeping its promise. I built CAE
-                so what used to take me two weeks now takes you average 3-5 minutes. My goal: give every advocate the
+                "As part of the team at Act For Farmed Animals, we spent weeks manually reading corporate
+                reports — hunting through hundreds of pages just to see if a company was keeping its promise. I built CAE
+                so what used to take us two weeks now takes you around 3–5 minutes. My goal: give every advocate the
                 proof they need to win for animals."
               </p>
               <div className="flex gap-4 pt-4">
@@ -313,7 +313,7 @@ export default function About() {
             </Button>
           </Link>
           <p className="font-body text-xs text-muted-foreground uppercase tracking-widest">
-            Corporate Accountability Engine v2.2.0 — Truth. Extracted.
+            Corporate Accountability Engine — Truth. Extracted.
           </p>
         </div>
       </div>
