@@ -5,7 +5,6 @@ const ALLOWED_ORIGINS = ["https://cae-animals.com", "https://cae-animals.lovable
 
 function isOriginAllowedValue(origin: string): boolean {
   if (!origin) return true;
-
   return (
     ALLOWED_ORIGINS.includes(origin) ||
     origin.endsWith(".lovableproject.com") ||
@@ -48,30 +47,58 @@ serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Validate auth
+    // Step 1: Authenticate the caller via JWT
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
+    const anonClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user }, error: authError } = await anonClient.auth.getUser();
     if (authError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401, headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
 
-    const { analysis_id, company_name, report_year, risk_score, risk_level, uploader_user_id } = await req.json();
+    // Step 2: Accept only analysis_id from the request; fetch everything else from DB
+    const { analysis_id } = await req.json();
 
-    if (!analysis_id || !company_name || !uploader_user_id) {
-      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+    if (!analysis_id) {
+      return new Response(JSON.stringify({ error: "analysis_id is required" }), {
         status: 400, headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
+
+    // Step 3: Fetch analysis from DB — don't trust caller-supplied metadata
+    const { data: analysis, error: fetchError } = await supabase
+      .from("analysis_results")
+      .select("id, user_id, company_name, report_year, overall_risk_score, overall_risk_level")
+      .eq("id", analysis_id)
+      .single();
+
+    if (fetchError || !analysis) {
+      return new Response(JSON.stringify({ error: "Analysis not found" }), {
+        status: 404, headers: { ...CORS, "Content-Type": "application/json" },
+      });
+    }
+
+    // Step 4: Verify caller is the analysis owner
+    if (analysis.user_id !== user.id) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403, headers: { ...CORS, "Content-Type": "application/json" },
+      });
+    }
+
+    const company_name = analysis.company_name || "Unknown";
+    const report_year = analysis.report_year;
+    const risk_score = analysis.overall_risk_score;
+    const risk_level = analysis.overall_risk_level;
+    const uploader_user_id = analysis.user_id;
 
     // Server-side deduplication: check if notification for this analysis_id already exists
     const { data: existingNotifs } = await supabase
@@ -120,20 +147,20 @@ serve(async (req) => {
       console.error("Failed to insert admin notifications:", insertError);
     }
 
-    // Send email to fixed admin recipient (Resend testing mode compatible)
+    // Send email to fixed admin recipient
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (RESEND_API_KEY) {
       const adminEmails = ["kendrickfilbert@gmail.com"];
 
       if (adminEmails.length > 0) {
-      const safeCompany = escapeHtml(company_name);
-      const safeYear = escapeHtml(String(report_year || "N/A"));
-      const safeRiskLevel = escapeHtml(risk_level || "Unknown");
-      const safeRiskScore = escapeHtml(String(risk_score ?? "N/A"));
-      const safeUploaderName = escapeHtml(uploaderName);
-      const safeUploaderEmail = escapeHtml(uploaderEmail);
+        const safeCompany = escapeHtml(company_name);
+        const safeYear = escapeHtml(String(report_year || "N/A"));
+        const safeRiskLevel = escapeHtml(risk_level || "Unknown");
+        const safeRiskScore = escapeHtml(String(risk_score ?? "N/A"));
+        const safeUploaderName = escapeHtml(uploaderName);
+        const safeUploaderEmail = escapeHtml(uploaderEmail);
 
-      const html = `
+        const html = `
           <h2>New Analysis Completed</h2>
           <table style="border-collapse:collapse;margin:16px 0">
             <tr><td style="padding:4px 12px 4px 0;font-weight:bold">Company</td><td>${safeCompany}</td></tr>
