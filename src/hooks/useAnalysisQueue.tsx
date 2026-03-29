@@ -311,14 +311,7 @@ export function AnalysisQueueProvider({ children }: { children: ReactNode }) {
           queryClient.invalidateQueries({ queryKey: ["real-analyses"] });
 
           supabase.functions.invoke("notify-analysis-complete", {
-            body: {
-              analysis_id: savedId,
-              company_name: companyName,
-              report_year: reportYear,
-              risk_score: null,
-              risk_level: null,
-              uploader_user_id: user!.id,
-            },
+            body: { analysis_id: savedId },
           }).catch((err) => console.warn("Admin notification failed:", err));
 
           removePersistedQueueJob(key);
