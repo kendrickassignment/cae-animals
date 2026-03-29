@@ -50,6 +50,13 @@ export type Database = {
             referencedRelation: "analysis_results"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "admin_notifications_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_results_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       analysis_flags: {
@@ -86,6 +93,13 @@ export type Database = {
             columns: ["analysis_id"]
             isOneToOne: false
             referencedRelation: "analysis_results"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analysis_flags_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_results_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -309,6 +323,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "findings_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_results_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "findings_report_id_fkey"
             columns: ["report_id"]
             isOneToOne: false
@@ -446,11 +467,121 @@ export type Database = {
             referencedRelation: "analysis_results"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "verification_requests_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_results_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      analysis_results_safe: {
+        Row: {
+          analyzed_at: string | null
+          binding_language_count: number | null
+          company_name: string | null
+          cost_estimate_usd: number | null
+          created_at: string | null
+          document_confidence: string | null
+          document_confidence_reason: string | null
+          file_hash: string | null
+          findings: Json | null
+          global_claim: string | null
+          hedging_language_count: number | null
+          id: string | null
+          indonesia_mentioned: boolean | null
+          indonesia_status: string | null
+          input_tokens: number | null
+          llm_model: string | null
+          llm_provider: string | null
+          output_tokens: number | null
+          overall_risk_level: string | null
+          overall_risk_score: number | null
+          report_id: string | null
+          report_year: number | null
+          sea_countries_excluded: Json | null
+          sea_countries_mentioned: Json | null
+          summary: string | null
+          user_id: string | null
+          verified: boolean | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          analyzed_at?: string | null
+          binding_language_count?: number | null
+          company_name?: string | null
+          cost_estimate_usd?: never
+          created_at?: string | null
+          document_confidence?: string | null
+          document_confidence_reason?: string | null
+          file_hash?: string | null
+          findings?: Json | null
+          global_claim?: string | null
+          hedging_language_count?: number | null
+          id?: string | null
+          indonesia_mentioned?: boolean | null
+          indonesia_status?: string | null
+          input_tokens?: never
+          llm_model?: never
+          llm_provider?: never
+          output_tokens?: never
+          overall_risk_level?: string | null
+          overall_risk_score?: number | null
+          report_id?: string | null
+          report_year?: number | null
+          sea_countries_excluded?: Json | null
+          sea_countries_mentioned?: Json | null
+          summary?: string | null
+          user_id?: string | null
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          analyzed_at?: string | null
+          binding_language_count?: number | null
+          company_name?: string | null
+          cost_estimate_usd?: never
+          created_at?: string | null
+          document_confidence?: string | null
+          document_confidence_reason?: string | null
+          file_hash?: string | null
+          findings?: Json | null
+          global_claim?: string | null
+          hedging_language_count?: number | null
+          id?: string | null
+          indonesia_mentioned?: boolean | null
+          indonesia_status?: string | null
+          input_tokens?: never
+          llm_model?: never
+          llm_provider?: never
+          output_tokens?: never
+          overall_risk_level?: string | null
+          overall_risk_score?: number | null
+          report_id?: string | null
+          report_year?: number | null
+          sea_countries_excluded?: Json | null
+          sea_countries_mentioned?: Json | null
+          summary?: string | null
+          user_id?: string | null
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_results_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_display_name: { Args: { _target_user_id: string }; Returns: string }

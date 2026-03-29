@@ -84,7 +84,7 @@ export function useRealAnalyses() {
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await supabase
-        .from("analysis_results")
+        .from("analysis_results_safe" as any)
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
