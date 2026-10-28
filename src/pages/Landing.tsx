@@ -35,7 +35,7 @@ const evasionPatterns = [
   {
     icon: VolumeX,
     title: "STRATEGIC SILENCE",
-    desc: "Countries like Indonesia simply not mentioned anywhere in the progress report.",
+    desc: "Countries across Asia left out of cage-free reporting, even when companies claim a global commitment.",
   },
   {
     icon: Globe,
@@ -176,15 +176,15 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>CAE — Hold Corporations Accountable for Animals | Cage-Free Report Analysis</title>
+        <title>CAE — Cage-Free Accountability Across Asia | Report Analysis</title>
         <meta
           name="description"
-          content="Companies promise cage-free eggs — but are they keeping their word? CAE uses AI to read their reports and uncover hidden exclusions, broken promises, and greenwashing."
+          content="Multinational companies promise cage-free eggs globally. CAE helps animal advocates across Asia, including Indonesia, review ESG and annual reports for hidden exclusions and broken promises."
         />
-        <meta property="og:title" content="CAE — Hold Corporations Accountable for Animals" />
+        <meta property="og:title" content="CAE — Cage-Free Accountability Across Asia" />
         <meta
           property="og:description"
-          content="Companies promise cage-free eggs — but are they keeping their word? CAE uses AI to read their reports and uncover hidden exclusions, broken promises, and greenwashing."
+          content="Multinational companies promise cage-free eggs globally. CAE helps animal advocates across Asia, including Indonesia, review ESG and annual reports for hidden exclusions and broken promises."
         />
         <meta property="og:url" content="https://cae-animals.com/" />
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
@@ -254,12 +254,12 @@ export default function Landing() {
         <h1 className="font-display text-5xl md:text-7xl text-foreground leading-tight mb-6">
           HOLD CORPORATIONS
           <br />
-          ACCOUNTABLE FOR ANIMALS
+          ACCOUNTABLE ACROSS ASIA
         </h1>
         <p className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-          Multinational companies promise cage-free commitments globally — but are they actually keeping their word in
-          Indonesia and beyond? Stop drowning in endless ESG and annual reports. CAE reads them all in minutes, uncovering
-          hidden exclusions and broken promises you need to know.
+          Multinational companies promise cage-free eggs globally — but do those promises reach animals across Asia,
+          including Indonesia? Tired of reading endless ESG, sustainability, and annual reports? CAE helps uncover hidden
+          exclusions and broken promises in minutes, so you can spend more time advocating for animals.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to={user ? "/dashboard" : "/auth"}>

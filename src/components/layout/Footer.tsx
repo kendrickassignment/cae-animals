@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start gap-6">
           <div>
             <p className="font-body text-sm text-sidebar-foreground/80">
-              Corporate Accountability Engine
+              Corporate Accountability Engine — Cage-free accountability across Asia
             </p>
           </div>
           <div className="flex gap-6 font-nav text-xs tracking-wider text-sidebar-foreground/60">
