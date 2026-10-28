@@ -3,11 +3,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const faqs = [
   {
     q: "What is CAE?",
-    a: "CAE (Corporate Accountability Engine) is an AI-powered tool that analyzes corporate sustainability reports to detect hidden exclusions, hedging language, and broken promises in cage-free egg commitments.",
+    a: "CAE (Corporate Accountability Engine) helps animal advocates across Asia review multinational companies' cage-free egg promises. It analyzes ESG, sustainability, and annual reports for hidden exclusions, weak commitments, and broken promises. CAE began with an Indonesia focus; Indonesia remains part of its wider Asian mission.",
   },
   {
     q: "How does CAE work?",
-    a: "Upload a company's sustainability report PDF and CAE's AI engine analyzes the entire document in approximately 3-5 minutes — extracting findings with direct quotes, scoring accountability, and providing actionable recommendations.",
+    a: "Upload a company's ESG, sustainability, annual report, or related disclosure in PDF format. CAE reviews the documents in approximately 3–5 minutes and highlights findings with quotes and page references for you to check before using them in your advocacy.",
   },
   {
     q: "What does CAE detect?",
@@ -27,11 +27,11 @@ const faqs = [
   },
   {
     q: "What types of reports can CAE analyze?",
-    a: "CAE analyzes corporate sustainability reports, CSR reports, ESG disclosures, public releases and annual reports in PDF format that contain animal welfare or cage-free egg commitments. (Max 10 reports per analysis)",
+    a: "CAE analyzes sustainability and CSR reports, ESG disclosures, annual reports, and related public releases containing animal welfare or cage-free egg commitments. Upload up to 3 PDF files per analysis, with a maximum of 25 MB per file.",
   },
   {
-    q: "Is it available in Southeast Asia?",
-    a: "Yes! While CAE focuses on Indonesia as its primary market — where cage-free egg adoption is still in its early stages — the analysis engine works with any sustainability report in English. You can use it for companies operating anywhere in the world. Regional expansion across Southeast Asia is planned as we grow.",
+    q: "Does CAE focus on all of Asia?",
+    a: "CAE's mission now covers Asia, including Indonesia, rather than Indonesia alone. You can review reports from multinational companies operating across the region. Current results still include an Indonesia-specific status and any Southeast Asian country information returned by the analysis. These are not an assessment of every Asian country, and CAE does not yet provide verified local regulatory checks for every market. Always review the country-specific evidence before drawing conclusions.",
   },
 ];
 

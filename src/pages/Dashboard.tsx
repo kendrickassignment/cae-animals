@@ -303,7 +303,7 @@ export default function Dashboard() {
 
           {/* Recent analyses */}
           <div>
-            <h3 className="font-display text-xl mb-4">RECENT ANALYSES</h3>
+            <h3 className="font-display text-xl mb-4">RECENT ANALYSES — CAGE-FREE ACCOUNTABILITY ACROSS ASIA</h3>
             <div className="bg-card rounded-lg border border-border overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">

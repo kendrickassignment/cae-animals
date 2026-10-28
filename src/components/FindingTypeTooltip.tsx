@@ -5,7 +5,7 @@ const FINDING_TOOLTIPS: Record<string, string> = {
   strategic_silence: "Perusahaan sama sekali tidak menyebut topik tertentu — ketiadaan informasi itu sendiri adalah bukti.",
   hedging_language: "Bahasa yang tidak mengikat secara hukum, seperti 'kami berupaya' atau 'kami bertujuan' — terdengar seperti komitmen tapi sebenarnya bukan.",
   franchise_firewall: "Komitmen hanya berlaku untuk restoran/toko milik perusahaan, bukan franchise — sehingga mayoritas operasi tidak tercakup.",
-  geographic_exclusion: "Komitmen 'global' yang diam-diam mengecualikan wilayah tertentu, terutama Asia Tenggara.",
+  geographic_exclusion: "Komitmen 'global' yang diam-diam mengecualikan negara atau wilayah tertentu di Asia.",
   availability_clause: "Syarat seperti 'tergantung ketersediaan pasokan lokal' — celah keluar bawaan yang memungkinkan penundaan tanpa batas.",
   timeline_deferral: "Terus menunda tenggat waktu: 2025 menjadi 2030, lalu 2035 — tanpa konsekuensi.",
   silent_delisting: "Diam-diam menghapus negara yang sebelumnya termasuk dalam program — lebih buruk dari tidak pernah berkomitmen.",

@@ -1,17 +1,18 @@
 # Corporate Accountability Engine (CAE)
-## Product Requirements Document (PRD) v2.2
+## Product Requirements Document (PRD) v2.3 — Asia expansion
 
 **Organization:** Act For Farmed Animals (AFFA) / Sinergia Animal International  
 **Product Owner:** Kendrick  
-**Version:** 2.2.0  
-**Last Updated:** March 5, 2026  
-**Status:** In Production (Backend) · Frontend in Development  
+**Version:** 2.3.0  
+**Last Updated:** October 28, 2026  
+**Status:** Deployed frontend · Asia-wide positioning update · Regional engine validation pending  
 **Methodology:** Agile (2-week sprints, continuous iteration)
 
 ---
 
 ## Table of Contents
 
+0. [Before and Now: From Indonesia to Asia](#0-before-and-now-from-indonesia-to-asia)
 1. [Product Mission](#1-product-mission)
 2. [Product Vision](#2-product-vision)
 3. [Product Strategy](#3-product-strategy)
@@ -42,9 +43,63 @@
 
 ---
 
+## 0. Before and Now: From Indonesia to Asia
+
+### What CAE is
+
+The Corporate Accountability Engine is an AI-assisted report-review tool for animal welfare advocates, volunteers, researchers, and NGOs. Its subject remains multinational companies’ cage-free egg commitments: what they promise globally, which operations and countries those promises include, and whether their published progress matches the scope of the promise. It is not a general ESG rating, an animal welfare certification, or a substitute for expert judgment.
+
+Companies publish commitments and exceptions across ESG reports, sustainability reports, annual reports, CSR disclosures, data books, and appendices. Reading all of them takes time. CAE brings related PDFs into one review and surfaces potential evasions with quotes and page references, helping campaign teams decide which questions to ask. Review the source evidence before citing any finding externally.
+
+### Before: Indonesia-focused origins
+
+CAE began around AFFA’s Indonesia-focused corporate engagement work. The central question was whether a multinational company’s “global” cage-free promise actually included Indonesia. The original design used Indonesia mention/status fields, Indonesia-related silence and exclusion factors, and Indonesian regulatory context. Southeast Asia lists provided additional regional context, but the explicit country status remained Indonesian. These origins remain part of CAE’s history and existing reports.
+
+### Now: an Asia-wide mission
+
+CAE’s audience and product positioning now extend across Asia, including Southeast, East, South, Central, and West Asia. Those regional names describe the mission, not a verified list of supported country engines. Indonesia remains included rather than being replaced or removed. The broader question is whether multinational companies’ cage-free promises reach the Asian countries where they operate, rather than only the markets highlighted in a global headline.
+
+This change expands the questions advocates bring to a report: which Asian markets are mentioned, which are explicitly excluded, whether franchise and licensee operations are covered, whether deadlines vary by market, and whether progress figures have a clearly defined geographic scope. Evidence about one country must never be presented as evidence about all of Asia.
+
+### Before-and-now comparison
+
+| Area | Before | Now | Boundary |
+|------|--------|-----|----------|
+| Product focus | Indonesia-centered cage-free accountability | Asia-wide cage-free accountability, including Indonesia | A wider mission is not a completed regional engine migration |
+| Audience | Indonesia-focused campaign and research teams | Volunteers, enthusiasts, advocates, and NGOs working across Asia | Human review remains essential |
+| Reports | Often described as sustainability reports | ESG, sustainability, annual reports, and related disclosures | PDF only; up to 3 files, max 25 MB each in the frontend |
+| Questions | Does the global promise include Indonesia? | Which Asian operations and markets does the promise actually include? | Findings must retain their specific country and source |
+| Country status | `indonesia_mentioned` and `indonesia_status` | Same existing fields, explicitly identified as Indonesia-only | No invented `asia_status` or aggregate compliance score |
+| Regional context | `sea_countries_mentioned`, `sea_countries_excluded` | Existing Southeast Asia lists retained when returned | SEA is a subset of Asia, not a complete Asian country assessment |
+| Scoring | Original Indonesia-related factors and risk bands | Unchanged scoring, clearly explained alongside wider positioning | No claim of uniformly validated scoring for every Asian market |
+| Regulation and language | Original Indonesian context; multilingual work described as future | Wider country-specific research and validation needed | No blanket Asian legal or language-support claim |
+
+### What changed in this release
+
+The frontend’s current product copy, FAQ, About explanation, search/social descriptions, and generated report context now reflect Asia-wide positioning. The About page and documentation explain the transition and its limitations. Existing company examples, quotes, affected-country values, Indonesia status fields, and scoring weights remain intact. No backend code, database schema, analysis prompts, routing triggers, email logic, or production credentials were changed for this expansion.
+
+### How to use the wider scope responsibly
+
+1. Identify the company’s Asian operations and the scope of its original commitment using reliable sources. A country absent from a report is a question to investigate, not automatic proof that the company operates there or broke a promise there.
+2. Upload related, text-based PDFs together where appropriate, within the current 3-file and 25 MB-per-file limits.
+3. Review the findings, exact quotes, page references, source documents, and affected countries. Check whether the reported progress covers franchises, licensees, products, and the relevant reporting year.
+4. Treat the existing Indonesia status as an Indonesia-only assessment. An empty Southeast Asia list is not proof of absence or compliance, and it says nothing about all other Asian countries.
+5. Verify local regulatory context and language accuracy with suitable sources or local experts before publishing conclusions. CAE’s current regional positioning does not guarantee those checks.
+6. Use risk scores to prioritize follow-up, not as legal conclusions or a certification. Review the actual scoring breakdown; AI-generated evidence and scores can be wrong even when a risk label is mathematically consistent.
+
+### What full regional engine expansion still requires
+
+Country-explicit coverage and an agreed market scope; reviewed rules for country omissions, exclusions, deferrals, and progress; reliable regulatory sources for each supported jurisdiction; multilingual evaluation; representative Asian report benchmarks; and a clear distinction between not assessed, no evidence, and an actual country finding. These are future validation requirements, not capabilities delivered by this frontend/documentation update.
+
+### Reading the remaining specifications
+
+This document retains historical backend requirements, sample JSON, benchmarks, and roadmap milestones from the Indonesia-first design. They are not freshly tested deployment guarantees. The current frontend limits above supersede older 50 MB / 10-file specifications. The frontend’s default API points to the Google Cloud Run server, and accounts and notifications exist in the application; older free-tier costs, storage assumptions, future-auth notes, and model/performance claims below need a separate production audit. Do not use them to claim Asia-wide operational readiness.
+
+---
+
 ## 1. Product Mission
 
-Corporate sustainability reports are supposed to hold companies accountable. In practice, they do the opposite — they give multinational food brands a 200-page shield to hide behind while making commitments they never intend to keep in Southeast Asia.
+Corporate sustainability reports are supposed to hold companies accountable. In practice, they do the opposite — they give multinational food brands a 200-page shield to hide behind while leaving gaps between global cage-free promises and reported progress in Asian markets.
 
 CAE exists to strip that shield away.
 
@@ -56,7 +111,7 @@ The organizations doing this work — AFFA, Sinergia Animal International, and t
 
 ## 2. Product Vision
 
-Within two years, CAE should be the default tool that animal welfare organizations across Southeast Asia use when preparing for corporate engagement. The kind of tool where an analyst's workflow becomes: download the report, upload it to CAE, review the findings, walk into the meeting.
+Within two years, CAE should be the default tool that animal welfare organizations across Asia use when preparing for corporate engagement. The kind of tool where an analyst's workflow becomes: download the report, upload it to CAE, review the findings, walk into the meeting.
 
 ### Where We're Headed
 
@@ -64,7 +119,7 @@ Within two years, CAE should be the default tool that animal welfare organizatio
 |---------|-------------------|-----------------|
 | **Now (2026 H1)** | A working AI auditor that campaign teams actually use for meeting prep | Single and multi-file analysis, hybrid routing, evidence-grade output |
 | **2026 H2** | Self-service platform where partner orgs run their own analyses without hand-holding | Persistent accounts, batch processing, year-over-year tracking |
-| **2027** | The regional standard for tracking corporate commitments across SEA | Multi-language analysis (Bahasa, Thai, Vietnamese), open API for partner tools |
+| **2027** | A regional tool for tracking corporate commitments across Asia (requires country-specific validation) | Multi-language analysis (Bahasa, Thai, Vietnamese), open API for partner tools |
 | **2028** | Infrastructure that makes corporate accountability the default, not the exception | Automated report monitoring, public scorecards, trend tracking across years |
 
 ### Principles That Don't Bend
@@ -87,9 +142,9 @@ Within two years, CAE should be the default tool that animal welfare organizatio
 
 There are ESG platforms — MSCI, Sustainalytics, CDP — that rate companies on broad sustainability performance. Companies spend significant effort gaming those ratings. CAE doesn't play that game.
 
-CAE does something narrower and sharper: it takes the company's own published words and audits them for specific evasion tactics. Not "how sustainable is this company overall" but "is this company using its 300-page report to hide the fact that its cage-free commitment doesn't apply to Indonesia?"
+CAE does something narrower and sharper: it takes the company's own published words and audits them for specific evasion tactics. Not "how sustainable is this company overall" but "does this company's global cage-free promise actually include the Asian markets where it operates?"
 
-That specificity is the positioning. A generic greenwashing detector tells you a company uses hedging language. CAE tells you which page, which paragraph, and that the excuse they're using is contradicted by Indonesian regulation Permentan No. 32/2025.
+That specificity is the positioning. A generic greenwashing detector tells you a company uses hedging language. CAE aims to give advocates quotes and page references to check against the company's own promises. Indonesian regulation Permentan No. 32/2025 belongs to the original country-specific context; it must not be generalized into a legal conclusion about other Asian markets.
 
 ### How We Get There
 
@@ -106,7 +161,7 @@ The moat isn't any single feature. It's the combination:
 - **Domain-specific adversarial prompting** that knows the difference between a genuine commitment and a carefully worded escape clause
 - **Cost architecture** that runs on free tiers — competitors building on paid APIs can't match the unit economics for NGO users
 - **A validation layer** that prevents the AI from producing inconsistent output, which most LLM-powered tools don't bother with
-- **Southeast Asia regulatory intelligence** baked into the analysis — no other tool knows about Permentan No. 32/2025
+- **Country-specific context** from the original Indonesia-focused use case; broader Asian regulatory coverage requires separately sourced, reviewed rules
 - **Stateless key management** that eliminates the security liability of storing user credentials
 
 ### Bets We're Making
@@ -115,7 +170,7 @@ We're betting that prompt engineering with hard validation will outperform fine-
 
 We're betting that Google will keep Gemini's free tier viable long enough for CAE to prove its value. If that changes, the multi-provider architecture means we can switch to Groq or Mistral in one environment variable.
 
-We're betting that evidence quality matters more than analysis speed. Campaign teams don't need real-time dashboards. They need one well-cited finding that changes a negotiation.
+We're betting that evidence quality matters more than analysis speed. Campaign teams need timely updates and, above all, well-cited findings they can verify before a negotiation.
 
 ---
 
@@ -137,7 +192,7 @@ The math: 50 companies × 2 weeks per report = 100 weeks of analyst time per cyc
 
 ### What's At Stake
 
-This isn't an abstract compliance problem. Hundreds of millions of laying hens across Indonesia and Southeast Asia remain confined in battery cages because the evasion tactics in these reports go undetected. The companies aren't challenged because nobody has the time to read page 247 of a Bahasa Indonesia sustainability report and notice that last year's commitment language was stronger.
+This isn't an abstract compliance problem. Hundreds of millions of laying hens across Asia, including Indonesia, remain confined in battery cages because the evasion tactics in these reports go undetected. The companies aren't challenged because nobody has the time to read page 247 of a Bahasa Indonesia sustainability report and notice that last year's commitment language was stronger.
 
 ### The Gap
 
@@ -151,7 +206,7 @@ An AI that reads these reports adversarially — treating silence as evidence, h
 
 | Who | What They Do | What They Need From CAE |
 |-----|-------------|------------------------|
-| **Campaign managers** at Sinergia Animal | Run corporate engagement campaigns across Indonesia and SEA | Specific, citable evidence to put on the table in meetings with corporate sustainability teams |
+| **Campaign managers** at Sinergia Animal | Run corporate engagement campaigns across Asia, including Indonesia | Specific, citable evidence to put on the table in meetings with corporate sustainability teams |
 | **Research analysts** at AFFA | Produce accountability reports covering 50+ companies annually | Standardized risk assessments they can compare across companies and track year-over-year |
 | **Policy advocates** | Engage government bodies and industry groups | Aggregate data showing systemic patterns — "here's how 15 companies all exclude Indonesia the same way" |
 
@@ -159,13 +214,13 @@ An AI that reads these reports adversarially — treating silence as evidence, h
 
 | Who | What They Need |
 |-----|---------------|
-| **Partner analysts** across the Open Wing Alliance (90+ orgs) | The same capability, applied to their local markets — Thailand, Vietnam, Philippines |
+| **Partner analysts** across the Open Wing Alliance (90+ orgs) | Report-review support for their local markets across Asia; country-specific coverage must be validated |
 | **Investigative journalists** | Evidence-grade findings they can cite — page numbers, direct quotes, pattern classifications |
 | **Developers at partner orgs** | API access to plug CAE into their own monitoring workflows |
 
 ### How the Workflow Actually Looks
 
-An analyst downloads a company's latest sustainability report. They upload it to CAE. Three minutes later, they have a risk score, a list of specific findings (each with page citations and exact quotes), and an Indonesia compliance status. They export the findings as CSV, paste the relevant ones into a briefing document, and walk into a corporate engagement meeting with evidence that would have taken two weeks to compile manually.
+An analyst downloads a multinational company's ESG, sustainability, annual report, or related disclosure and uploads it to CAE. After processing, they review a risk score, findings with quotes and page references, and the existing Indonesia-specific status. The wider Asia mission does not turn that status into a regional compliance assessment. They export the findings as CSV, paste the relevant ones into a briefing document, and walk into a corporate engagement meeting with evidence that would have taken two weeks to compile manually.
 
 ```
 Upload PDF → Wait ~3 min → Review findings → Export CSV → Use in meeting
@@ -192,12 +247,12 @@ Upload PDF → Wait ~3 min → Review findings → Export CSV → Use in meeting
 
 ### What's Included
 
-- Upload and analysis of text-based PDF reports up to 50MB
+- Frontend upload of up to 3 text-based PDFs per analysis, with a maximum of 25 MB per file
 - AI-powered detection of 9 specific greenwashing patterns, with exact citations
 - Two-stage analysis: fast scan followed by deep reasoning when risk indicators are triggered
-- Multi-file merge: combine up to 10 PDFs into a single analysis (catches contradictions across documents)
+- Multi-file merge: combine up to 3 PDFs into a single analysis to review related disclosures together
 - Deterministic scoring that the AI cannot override
-- Indonesia-specific compliance assessment with regulatory context
+- Asia-wide advocacy positioning, with the existing Indonesia-specific status and Southeast Asia response fields preserved; not a complete Asia-wide compliance assessment
 - Support for multiple LLM providers (Gemini, Groq, Mistral, OpenAI) — switchable per request
 - Stateless Bring Your Own Key (BYOK) for users who want to use their own API quota
 - Automatic data lifecycle management (source PDFs deleted after analysis, results expire after 90 days)
@@ -207,7 +262,9 @@ Upload PDF → Wait ~3 min → Review findings → Export CSV → Use in meeting
 - REST API with interactive documentation
 - Web frontend at cae-animals.com
 
-### What's Not Included Yet
+### Historical Backend Roadmap — Not a Current Frontend Inventory
+
+The following items are retained from the original backend PRD. Frontend authentication and role-based access already exist; this list must not be read as saying the app has no sign-in or roles.
 
 - User authentication and role-based access
 - Real-time streaming of analysis progress (polling works for current scale)
@@ -226,7 +283,7 @@ Users upload a corporate sustainability report in PDF format. The system validat
 
 | Requirement | Specification |
 |------------|---------------|
-| Max file size | 50 MB |
+| Frontend max file size | 25 MB per PDF |
 | Format | PDF only, must contain selectable text (not scanned/image-based) |
 | Storage | Local filesystem, deleted automatically after analysis completes |
 | Duplicate detection | SHA-256 hash comparison — returns existing report ID if match found |
@@ -239,7 +296,7 @@ When a user uploads a scanned PDF (common for older reports), the system detects
 **Acceptance Criteria:**
 - Valid text-based PDF → success with unique report ID
 - Non-PDF file → clear error explaining accepted format
-- File over 50MB → clear error with size limit
+- File over 25 MB → rejection with a clear warning and compression suggestion
 - Scanned/image PDF → explanation that CAE needs text-based PDFs, with suggestion to download from company website instead of scanning
 - Duplicate PDF (matching hash) → notification with link to existing analysis and option to re-run
 
@@ -278,7 +335,7 @@ Companies sometimes split their sustainability disclosures across multiple docum
 
 | Requirement | Specification |
 |------------|---------------|
-| Max files | 10 per analysis |
+| Frontend max files | 3 per analysis, including admins |
 | Merge approach | Documents concatenated with clear separators and attribution |
 | Output | One analysis result covering all documents |
 | Finding attribution | Each finding identifies which source document it came from |
@@ -290,7 +347,7 @@ Companies sometimes split their sustainability disclosures across multiple docum
 **Acceptance Criteria:**
 - Three 100-page PDFs merge into a single coherent analysis
 - Findings reference the correct source document
-- If 1 of 5 files fails, remaining 4 are analyzed with clear indication of incomplete coverage
+- If 1 of 3 files fails during backend processing, any partial result must clearly identify the missing document (not a promise that this was runtime-verified)
 - Failed documents are listed with actionable error messages
 
 ---
@@ -505,7 +562,7 @@ These constraints define how the system behaves under real conditions. For the c
 | Upload response | Under 2 seconds | ✅ Under 1 second |
 | Single-file analysis (fast scan only) | Under 90 seconds | ✅ ~60 seconds |
 | Single-file analysis (with deep pass) | Under 5 minutes | ✅ ~3–4 minutes |
-| Multi-file merge (5 documents) | Under 10 minutes | ✅ ~7 minutes |
+| Multi-file merge (up to 3 documents in current frontend) | Benchmark needed | Not re-benchmarked for Asia expansion |
 | Cached result retrieval | Under 500ms | ✅ Under 100ms |
 
 ### Reliability
@@ -527,7 +584,7 @@ These constraints define how the system behaves under real conditions. For the c
 | Sensitive data | Reports contain corporate disclosures, not personal data. No PII processing. |
 | Data lifecycle | PDFs deleted after analysis. Results expire after 90 days. Debug files expire after 7 days. |
 
-### Current Scale Constraints
+### Historical Scale Constraints — Not Revalidated on Cloud Run
 
 These are the practical boundaries of the free-tier architecture. For a small team doing sequential analyses, none of these are bottlenecks. If the platform expands to serve multiple organizations simultaneously, the roadmap includes persistent storage and batch queuing to address them.
 
@@ -560,9 +617,9 @@ The mapping from score to risk level is enforced by Python code, not by the AI:
 
 If the AI outputs a score of 75 and labels it "Medium," Python overrides the label to "High" and logs the correction. The AI never gets the final say on risk classification. This is what makes it safe to cite the score in a meeting — it's not an opinion, it's a calculation.
 
-### Indonesia Status
+### Indonesia Status — Original Country-Specific Assessment
 
-Because Indonesia is CAE's primary focus market, every analysis includes a specific compliance assessment:
+CAE now has an Asia-wide mission, but the current `indonesia_mentioned` and `indonesia_status` fields still describe Indonesia only. The following legacy status vocabulary is preserved for compatibility, not repurposed as a status for Asia. “Compliant” is the existing commitment-status label, not proof of legal compliance. Southeast Asia country lists and each finding’s `country_affected` can add regional context when returned; none establishes coverage of every Asian market.
 
 | Status | What It Means |
 |--------|--------------|
@@ -584,20 +641,20 @@ The AI sometimes surfaces the same pattern multiple times with slightly differen
 
 | Screen | What It Does |
 |--------|-------------|
-| **Landing** | Explains what CAE does, shows the upload call-to-action, and walks through the three-step process |
+| **Landing** | Explains Asia-wide cage-free accountability, including Indonesia, shows the upload call-to-action, and walks through the three-step process |
 | **Upload** | Drag-and-drop PDF upload with validation feedback and text-based PDF guidance |
 | **Analysis Status** | Polls the backend automatically, shows progress badges, displays estimated completion time |
 | **Results** | The main output: risk score gauge, risk level badge, findings list with citations, Indonesia status, scoring breakdown, completeness indicator for multi-file results |
 | **Finding Detail** | Drill into any finding: evasion pattern tag, severity, the exact quote from the report, page reference |
 | **Export** | CSV download of all findings, plus copy-to-clipboard for individual entries |
 | **Settings** | BYOK key management (key input, provider selection, test button, clear button) with clear security messaging |
-| **About** | Methodology explanation, evasion pattern descriptions, scoring logic, organizational context |
+| **About** | Explains Indonesia-focused origins, Asia-wide mission, evidence review, current country-specific scoring, and limits of regional coverage |
 
 ### Upload — Handling the Most Common Mistake
 
 Most analysts won't think about whether their PDF is text-based or scanned. The upload screen needs to handle this gracefully:
 
-**Visible guidance:** "Upload a sustainability report in PDF format (max 50MB). The PDF needs to contain selectable text — scanned documents aren't supported yet."
+**Visible guidance:** "Upload ESG, sustainability, annual reports, or related disclosures. PDF only, up to 3 files per analysis, max 25 MB each. Use text-based PDFs; scanned documents need text extraction first."
 
 **If the backend rejects a file:** A clear error explaining what went wrong and what to do: "This PDF appears to be a scan. CAE needs text-based PDFs to read the content. Try downloading the report directly from the company's website rather than scanning a printed copy."
 
@@ -638,11 +695,11 @@ The Settings screen handles BYOK with two clear priorities: make it easy to use,
 
 ## 12. Deployment & Infrastructure
 
-### Current Setup (will increased as more usage)
+### Deployment Reference (Costs and Capacity Not Revalidated)
 
 | Component | Where | Cost |
 |-----------|-------|------|
-| Backend | Render.com (Free tier) | $0/mo |
+| Backend | Google Cloud Run (user-reported migration; default frontend connection) | Usage-based; not verified here |
 | Frontend | Lovable (Pro) | $25/mo |
 | Database | Supabase (Free tier) | $0/mo |
 | Domain | cae-animals.com | ~$7/yr |
@@ -718,10 +775,10 @@ Time-to-Value is the most important UX metric. It captures the full experience: 
 
 ## 14. Roadmap
 
-### Current Release ✅
+### Historical Release Checklist (Regional Validation Not Implied)
 
 - [x] Hybrid two-stage AI routing (fast scan + conditional deep analysis)
-- [x] Multi-file merge analysis (up to 10 PDFs)
+- [x] Frontend multi-file merge limit: up to 3 PDFs, max 25 MB each
 - [x] 9 evasion patterns + 1 positive pattern detection
 - [x] Deterministic validation layer
 - [x] Multi-provider support (Gemini, Groq, Mistral, OpenAI)
@@ -733,7 +790,7 @@ Time-to-Value is the most important UX metric. It captures the full experience: 
 - [x] Partial failure handling for multi-file analysis
 - [x] Image-PDF detection with user guidance
 
-### Next Sprint (Q2 2026)
+### Historical Q2 2026 Backlog — Requires Status Review
 
 - [ ] Supabase persistence (replacing in-memory + disk JSON)
 - [ ] Batch analysis queue (upload many, process overnight)
@@ -741,13 +798,20 @@ Time-to-Value is the most important UX metric. It captures the full experience: 
 - [ ] Email notifications on analysis completion
 - [ ] Shareable analysis links
 
-### Planned (Q3 2026)
+### Historical Q3 2026 Backlog — Requires Status Review
 
 - [ ] Multi-language report support (Bahasa Indonesia, Thai)
 - [ ] OCR for scanned PDFs (priority informed by rejection rate data)
 - [ ] Webhook API for partner integrations
 - [ ] Admin dashboard (metrics, usage, error monitoring)
 - [ ] API authentication and rate limiting
+
+### Asia Expansion Validation Backlog
+
+- [ ] Define supported Asian markets and country-specific assessment outputs
+- [ ] Validate regional omission/exclusion scoring without reusing Indonesia fields as regional fields
+- [ ] Review country-specific regulatory sources and report-language performance
+- [ ] Benchmark representative Asian reports and assess missing-data behavior
 
 ### Vision (Q4 2026–2027)
 
@@ -838,7 +902,7 @@ Time-to-Value is the most important UX metric. It captures the full experience: 
 | Fallback LLMs | Groq, Mistral, OpenAI | Provider diversity for resilience |
 | Frontend | Lovable (React + TypeScript + Tailwind) | Rapid development, managed hosting |
 | Database | Supabase (PostgreSQL) | Free tier, real-time, Row Level Security |
-| Hosting | Render.com | Free PaaS, zero-config deploys |
+| Hosting | Google Cloud Run | Current default frontend API connection; capacity and billing not audited here |
 
 ---
 
@@ -1019,8 +1083,8 @@ CAE detects 9 evasion patterns plus 1 positive pattern:
 | # | Pattern | What It Looks Like | Typical Severity |
 |---|---------|-------------------|-----------------|
 | 1 | **Hedging Language** | "We aspire to," "where feasible," "subject to availability" — sounds like commitment, carries zero obligation | Medium–High |
-| 2 | **Geographic Exclusion** | Commitments explicitly scoped to certain regions, SEA left out | High–Critical |
-| 3 | **Strategic Silence** | Indonesia never mentioned in the cage-free context — deliberate absence as plausible deniability | Critical |
+| 2 | **Geographic Exclusion** | Commitments explicitly leave out Asian countries or regions; retain the actual affected country in each finding | High–Critical |
+| 3 | **Strategic Silence** | Relevant countries absent from cage-free reporting; the existing Indonesia-specific scoring trigger is unchanged | Critical |
 | 4 | **Franchise Firewall** | "Company-owned operations only" — quietly excluding the vast majority of locations | High |
 | 5 | **Availability Clause** | "Where supply is readily available" — an open-ended escape hatch | High |
 | 6 | **Timeline Deferral** | Deadlines pushed from 2025 to 2030 to "ongoing" — the commitment that never arrives | Medium–High |
@@ -1129,4 +1193,4 @@ cae-backend/
 
 *This PRD is the single source of truth for what CAE does and why. Technical implementation details live in the appendices. All product decisions should trace back to a requirement in this document.*
 
-*Last reviewed: March 5, 2026 — Kendrick*
+*Regional positioning reviewed: October 28, 2026. Historical technical specifications below are retained as reference, not a fresh production audit.*
