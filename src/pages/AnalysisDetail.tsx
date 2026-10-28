@@ -781,7 +781,7 @@ export default function AnalysisDetail() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="text-2xl">🇮🇩</span>
-            <h3 className="font-display text-lg">INDONESIA STATUS</h3>
+            <h3 className="font-display text-lg">INDONESIA STATUS — COUNTRY DETAIL</h3>
           </div>
           <span className={`px-4 py-1.5 rounded-full text-sm font-bold uppercase ${getIndonesiaStatusColor(analysis.indonesia_status)}`}>
             {getIndonesiaStatusLabel(analysis.indonesia_status)}
@@ -797,6 +797,9 @@ export default function AnalysisDetail() {
         )}
         <p className="mt-3 font-body text-sm text-muted-foreground">
           Indonesia mentioned in report: <strong>{analysis.indonesia_mentioned ? "YES" : "NO"}</strong>
+        </p>
+        <p className="mt-2 font-body text-xs text-muted-foreground leading-relaxed">
+          CAE’s mission covers Asia. This status describes Indonesia only, not the whole region. Review each finding’s affected country before applying it to other markets.
         </p>
       </div>
 

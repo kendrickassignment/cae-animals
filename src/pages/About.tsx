@@ -35,12 +35,12 @@ const evasionPatterns = [
   {
     icon: VolumeX,
     title: "Strategic Silence",
-    desc: "Completely ignoring specific countries like Indonesia in global reports.",
+    desc: "Leaving countries across Asia out of cage-free reporting while claiming a global promise.",
   },
   {
     icon: Globe,
     title: "Geographic Tiering",
-    desc: "Treating regions differently—ignoring Indonesia while keeping promises in the West.",
+    desc: "Giving Asian markets later deadlines or weaker promises than other regions.",
   },
   {
     icon: Store,
@@ -79,7 +79,7 @@ const steps = [
     icon: Upload,
     step: "01",
     title: "UPLOAD",
-    desc: "Simply drop a company's sustainability report (PDF) into the engine.",
+    desc: "Upload a company's ESG, sustainability, annual report, or related disclosure. Use up to 3 PDFs, with a maximum of 25 MB each.",
   },
   {
     icon: Brain,
@@ -113,10 +113,10 @@ export default function About() {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>About CAE — Truth. Extracted.</title>
+        <title>About CAE — From Indonesia to Asia | Truth. Extracted.</title>
         <meta
           name="description"
-          content="CAE uses AI to find hidden excuses in corporate reports, helping animal advocates in Indonesia hold big companies accountable."
+          content="Discover how CAE grew from an Indonesia-focused tool to an Asia-wide animal welfare mission, helping advocates review multinational companies' cage-free promises."
         />
       </Helmet>
 
@@ -176,25 +176,25 @@ export default function About() {
           <p className="font-body text-muted-foreground leading-relaxed text-lg">
             Multinational food companies, hotels, and retailers often promise to go "cage-free" globally to look
             good in the public eye. But when you read their reports (ESG, Sustainability, Annual Reports, etc.),
-            they frequently leave out countries like Indonesia. We built the{" "}
+            those promises can leave out countries across Asia, including Indonesia. We built the{" "}
             <strong className="text-foreground font-bold">Corporate Accountability Engine (CAE)</strong> to catch
             these hidden tricks automatically — so any volunteer, advocate, or organization can hold big
             corporations accountable without spending weeks reading fine print.
           </p>
         </section>
 
-        {/* INDONESIA CONTEXT (Additional Section for UX) */}
-        <section className="bg-muted rounded-xl p-8 border border-border">
+        {/* Regional mission and current evidence scope */}
+        <section className="border-y border-border py-8">
           <div className="flex items-start gap-4">
             <Info className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
             <div>
-              <h2 className="font-display text-xl mb-3 uppercase">Why Indonesia?</h2>
-              <p className="font-body text-sm text-muted-foreground leading-relaxed">
-                Many companies claim they can't go cage-free in Indonesia because of "lack of regulation."{" "}
-                <strong className="text-foreground font-bold">This is no longer true.</strong> Since 2025, Indonesia has
-                recognized cage-free systems (Permentan No. 32). CAE is specifically programmed to flag when companies
-                use outdated legal excuses to avoid protecting animals in our region.
-              </p>
+              <h2 className="font-display text-xl mb-3 uppercase">From Indonesia to Asia</h2>
+              <div className="space-y-4 font-body text-sm text-muted-foreground leading-relaxed">
+                <p><strong className="text-foreground">Before:</strong> CAE began by helping advocates check whether multinational companies' global cage-free promises included Indonesia. Its Indonesia-specific status made omissions, exclusions, and delayed deadlines easier to question.</p>
+                <p><strong className="text-foreground">Now:</strong> Our mission reaches across Asia. A global promise should not stop at a border. CAE helps volunteers, researchers, and NGOs review companies' reports for country exclusions, weaker regional commitments, and gaps between promises and reported progress. Indonesia remains included, alongside the wider region.</p>
+                <p><strong className="text-foreground">What stays the same:</strong> Clear evidence, quotes, and page references for you to review. CAE supports your judgment; a risk score is a starting point for questions, not a final verdict on a company.</p>
+                <p><strong className="text-foreground">What the results cover today:</strong> The existing Indonesia status and scoring factors remain country-specific. Southeast Asian country information may also be returned. Neither is a complete assessment of Asia. Local laws, language support, and country-by-country scoring need separate validation before we can claim full regional coverage.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -243,7 +243,7 @@ export default function About() {
         <section className="space-y-6">
           <h2 className="font-display text-2xl text-center uppercase">Scoring Methodology Details</h2>
           <p className="font-body text-sm text-muted-foreground text-center max-w-2xl mx-auto">
-            The AI Risk Score is calculated by summing penalty and reward points based on the following factors detected in each report.
+            The current scoring guide uses penalty and reward points from the original Indonesia-focused methodology. Asia-wide positioning does not change these weights or make this an Asia-wide compliance score. Check each report’s scoring breakdown and country evidence.
           </p>
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
