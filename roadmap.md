@@ -6,6 +6,6 @@
 
 ## Backend handoff and uploaded upgrade
 
-- [ ] Compare uploaded backend upgrade with the current frontend and resolve frontend compatibility gaps.
+- [ ] Compare uploaded backend upgrade with the current frontend and document compatibility gaps; live alignment awaits a reachable deployed v3 service.
 - [ ] Create downloadable PDF and editable CAE/backend handoff documentation with verified facts and remaining deployment checks.
 - [ ] Validate compatibility tests and inspect every generated document page.
