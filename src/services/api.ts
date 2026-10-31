@@ -17,8 +17,13 @@ export function sanitizeErrorMessage(message: string): string {
 }
 
 const getProviderConfig = (): { provider: string | null; apiKey: string | null } => {
+  const provider = localStorage.getItem("cae_llm_provider");
+  // A key belonging to a removed/unknown provider must never go to Gemini.
+  if (provider !== "gemini" && provider !== "qwen") {
+    return { provider: "gemini", apiKey: null };
+  }
   return {
-    provider: localStorage.getItem("cae_llm_provider"),
+    provider,
     apiKey: localStorage.getItem("cae_api_key"),
   };
 };
@@ -132,7 +137,11 @@ export function saveBackendUrl(url: string) {
 export function isAllowlistedBackend(url: string): boolean {
   return ALLOWED_BACKENDS.includes(url.replace(/\/$/, ""));
 }
-export function saveProviderConfig(provider: string, apiKey: string) { localStorage.setItem("cae_llm_provider", provider); localStorage.setItem("cae_api_key", apiKey); }
+export function saveProviderConfig(provider: string, apiKey: string) {
+  if (provider !== "gemini" && provider !== "qwen") throw new Error("Select Gemini or Qwen.");
+  localStorage.setItem("cae_llm_provider", provider);
+  localStorage.setItem("cae_api_key", apiKey);
+}
 export function clearSensitiveStorage() { localStorage.removeItem("cae_backend_url"); localStorage.removeItem("cae_api_key"); localStorage.removeItem("cae_llm_provider"); }
 export function getStoredBackendUrl(): string { return localStorage.getItem("cae_backend_url") || "https://cae-backend-340454867661.asia-southeast3.run.app"; }
-export function getStoredProvider(): string { return localStorage.getItem("cae_llm_provider") || "gemini"; }
+export function getStoredProvider(): string { return getProviderConfig().provider || "gemini"; }

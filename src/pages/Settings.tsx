@@ -141,19 +141,17 @@ export default function SettingsPage() {
             </div>
             <div>
               <Label className="font-body text-sm">AI Provider</Label>
-              <select value={provider} onChange={e => setProvider(e.target.value)} className="w-full font-body text-sm bg-card border border-border rounded-lg px-3 py-2">
-                <option value="gemini">Google Gemini (Free)</option>
-                <option value="groq">Groq - Llama 3 (Free)</option>
-                <option value="openai">OpenAI GPT-4o</option>
-                <option value="mistral">Mistral (Free)</option>
+              <select value={provider} onChange={e => { setProvider(e.target.value); setApiKey(""); }} className="w-full font-body text-sm bg-card border border-border rounded-lg px-3 py-2">
+                <option value="gemini">Google Gemini (Flash + Pro)</option>
+                <option value="qwen">Qwen 3.8 Max</option>
               </select>
             </div>
             <div>
               <Label className="font-body text-sm">API Key</Label>
-              <Input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="Your API key (optional for free providers)" className="font-body font-mono text-sm" />
+              <Input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder={provider === "qwen" ? "Alibaba Cloud API key (matching the configured region)" : "Google Gemini API key"} className="font-body font-mono text-sm" />
               <p className="font-body text-xs text-muted-foreground flex items-start gap-1.5 mt-1.5">
                 <span className="shrink-0">🔒</span>
-                <span>Secure & Stateless: Your key is encrypted in transit and never stored in our database. Use your own key to bypass public server limits (503 errors) and enable bulk auditing.</span>
+                <span>A saved key is stored in this browser and sent to the backend for the selected provider. Leave blank to use a server-configured key. Both providers may charge for usage.</span>
               </p>
             </div>
             <div className="flex gap-3">
