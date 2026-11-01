@@ -243,7 +243,7 @@ export default function About() {
         <section className="space-y-6">
           <h2 className="font-display text-2xl text-center uppercase">Scoring Methodology Details</h2>
           <p className="font-body text-sm text-muted-foreground text-center max-w-2xl mx-auto">
-            The current scoring guide uses penalty and reward points from the original Indonesia-focused methodology. Asia-wide positioning does not change these weights or make this an Asia-wide compliance score. Check each report’s scoring breakdown and country evidence.
+            Points are applied to the Asian markets where a company operates, including Indonesia. Reports analysed before the Asia expansion were scored on Indonesia only — check each report’s scoring breakdown and affected countries before citing it.
           </p>
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
@@ -257,17 +257,17 @@ export default function About() {
                 </thead>
                 <tbody>
                   {[
-                    { factor: "Strategic Silence", points: "+35", condition: "Indonesia not mentioned in cage-free context", penalty: true },
-                    { factor: "Geographic Exclusion", points: "+30", condition: "Indonesia explicitly excluded", penalty: true },
+                    { factor: "Strategic Silence", points: "+35", condition: "Asian markets where the company operates are not mentioned in the cage-free commitment", penalty: true },
+                    { factor: "Geographic Exclusion", points: "+30", condition: "One or more Asian markets explicitly excluded", penalty: true },
                     { factor: "Franchise Firewall", points: "+15", condition: "Commitments limited to company-owned", penalty: true },
                     { factor: "Corporate Ghosting", points: "+15", condition: "No external accountability mechanism", penalty: true },
                     { factor: "Commitment Downgrade", points: "+15", condition: "Weakened language from previous years", penalty: true },
-                    { factor: "Timeline Deferral", points: "+10", condition: "Indonesia deadlines pushed beyond 2030", penalty: true },
+                    { factor: "Timeline Deferral", points: "+10", condition: "Asian market deadlines pushed beyond 2030 or later than other regions", penalty: true },
                     { factor: "Hedging Language", points: "+2 each", condition: "Non-binding phrases (max +10)", penalty: true },
                     { factor: "Availability Clause", points: "+5 each", condition: "Escape conditions (max +10)", penalty: true },
                     { factor: "Binding Language", points: "−3 each", condition: "Strong commitments (max −15)", penalty: false },
                     { factor: "Third-Party Audit", points: "−5", condition: "Independent verification exists", penalty: false },
-                    { factor: "Indonesia Data", points: "−10", condition: "Indonesia-specific progress reported", penalty: false },
+                    { factor: "Asian Market Data", points: "−10", condition: "Country-specific progress reported for Asian markets", penalty: false },
                   ].map((row, i) => (
                     <tr key={row.factor} className={`border-t border-border ${i % 2 === 1 ? "bg-muted/30" : ""}`}>
                       <td className="p-3 font-body text-sm font-bold">{row.factor}</td>
